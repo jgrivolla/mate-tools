@@ -1,0 +1,8 @@
+PredFeats, class se.lth.cs.srl.features.PredDependentFeatsFeature, size: 6, POSPrefix: 
+Size small/big: 3/6
+* - 1
+Fem - 4
+Masc - 6
+Pos - 5
+Pres - 3
+Sg - 2

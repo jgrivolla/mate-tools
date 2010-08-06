@@ -1,0 +1,7 @@
+PredParentPOS, class se.lth.cs.srl.features.PredDependentAttrFeature, size: 5, POSPrefix: 
+Size small/big: 3/5
+IN - 2
+NN - 5
+NNP - 3
+VBD - 4
+VBZ - 1

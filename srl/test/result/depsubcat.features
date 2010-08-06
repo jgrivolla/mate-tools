@@ -1,0 +1,5 @@
+DepSubCat, class se.lth.cs.srl.features.DepSubCatFeature, size: 3, POSPrefix: V
+Size small/big: 1/3
+MO - 1
+MO SB OC PUNC - 2
+OC - 3

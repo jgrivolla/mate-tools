@@ -1,0 +1,18 @@
+ChildDepSet+ChildPOSSet, class se.lth.cs.srl.features.QDoubleChildSetFeature, size: 16, POSPrefix: 
+Size small/big: 9/16
+APPO + NN
+LOC + IN
+NAME + NNP
+NMOD + DT
+NMOD + IN
+NMOD + NN
+OBJ + VBZ
+P + ''
+P + ,
+P + .
+P + ``
+PMOD + NN
+PMOD + NNS
+PRD + NN
+SBJ + EX
+SBJ + NNP

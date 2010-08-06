@@ -1,0 +1,12 @@
+ArgPOS+ChildDepSet, class se.lth.cs.srl.features.QSingleSetFeature, size: 10, POSPrefix: 
+Size small/big: 10/10
+LOC + IN
+LOC + NN
+NMOD + IN
+NMOD + NN
+OBJ + NNP
+OBJ + VBZ
+P + NNP
+P + VBZ
+SBJ + NNP
+SBJ + VBZ

@@ -1,0 +1,20 @@
+PredWord+ChildDepSet, class se.lth.cs.srl.features.QSingleSetFeature, size: 18, POSPrefix: 
+Size small/big: 7/18
+APPO + Englund
+LOC + 's
+LOC + director
+NAME + Englund
+NMOD + director
+NMOD + possibility
+NMOD + report
+NMOD + surprise
+OBJ + said
+P + 's
+P + Englund
+P + said
+PMOD + at
+PMOD + in
+PMOD + of
+PRD + 's
+SBJ + 's
+SBJ + said

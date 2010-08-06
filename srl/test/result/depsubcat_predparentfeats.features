@@ -1,0 +1,27 @@
+DepSubCat+PredParentFeats, class se.lth.cs.srl.features.QSingleSetFeature, size: 25, POSPrefix: 
+Size small/big: 1/25
+ + MO SB OC PUNC
+* +  
+* + NK
+* + NK AG OP
+* + NK NK NK NK
+* + NK NK OP
+* + OC
+Dat +  
+Inf + MO
+Past +  
+Past + NK AG OP
+Past + NK NK OP
+Past + OC
+Pl +  
+Pl + NK AG OP
+Pl + NK NK OP
+Pl + OC
+Sg +  
+Subj +  
+Subj + NK AG OP
+Subj + NK NK OP
+Subj + OC
+_ +  
+_ + NK
+_ + NK NK

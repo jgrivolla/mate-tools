@@ -1,0 +1,4 @@
+ArgPOS+DepSubCat, class se.lth.cs.srl.features.QSingleSingleFeature, size: 2, POSPrefix: V
+Size small/big: 2/2
+NNP + P OBJ P SBJ P
+VBZ + P OBJ P SBJ P

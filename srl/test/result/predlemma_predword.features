@@ -1,0 +1,23 @@
+PredLemma+PredWord, class se.lth.cs.srl.features.QSingleSingleFeature, size: 21, POSPrefix: 
+Size small/big: 4/21
+'' + '' - 11
+, + , - 15
+. + . - 21
+`` + `` - 5
+a + a - 8
+at + at - 19
+be + 's - 7
+director + director - 4
+englund + Englund - 17
+in + in - 12
+michael + Michael - 16
+mm + MMS - 20
+of + of - 9
+possibility + possibility - 1
+report + report - 2
+research + research - 18
+say + said - 3
+surprise + surprise - 10
+the + the - 13
+there + There - 6
+trade + trade - 14

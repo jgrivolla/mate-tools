@@ -1,0 +1,8 @@
+Position+ArgFeats, class se.lth.cs.srl.features.QSingleSetFeature, size: 6, POSPrefix: 
+Size small/big: 6/6
+* + A
+* + B
+Fem + B
+Masc + A
+Sg + A
+Sg + B
