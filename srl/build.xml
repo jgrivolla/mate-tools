@@ -6,10 +6,14 @@
 	<property name="src" value="${basedir}/src"/>
 	<property name="dist" value="${basedir}/dist"/>
 	<property name="lib" value="${basedir}/lib"/>
-	<property name="3rdparty" value="${basedir}/3rdparty"/>
+	<property name="LICENSE" value="${basedir}/LICENSE"/>
 	
 	<path id="classpath">
-		<pathelement location="${3rdparty}/liblinear/liblinear-1.51-with-deps.jar"/>
+		<pathelement location="${lib}/liblinear-1.51-with-deps.jar"/>
+		<pathelement location="${lib}/opennlp-tools-1.4.3.jar"/>
+		<pathelement location="${lib}/trove.jar"/>
+		<pathelement location="${lib}/maxent-2.5.2.jar"/>
+		<pathelement location="${lib}/anna.jar"/>
 		<pathelement location="${lib}/junit.jar"/>
 	</path>
 	
@@ -23,18 +27,21 @@
 	<target name="dist" description="Create dist" depends="compile">
 		<property name="distdir" value="${dist}/${ant.project.name}-${DSTAMP}"/>
 		<mkdir dir="${distdir}"/>
-		<jar jarfile="${distdir}/${ant.project.name}-${DSTAMP}.jar" basedir="${classes}"/>
-		<copy todir="${distdir}/3rdparty">
-		    <fileset dir="${3rdparty}" includes="**/*"/>
-		</copy>
-<!--		<copy todir="${distdir}/lib">
-			<fileset dir="${lib}" includes="**/*.jar"/>
+		<jar jarfile="${distdir}/${ant.project.name}-${DSTAMP}.jar">
+			<fileset dir="${classes}" includes="**/*.class"/>
+			<fileset file="${LICENSE}" includes="${LICENSE}"/>
+		</jar>
+		<copy todir="${distdir}/lib">
+			<fileset dir="${lib}" includes="**/*.jar" excludes="junit.jar"/>
 		</copy> 
-		For now this dir only contains junit.jar which is not really meant to be part of the distribution
-		-->
+		<copy todir="${distdir}/featuresets">
+			<fileset dir="featuresets" includes="**/*"/>
+		</copy>
+<!--    Should the source be included in the dist? 
 		<copy todir="${distdir}/src">
 			<fileset dir="${src}" includes="**/*.java"/>	
-		</copy>	
+		</copy> 
+-->	
 	</target>
 	
 	<target name="clean" description="Clean">

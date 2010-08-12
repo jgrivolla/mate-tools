@@ -1,0 +1,55 @@
+This file briefly describes the role of the libraries which are used
+by the SRL system and references their associated licenses.
+
+------------------------------------------------------------------------
+anna.jar
+
+mate-tools, version ???
+Homepage: http://code.google.com/p/mate-tools/
+License: GPL (see GPL.txt)
+
+The jar from mate-tools.
+Used for lemmatizing, pos tagging, morphological tagging and dependency
+parsing.
+
+------------------------------------------------------------------------
+liblinear-1.51-with-deps.jar
+
+liblinear (java implementation), version 1.51
+Homepage: http://www.bwaldvogel.de/liblinear-java/
+License: own license (see LL-LICENSE.txt)
+
+Powerful machine-learning library.
+Used for training models in the SRL system.
+
+------------------------------------------------------------------------
+maxent-2.5.1.jar
+
+Maxent, version 2.5.1 
+Homepage: http://maxent.sourceforge.net/
+License: LGPL (see LGPL.txt)
+
+Package for training and using maximum entropy models.
+Used by OpenNLP tools to train models.
+
+------------------------------------------------------------------------
+opennlp-tools-1.4.3.jar
+
+OpenNLP Tools, version 1.4.3
+Homepage: http://opennlp.sourceforge.net/
+License: LGPL (see LGPL.txt)
+
+Package that provides various NLP tools.
+Used for the tokenization step in the pipeline.
+
+------------------------------------------------------------------------
+trove.jar
+
+GNU Trove, version 1.0.2
+Homepage: http://trove4j.sf.net
+License: LGPL (see LGPL.txt)
+
+High performance collections for Java.
+Used by OpenNLP Tools.
+
+------------------------------------------------------------------------
