@@ -12,6 +12,7 @@ import se.lth.cs.srl.options.ParseOptions;
 import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
 import se.lth.cs.srl.pipeline.Step;
+import se.lth.cs.srl.util.Util;
 
 public class Parse {
 	public static ParseOptions parseOptions;
@@ -21,14 +22,15 @@ public class Parse {
 		parseOptions=new ParseOptions(args);
 		
 		SemanticRoleLabeler srl;
-		ZipFile zipFile=new ZipFile(parseOptions.modelFile);
-		if(parseOptions.useReranker){
-			srl = Reranker.fromZipFile(zipFile,parseOptions.skipPI,parseOptions.global_alfa,parseOptions.global_aiBeam,parseOptions.global_acBeam);
-		} else {
-			srl = parseOptions.skipPI ? Pipeline.fromZipFile(zipFile,new Step[]{Step.pd,Step.ai,Step.ac}) : Pipeline.fromZipFile(zipFile);
-		}
-		zipFile.close();
 		
+		if(parseOptions.useReranker){
+			srl = new Reranker(parseOptions);
+			//srl = Reranker.fromZipFile(zipFile,parseOptions.skipPI,parseOptions.global_alfa,parseOptions.global_aiBeam,parseOptions.global_acBeam);
+		} else {
+			ZipFile zipFile=new ZipFile(parseOptions.modelFile);
+			srl = parseOptions.skipPI ? Pipeline.fromZipFile(zipFile,new Step[]{Step.pd,Step.ai,Step.ac}) : Pipeline.fromZipFile(zipFile);
+			zipFile.close();
+		}
 		
 		SentenceWriter writer=new CoNLL09Writer(parseOptions.output);
 		SentenceReader reader=parseOptions.skipPI ? new SRLOnlyCoNLL09Reader(parseOptions.inputCorpus) : new DepsOnlyCoNLL09Reader(parseOptions.inputCorpus);
@@ -46,6 +48,6 @@ public class Parse {
 		System.out.println("Done.");
 		System.out.println(srl.getStatus());
 		System.out.println();
-		System.out.println("Total execution time: "+SemanticRoleLabeler.insertCommas(totalTime)+"ms");
+		System.out.println("Total execution time: "+Util.insertCommas(totalTime)+"ms");
 	}
 }

@@ -1,5 +1,8 @@
 package se.lth.cs.srl.corpus;
 
+import is2.data.SentenceData09;
+import is2.io.CONLLReader09;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,12 +15,23 @@ public class Sentence extends ArrayList<Word> {
 	
 	private List<Predicate> predicates;
 	private Sentence() { 
-		Word BOS=new Word();
+		Word BOS=new Word(this);
 		super.add(BOS); //Add the root token
-		BOS.setMySentence(this);
 		predicates=new ArrayList<Predicate>();
 	}
+
+	public Sentence(SentenceData09 data){
+		this(data.forms,data.lemmas,data.ppos,data.pfeats);
+	}
 	
+	public Sentence(String[] words, String[] lemmas, String[] tags,	String[] morphs) {
+		this();
+		for(int i=0;i<words.length;++i){
+			Word nextWord=new Word(words[i],lemmas[i],tags[i],morphs[i],this);
+			super.add(nextWord);
+		}
+	}
+
 	private void addPredicate(Predicate pred){
 		predicates.add(pred);
 	}
@@ -88,6 +102,13 @@ public class Sentence extends ArrayList<Word> {
 			ret[i]=this.get(i).POS;
 		return ret;
 	}
+	public String[] getFeats(){
+		String[] ret=new String[this.size()];
+		ret[0]=CONLLReader09.NO_TYPE;
+		for(int i=1;i<this.size();++i)
+			ret[i]=this.get(i).getFeats();
+		return ret;
+	}
 	public void setHeadsAndDeprels(int[] heads,String[] deprels){
 		for(int i=0;i<heads.length;++i){
 			Word w=this.get(i+1);
@@ -100,8 +121,7 @@ public class Sentence extends ArrayList<Word> {
 		Word nextWord;
 		for(String line:lines){
 			String[] cols=Patterns.WHITESPACE_PATTERN.split(line,13);
-			nextWord=new Word(cols);
-			nextWord.setMySentence(ret);
+			nextWord=new Word(cols,ret);
 			ret.add(nextWord);
 		}
 		ret.buildDependencyTree();
@@ -114,13 +134,12 @@ public class Sentence extends ArrayList<Word> {
 		for(String line:lines){
 			String[] cols=Patterns.WHITESPACE_PATTERN.split(line);
 			if(cols[12].equals("Y")){
-				Predicate pred=new Predicate(cols);
+				Predicate pred=new Predicate(cols,ret);
 				ret.addPredicate(pred);
 				nextWord=pred;
 			} else {
-				nextWord=new Word(cols);
+				nextWord=new Word(cols,ret);
 			}
-			nextWord.setMySentence(ret);
 			ret.add(nextWord);	
 		}
 		ret.buildDependencyTree();
@@ -133,13 +152,12 @@ public class Sentence extends ArrayList<Word> {
 		for(String line:lines){
 			String[] cols=Patterns.WHITESPACE_PATTERN.split(line,13);
 			if(cols[12].charAt(0)=='Y'){
-				Predicate pred=new Predicate(cols);
+				Predicate pred=new Predicate(cols,ret);
 				ret.addPredicate(pred);
 				nextWord=pred;
 			} else {
-				nextWord=new Word(cols);
+				nextWord=new Word(cols,ret);
 			}
-			nextWord.setMySentence(ret);
 			ret.add(nextWord);	
 		}
 		ret.buildDependencyTree();

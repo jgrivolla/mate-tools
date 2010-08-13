@@ -48,4 +48,18 @@ public class English extends Language {
 			return !head.isBOS() && head.getForm().matches("(be|am|are|is|was|were|been)");
 	}
 
+	@Override
+	public L getL() {
+		return L.eng;
+	}
+
+	@Override
+	public String getLexiconURL(Predicate pred) {
+		if(pred.getPOS().startsWith("V")){
+			return "http://verbs.colorado.edu/propbank/framesets-english/"+pred.getLemma()+"-v.html";
+		} else {
+			return "http://nlp.cs.nyu.edu/meyers/nombank/nombank.1.0/frames/"+pred.getLemma()+".xml";
+		}
+	}
+
 }

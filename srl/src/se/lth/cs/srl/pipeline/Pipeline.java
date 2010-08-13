@@ -67,7 +67,7 @@ public class Pipeline extends SemanticRoleLabeler {
 	}
 	
 	@Override
-	public void parse(Sentence s){
+	protected void parse(Sentence s){
 		for(PipelineStep step:steps)
 			step.parse(s);
 	}

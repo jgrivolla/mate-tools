@@ -23,7 +23,13 @@ public abstract class Options {
 			System.exit(1);
 		}
 		int ai=0;
-		L lang=L.valueOf(args[ai]);
+		L lang=null;
+		try {
+			lang=L.valueOf(args[ai]);
+		} catch(Exception e){
+			System.err.println("Unknown language "+args[ai]+", aborting.");
+			System.exit(1);
+		}
 		ai++;
 		Language.setLanguage(lang);
 		inputCorpus=new File(args[ai]);
@@ -69,7 +75,7 @@ public abstract class Options {
 	abstract void usage();
 	protected void printUsageOptions(PrintStream out) {
 		out.println("Options:");
-		out.println(" -threads <int>    the number of threads used (not implemented now, for future use)");
+		//out.println(" -threads <int>    the number of threads used (not implemented now, for future use)");
 		out.println(" -aibeam <int>     the size of the ai-beam for the reranker");
 		out.println(" -acbeam <int>     the size of the ac-beam for the reranker");
 		out.println(" -help             prints this message");

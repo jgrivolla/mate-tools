@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import se.lth.cs.srl.Learn;
+import se.lth.cs.srl.languages.Language;
 import se.lth.cs.srl.pipeline.Step;
 
 public class LearnOptions extends Options {
@@ -23,11 +24,14 @@ public class LearnOptions extends Options {
 	
 	public File liblinearBinary;
 	public File tempDir;
-	private File featureFileDir=new File("features");
+	private File featureFileDir;
 	
 	public boolean skipNonMatchingPredicates=false;
 	public boolean trainReranker=false;
 	public boolean deleteTrainFiles=true;
+	
+	public boolean deterministicPipeline=false;
+	public boolean deterministicReranker=false;
 	
 	public boolean global_insertGoldMapForTrain=true;
 	public int global_numberOfCrossTrain=5;
@@ -63,8 +67,16 @@ public class LearnOptions extends Options {
 		} else if(args[ai].equals("-dontDeleteTrainData")){
 			ai++;
 			deleteTrainFiles=false;
+		} else if(args[ai].equals("-dPipeline")){
+			ai++;
+			deterministicPipeline=true;
+		} else if(args[ai].equals("-dReranker")){
+			ai++;
+			deterministicPipeline=true;
+			deterministicReranker=true;
+			trainReranker=true;
 		}
-		return ai;		
+		return ai;
 	}
 	@Override
 	void usage() {
@@ -79,8 +91,9 @@ public class LearnOptions extends Options {
 		super.printUsageLanguages(System.err);
 		System.err.println();
 		super.printUsageOptions(System.err);
-		System.err.println("");
+		System.err.println();
 		System.err.println("Learning-specific options:");
+		System.err.println(" -fdir <dir>             the directory with feature files (see below)");
 		System.err.println(" -reranker               trains a reranker also (not done by default)");
 		System.err.println(" -llbinary <file>        a reference to a precompiled version of liblinear,");
 		System.err.println("                         makes training much faster than the java version.");
@@ -91,6 +104,18 @@ public class LearnOptions extends Options {
 		System.err.println("                         the feature files.");
 		System.err.println(" -dontDeleteTrainData    doesn't delete the temporary files from training");
 		System.err.println("                         on exit. (For debug purposes)");
+		System.err.println(" -dPipeline              Causes the training data and feature mappings to be");
+		System.err.println("                         derived in a deterministic way. I.e. training the pipeline");
+		System.err.println("                         on the same corpus twice yields the exact same models.");
+		//There is some something undeterministic about the deterministic reranker. Needs to be looked into. TODO
+//		System.err.println(" -dReranker              Same as above, but with the reranker. This option implies");
+//		System.err.println("                         a deterministic pipeline as well. It also implies the");
+//		System.err.println("                         -reranker option (obviously)");
+		System.err.println();
+		System.err.println("The feature file dir needs to contain four files with feature sets. See");
+		System.err.println("the website for further documentation. The files are called");
+		System.err.println("pi.feats, pd.feats, ai.feats, and ac.feats");
+		System.err.println("All need to be in the feature file dir, otherwise you will get an error.");
 	}
 	@Override
 	boolean verifyArguments() {
@@ -117,6 +142,9 @@ public class LearnOptions extends Options {
 		tempDir.deleteOnExit();
 	}
 	private void verifyFeatureFiles() {
+		if(featureFileDir==null){
+			featureFileDir=new File("featuresets"+File.separator+Language.getLanguage().getL());
+		}
 		if(!featureFileDir.exists() || !featureFileDir.canRead()){
 			System.err.println("Feature file dir "+featureFileDir+" does not exist or can not be read. Aborting.");
 			System.exit(1);
@@ -134,6 +162,4 @@ public class LearnOptions extends Options {
 	public Map<Step, File> getFeatureFiles() {
 		return featureFiles;
 	}
-	
-	
 }

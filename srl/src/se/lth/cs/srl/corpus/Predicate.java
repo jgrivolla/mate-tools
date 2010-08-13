@@ -2,6 +2,9 @@ package se.lth.cs.srl.corpus;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+
+import se.lth.cs.srl.Learn;
 
 public class Predicate extends Word {
 	private static final long serialVersionUID = 1L;
@@ -16,23 +19,31 @@ public class Predicate extends Word {
 	 */
 	public Predicate(Word w){
 		super(w);
-		argmap=new HashMap<Word,String>();
+		if(Learn.learnOptions!=null && Learn.learnOptions.deterministicPipeline){
+			argmap=new TreeMap<Word,String>(mySentence.wordComparator);
+		} else {
+			argmap=new HashMap<Word,String>();
+		}
 	}
 	/**
 	 * Only use this constructor if you manually add the other attributes later on (i.e. in constructor Word(String CoNLL2009String))
 	 * @param sense the sense label of the predicate
 	 */
-	public Predicate(String[] CoNLL2009Columns){
-		super(CoNLL2009Columns);
+	public Predicate(String[] CoNLL2009Columns,Sentence s){
+		super(CoNLL2009Columns,s);
 		if(CoNLL2009Columns.length>13)
 			this.sense=CoNLL2009Columns[13];
-		argmap=new HashMap<Word,String>();
+		if(Learn.learnOptions!=null && Learn.learnOptions.deterministicPipeline){
+			argmap=new TreeMap<Word,String>(mySentence.wordComparator);
+		} else {
+			argmap=new HashMap<Word,String>();
+		}
 	}
 	
 	public Map<Word, String> getArgMap() {
 		return argmap;
 	}
-	public void setArgMap(HashMap<Word, String> argmap) {
+	public void setArgMap(Map<Word, String> argmap) {
 		this.argmap = argmap;
 	}
 	public void addArgMap(Word w,String label){

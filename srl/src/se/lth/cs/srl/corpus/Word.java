@@ -4,21 +4,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+
+import se.lth.cs.srl.Learn;
 
 public class Word implements Serializable{
 	private static final long serialVersionUID = 12;
-	
-	public static final String AFTER = "After";
-	public static final String BEFORE = "Before";
-	public static final String ON = "On";
-	
+		
 	public static enum WordData { Form, Lemma, POS, Deprel, Pred };
 	
-	Sentence mySentence;
+	final Sentence mySentence;
 	String[] args;
 	
 	String Form;
@@ -36,7 +34,8 @@ public class Word implements Serializable{
 	Word potentialArgument; //This is basically an attribute of Predicate rather than Word,
 							//but this way things work smoother with the features.
 	
-	public Word() {
+	//BOS constructor.
+	public Word(Sentence s) {
 		isBOS=true;
 		children=new HashSet<Word>();
 		this.Form="<ROOT-FORM>";
@@ -51,7 +50,7 @@ public class Word implements Serializable{
 		this.POS="";
 		this.Feats="";
 		this.Deprel="";
-		
+		this.mySentence=s;
 	}
 	
 	public Word(String form,String lemma,String POS,String feats,Sentence mySentence){
@@ -60,7 +59,12 @@ public class Word implements Serializable{
 		this.POS=POS;
 		this.Feats=feats;
 		this.mySentence=mySentence;
-		children=new HashSet<Word>();
+		//children=new HashSet<Word>();
+		if(Learn.learnOptions!=null && Learn.learnOptions.deterministicPipeline){
+			children=new TreeSet<Word>(mySentence.wordComparator);
+		} else {
+			children=new HashSet<Word>();
+		}
 	}
 	
 	/**
@@ -87,14 +91,16 @@ public class Word implements Serializable{
 		head.children.add(this);
 	}
 	
-	public Word(String[] CoNLL2009Columns){
-		this.Form=CoNLL2009Columns[1];
-		this.Lemma=CoNLL2009Columns[3];
-		this.POS=CoNLL2009Columns[5];
-		this.Feats=CoNLL2009Columns[7];
+	public Word(String[] CoNLL2009Columns,Sentence s){
+		this(CoNLL2009Columns[1],CoNLL2009Columns[3],CoNLL2009Columns[5],CoNLL2009Columns[7],s);
+//		this.Form=CoNLL2009Columns[1];
+//		this.Lemma=CoNLL2009Columns[3];
+//		this.POS=CoNLL2009Columns[5];
+//		this.Feats=CoNLL2009Columns[7];
+//		this.mySentence=s;
+//		children=new TreeSet<Word>(s.wordComparator);
 		this.headID=Integer.parseInt(CoNLL2009Columns[9]);
 		this.Deprel=CoNLL2009Columns[11];
-		children=new HashSet<Word>();
 		if(CoNLL2009Columns.length>=14){
 			args=new String[CoNLL2009Columns.length-14];
 			for(int i=0;i<args.length;++i){
@@ -171,11 +177,6 @@ public class Word implements Serializable{
 	protected void setChildren(HashSet<Word> children){
 		this.children=children;
 	}
-	public void setMySentence(Sentence mySentence) {
-		this.mySentence = mySentence;
-	}
-
-
 	
 	void clearArgArray(){
 		args=null;
@@ -233,53 +234,6 @@ public class Word implements Serializable{
 		}
 		return ret;
 	}	
-	
-	/**
-	 * Comparator used by method joinChildAttrs
-	 */
-	private static final Comparator<Word> wordComparator = new Comparator<Word>(){
-		public int compare(Word o1, Word o2) {
-			if(o1.mySentence!=o2.mySentence)
-				throw new Error("You are wrong here: Trying to sort words of different sentences");
-			Sentence mySentence=o1.mySentence;
-			if(mySentence.indexOf(o1) < mySentence.indexOf(o2)){
-				return -1;
-			} else if(mySentence.indexOf(o1) > mySentence.indexOf(o2)){
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-	};
-	public String joinChildAttrs(WordData attr,boolean sorted){
-		StringBuffer ret=new StringBuffer();
-		Set<Word> words=children;
-		Word[] t=words.toArray(new Word[0]);;
-		if(sorted){
-			Arrays.sort(t); //TODO this looks weird. Drop this block and the parameter sorted? Doesn't seem to be used anyway
-		} else {
-			Arrays.sort(t,wordComparator); //Sorted by word order in sentence
-		}
-		for(Word w:t)
-			ret.append(w.getAttr(attr)+" ");
-		return ret.toString().trim();
-	}
-	
-	/**
-	 * Compares the position of two words in a sentence.
-	 * @param w1 First word
-	 * @param w2 Second word
-	 * @return AFTER,BEFORE,ON or null. null if w1 and w2 is not same sentence
-	 */
-	public static String getPosition(Word w1,Word w2) {
-		if(w1.mySentence!=w2.mySentence) return null;
-		int a=w1.mySentence.indexOf(w1);
-		int b=w1.mySentence.indexOf(w2);
-		if (a-b<0) return BEFORE;
-		else if (a-b>0) return AFTER;
-		else return ON;
-	}
-
 
 	public static List<Word> findPath(Word pred,Word arg){
 		List<Word> predPath=pathToRoot(pred);
@@ -355,13 +309,4 @@ public class Word implements Serializable{
 		//ret.addAll(getDominated(children));
 		return ret;
 	}
-	/**
-	 * Compares words with respect to their order in a sentence.
-	 * Words are assumed to belong to the same sentence, and this is NOT checked during runtime. 
-	 * (And no exception is thrown, even if they don't)
-	 */
-//	@Override
-//	public int compareTo(Word arg0) {
-//		return mySentence.indexOf(this)-mySentence.indexOf(arg0);
-//	}
 }

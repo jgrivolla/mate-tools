@@ -28,4 +28,6 @@ public abstract class Language {
 	public abstract Pattern getFeatSplitPattern();
 	public abstract String getDefaultSense(String lemma);
 	public abstract String getCoreArgumentLabelSequence(Predicate pred,Map<Word, String> proposition);
+	public abstract L getL();
+	public abstract String getLexiconURL(Predicate pred);
 }

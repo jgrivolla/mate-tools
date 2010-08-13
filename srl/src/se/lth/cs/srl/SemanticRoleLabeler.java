@@ -3,6 +3,7 @@ package se.lth.cs.srl;
 import java.util.Date;
 
 import se.lth.cs.srl.corpus.Sentence;
+import se.lth.cs.srl.util.Util;
 
 public abstract class SemanticRoleLabeler {
 	
@@ -13,16 +14,16 @@ public abstract class SemanticRoleLabeler {
 		senCount++;
 		predCount+=s.getPredicates().size();
 	}
-	public abstract void parse(Sentence s);
+	protected abstract void parse(Sentence s);
 	
 	public String getStatus(){
 		StringBuilder ret=new StringBuilder("Semantic role labeler started at "+startDate+"\n");
-		ret.append("Loading time (ms)\t\t"+insertCommas(loadingTime)+"\n");
-		ret.append("Parsing time (ms)\t\t"+insertCommas(parsingTime)+"\n");
+		ret.append("Loading time (ms)\t\t"+Util.insertCommas(loadingTime)+"\n");
+		ret.append("Parsing time (ms)\t\t"+Util.insertCommas(parsingTime)+"\n");
 		ret.append("\n");
-		ret.append("Number of sentences\t"+insertCommas(senCount)+"\n");
-		ret.append("Number of predicates\t"+insertCommas(predCount)+"\n");
-		ret.append("Parsing speed (ms/sen)\t"+(parsingTime/senCount)+"\n");
+		ret.append("Number of sentences\t"+Util.insertCommas(senCount)+"\n");
+		ret.append("Number of predicates\t"+Util.insertCommas(predCount)+"\n");
+		ret.append("Parsing speed (ms/sen)\t"+((double) parsingTime/senCount)+"\n");
 		ret.append(getSubStatus());
 		return ret.toString();
 	}
@@ -34,14 +35,5 @@ public abstract class SemanticRoleLabeler {
 	public int predCount=0;
 	public final Date startDate=new Date();
 
-	public static String insertCommas(long l){
-		StringBuilder ret=new StringBuilder(Long.toString(l));
-		ret.reverse();
-		for(int i=3;i<ret.length();i+=4){
-			if(i+1<=ret.length())
-				ret.insert(i,",");
-		}
-		return ret.reverse().toString();
-	}
 
 }

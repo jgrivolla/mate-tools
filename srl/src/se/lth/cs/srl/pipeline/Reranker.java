@@ -18,6 +18,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import se.lth.cs.srl.Learn;
 import se.lth.cs.srl.SemanticRoleLabeler;
 import se.lth.cs.srl.corpus.ArgMap;
 import se.lth.cs.srl.corpus.Predicate;
@@ -33,6 +34,7 @@ import se.lth.cs.srl.ml.Model;
 import se.lth.cs.srl.ml.liblinear.Label;
 import se.lth.cs.srl.ml.liblinear.LibLinearLearningProblem;
 import se.lth.cs.srl.options.LearnOptions;
+import se.lth.cs.srl.options.ParseOptions;
 
 public class Reranker extends SemanticRoleLabeler {
 
@@ -64,10 +66,28 @@ public class Reranker extends SemanticRoleLabeler {
 	private int[] rankCount;
 	private int zeroArgMapCount=0;
 	
-	public static Reranker fromZipFile(ZipFile zipFile,boolean noPI,double alfa,int aiBeam,int acBeam) throws ZipException, IOException, ClassNotFoundException{
-		Pipeline pipeline= noPI ? Pipeline.fromZipFile(zipFile,new Step[]{Step.pd,Step.ai,Step.ac}) : Pipeline.fromZipFile(zipFile);
-		return new Reranker(pipeline,zipFile,noPI,alfa,aiBeam,acBeam);
+	public Reranker(ParseOptions parseOptions) throws ZipException, IOException, ClassNotFoundException{
+		this(parseOptions.global_alfa,parseOptions.skipPI,parseOptions.global_aiBeam,parseOptions.global_acBeam);
+		ZipFile zipFile=new ZipFile(parseOptions.modelFile);
+		pipeline=noPI ? Pipeline.fromZipFile(zipFile, new Step[]{Step.pd,Step.ai,Step.ac}) : Pipeline.fromZipFile(zipFile);
+		System.out.println("Loading reranker from "+zipFile.getName());
+		if(noPI) System.out.println("Skipping predicate identification. Input is assumed to have predicates identified.");	
+		argLabels=pipeline.getArgLabels();
+		populateRerankerFeatureSets(pipeline.getFeatureSets(),pipeline.getFg());
+		ObjectInputStream ois=new ObjectInputStream(zipFile.getInputStream(zipFile.getEntry(FILENAME)));
+		model=(Model) ois.readObject();
+		calsMap=(Map<String,Integer>) ois.readObject();
+		ois.close();
+		int i= noPI ? 1 : 2;
+		aiModule=(ArgumentIdentifier) pipeline.steps.get(i);
+		acModule=(ArgumentClassifier) pipeline.steps.get(i+1);
+		zipFile.close();
 	}
+	
+//	private static Reranker fromZipFile(ZipFile zipFile,boolean noPI,double alfa,int aiBeam,int acBeam) throws ZipException, IOException, ClassNotFoundException{
+//		Pipeline pipeline= noPI ? Pipeline.fromZipFile(zipFile,new Step[]{Step.pd,Step.ai,Step.ac}) : Pipeline.fromZipFile(zipFile);
+//		return new Reranker(pipeline,zipFile,noPI,alfa,aiBeam,acBeam);
+//	}
 	
 	private Reranker(double alfa,boolean noPI,int aiBeam,int acBeam){
 		this.alfa=alfa;
@@ -77,22 +97,22 @@ public class Reranker extends SemanticRoleLabeler {
 		rankCount=new int[aiBeam*acBeam];
 	}
 	
-	@SuppressWarnings("unchecked")
-	private Reranker(Pipeline pipeline,ZipFile zipFile, boolean noPI, double alfa,int aiBeam,int acBeam) throws IOException, ClassNotFoundException {
-		this(alfa,noPI,aiBeam,acBeam);
-		System.out.println("Loading reranker from "+zipFile.getName());
-		if(noPI) System.out.println("Skipping predicate identification. Input is assumed to have predicates identified.");	
-		argLabels=pipeline.getArgLabels();
-		populateRerankerFeatureSets(pipeline.getFeatureSets(),pipeline.getFg());
-		ObjectInputStream ois=new ObjectInputStream(zipFile.getInputStream(zipFile.getEntry(FILENAME)));
-		model=(Model) ois.readObject();
-		calsMap=(Map<String,Integer>) ois.readObject();
-		ois.close();
-		this.pipeline=pipeline;
-		int i= noPI ? 1 : 2;
-		aiModule=(ArgumentIdentifier) pipeline.steps.get(i);
-		acModule=(ArgumentClassifier) pipeline.steps.get(i+1);
-	}
+//	@SuppressWarnings("unchecked")
+//	private Reranker(Pipeline pipeline,ZipFile zipFile, boolean noPI, double alfa,int aiBeam,int acBeam) throws IOException, ClassNotFoundException {
+//		this(alfa,noPI,aiBeam,acBeam);
+//		System.out.println("Loading reranker from "+zipFile.getName());
+//		if(noPI) System.out.println("Skipping predicate identification. Input is assumed to have predicates identified.");	
+//		argLabels=pipeline.getArgLabels();
+//		populateRerankerFeatureSets(pipeline.getFeatureSets(),pipeline.getFg());
+//		ObjectInputStream ois=new ObjectInputStream(zipFile.getInputStream(zipFile.getEntry(FILENAME)));
+//		model=(Model) ois.readObject();
+//		calsMap=(Map<String,Integer>) ois.readObject();
+//		ois.close();
+//		this.pipeline=pipeline;
+//		int i= noPI ? 1 : 2;
+//		aiModule=(ArgumentIdentifier) pipeline.steps.get(i);
+//		acModule=(ArgumentClassifier) pipeline.steps.get(i+1);
+//	}
 	
 	
 	public Reranker(LearnOptions learnOptions,ZipOutputStream zos) throws IOException{
@@ -162,7 +182,7 @@ public class Reranker extends SemanticRoleLabeler {
 	}
 	
 	@Override
-	public void parse(Sentence sen){
+	protected void parse(Sentence sen){
 		pipeline.steps.get(0).parse(sen);
 		if(!noPI)
 			pipeline.steps.get(1).parse(sen);
@@ -312,11 +332,19 @@ public class Reranker extends SemanticRoleLabeler {
 		for(int i=0;i<numberOfPartitions;++i){
 			subCorpora.add(new ArrayList<Sentence>());
 		}
-		for(Sentence s:sentences){
-//			if(s.getPredicates().size()==0) //TODO uncomment this and verify that we get the same figures (roughly, seeing as no two rerankers come out identical anyway)
-//				continue;
-			int index=(int) Math.floor(Math.random()*numberOfPartitions);
-			subCorpora.get(index).add(s);
+		if(Learn.learnOptions.deterministicReranker){
+			int senCount=0;
+			for(Sentence s:sentences){
+				subCorpora.get(senCount%numberOfPartitions).add(s);
+				senCount++;
+			}
+		} else {
+			for(Sentence s:sentences){
+				//			if(s.getPredicates().size()==0) //TODO uncomment this and verify that we get the same figures (roughly, seeing as no two rerankers come out identical anyway)
+				//				continue;
+				int index=(int) Math.floor(Math.random()*numberOfPartitions);
+				subCorpora.get(index).add(s);
+			}
 		}
 		return subCorpora;
 	}
@@ -331,7 +359,7 @@ public class Reranker extends SemanticRoleLabeler {
 		ret.append("Reranker choices:\n");
 		ret.append("Rank\tFrequency\n");
 		for(int i=0;i<rankCount.length;++i){
-			ret.append((i+1)+"\t"+rankCount[i]);
+			ret.append((i+1)+"\t"+rankCount[i]+"\n");
 		}
 		ret.append("\n");
 		ret.append("Number of zero size argmaps:\t"+zeroArgMapCount+"\n");

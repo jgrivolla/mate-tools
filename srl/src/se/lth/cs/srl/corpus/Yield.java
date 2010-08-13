@@ -14,6 +14,7 @@ public class Yield extends TreeSet<Word> implements Comparable<Yield>{
 		return argLabel;
 	}
 	public Yield(Predicate pred,Sentence sen,String argLabel){
+		super(sen.wordComparator);
 		this.pred=pred;
 		this.sen=sen;
 		this.argLabel=argLabel;

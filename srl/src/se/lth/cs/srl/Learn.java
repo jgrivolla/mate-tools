@@ -10,6 +10,7 @@ import se.lth.cs.srl.io.SentenceReader;
 import se.lth.cs.srl.options.LearnOptions;
 import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
+import se.lth.cs.srl.util.Util;
 
 public class Learn {
 
@@ -17,8 +18,10 @@ public class Learn {
 	
 	
 	public static void main(String[] args) throws IOException{
+		long startTime=System.currentTimeMillis();
 		learnOptions=new LearnOptions(args);
 		learn();
+		System.out.println("Total time consumtion: "+Util.insertCommas(System.currentTimeMillis()-startTime)+"ms");
 	}
 	
 	private static void learn() throws IOException {

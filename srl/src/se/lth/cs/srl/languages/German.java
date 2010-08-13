@@ -43,5 +43,16 @@ public class German extends Language {
 		Word head=pred.getHead();
 		return !head.isBOS() && pred.getPOS().equals("VVPP") && head.getLemma().equals("werden");
 	}
+
+	@Override
+	public L getL() {
+		return L.ger;
+	}
+
+	@Override
+	public String getLexiconURL(Predicate pred) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
