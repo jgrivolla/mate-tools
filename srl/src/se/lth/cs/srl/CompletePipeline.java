@@ -21,6 +21,7 @@ import se.lth.cs.srl.options.HttpOptions;
 import se.lth.cs.srl.options.ParseOptions;
 import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
+import se.lth.cs.srl.pipeline.Step;
 import se.lth.cs.srl.preprocessor.Preprocessor;
 import se.lth.cs.srl.util.Patterns;
 import se.lth.cs.srl.util.Util;
@@ -44,7 +45,11 @@ public class CompletePipeline {
 			srl=new Reranker(parseOptions);
 		} else {
 			ZipFile zipFile=new ZipFile(parseOptions.modelFile);
-			srl=Pipeline.fromZipFile(zipFile);
+			if(parseOptions.skipPI){
+				srl=Pipeline.fromZipFile(zipFile, new Step[]{Step.pd,Step.ai,Step.ac});
+			} else {
+				srl=Pipeline.fromZipFile(zipFile);
+			}
 			zipFile.close();
 		}
 	}
@@ -82,6 +87,27 @@ public class CompletePipeline {
 		dpTime+=(System.currentTimeMillis()-start);
 		s.setHeadsAndDeprels(out.getParents(),out.getLabels());
 		s.buildDependencyTree();
+		srl.parseSentence(s);
+		return s;
+	}
+	
+	public Sentence parseOraclePI(List<String> words,List<Boolean> isPred) throws Exception{
+		Sentence s=pp.preprocess(words.toArray(new String[0]));
+		SentenceData09 sen=new SentenceData09();
+		sen.init(s.getFormArray());
+		sen.setPPos(s.getPOSArray());
+		if(pp.hasMorphTagger())
+			sen.setFeats(s.getFeats());
+		long start=System.currentTimeMillis();
+		SentenceData09 out=dp.parse(sen);
+		dpTime+=(System.currentTimeMillis()-start);
+		s.setHeadsAndDeprels(out.getParents(),out.getLabels());
+		s.buildDependencyTree();
+		for(int i=0;i<isPred.size();++i){
+			if(isPred.get(i)){
+				s.makePredicate(i+1);
+			}
+		}
 		srl.parseSentence(s);
 		return s;
 	}
@@ -136,21 +162,25 @@ public class CompletePipeline {
 		BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(parseOptions.inputCorpus),Charset.forName("UTF-8")));
 		String str;
 		List<String> forms=new ArrayList<String>();
+		List<Boolean> isPred=new ArrayList<Boolean>();
 		SentenceWriter writer=new CoNLL09Writer(parseOptions.output);
 		int senCount=0;
 		long start=System.currentTimeMillis();
 		while ((str = in.readLine()) != null) {
 			if(str.trim().equals("")){
-				Sentence s=pipeline.parse(forms);
+				Sentence s=parseOptions.skipPI ? pipeline.parseOraclePI(forms, isPred) : pipeline.parse(forms);
 				forms.clear();
+				isPred.clear();
 				writer.write(s);
 				senCount++;
 				if(senCount%100==0){
 					System.out.println("Processing sentence "+senCount);
 				}
 			} else {
-				String[] tokens=Patterns.WHITESPACE_PATTERN.split(str,3);
+				String[] tokens=Patterns.WHITESPACE_PATTERN.split(str);
 				forms.add(tokens[1]);
+				if(parseOptions.skipPI)
+					isPred.add(tokens[12].equals("Y"));
 			}
 		}
 		in.close();
