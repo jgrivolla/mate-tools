@@ -53,71 +53,7 @@ public final class Edges {
 		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
 
     	is2.util.DB.println("set default label to "+types[def[0]]+" " );
-/*
-    	for(int i=0; i<edges.length;i++) {
-    		
-    	   	for(int j=0; j<edges[i].length;j++) {
-  
-    	   		if(edges[i][j][0]!=null) {
-    	   		//	Arrays.sort(edges[i][j][0]);
-    	   			ArrayList<Short> l = new ArrayList<Short>();
-    	   			for (short s : edges[i][j][0]){
-    	   				l.add(s);
-    	   			}
-    	   			//Collections.reverse(l);
-    	   			
-    	   			//Collections.sort(l,new C(i+"-"+j+true));
-    	   			TIntHashSet it  = new TIntHashSet();
-    	   			HashSet<Short> set = new HashSet<Short>();
-    	   			for (short s : edges[i][j][0]){
-    	   				set.add(s);
-    	   				it.add(s);
-    	   			}
-    	   			l.clear();
-    	   			l.addAll(set);
-    	   			Collections.reverse(l);
-      	   			TIntIterator itt = it.iterator();
-      	   		    	
-      	   			for (int k =l.size()-1;k>=0;k--){
-        	   			//edges[i][j][0][k]=l.get(k);     
-        	   			edges[i][j][0][k]=(short)itt.next();
-    	   			}
-    	   			
-    	   		}
-       	   		if(edges[i][j][1]!=null) {
-    	   			//Arrays.sort(edges[i][j][1]);
-    	   			ArrayList<Short> l = new ArrayList<Short>();
-    	   			for (short s : edges[i][j][1]){
-    	   				l.add(s);
-    	   			}
-    	   			
-    				TIntHashSet it  = new TIntHashSet();
 
-    	   			HashSet<Short> set = new HashSet<Short>();
-    	   			for (short s : edges[i][j][1]){
-    	   				set.add(s);
-    	   				it.add(s);
-    	   			}
-    	   			l.clear();
-    	   			l.addAll(set);
-    	   			Collections.reverse(l);
-    	   			
-    	   		
-    	   			//		System.out.print(""+e.getKey()+" ");
-    	   			TIntIterator itt = it.iterator();
-    	   			//		System.out.print(""+e.getKey()+" ");
-    	   					
-    	   			for (int k =l.size()-1;k>=0;k--){
-        	   			//edges[i][j][1][k]=l.get(k);
-    	   				edges[i][j][1][k]=(short)itt.next();
-    	   			}
-    	   			
-    	   		}
-    	   		    	   	
-    	   	}
-    	}
-    	
-    	*/
 		System.out.println("found default "+def[0]);
 	//	System.exit(0);
 	}
