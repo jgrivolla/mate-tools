@@ -59,6 +59,18 @@ public class FeatureGenerator implements Serializable {
 		return new FeatureSet(fs);
 	}
 	
+	public Feature getFeature(String featureNameString,boolean includeAllWords,String POSPrefix){
+		if(featureNameString.contains("+")){
+			String[] s=featureNameString.split("\\+");
+			FeatureName fn1=FeatureName.valueOf(s[0]);
+			FeatureName fn2=FeatureName.valueOf(s[1]);
+			return getQFeature(fn1,fn2,includeAllWords,POSPrefix);
+		} else {
+			FeatureName fn=FeatureName.valueOf(featureNameString);
+			return getFeature(fn,includeAllWords,POSPrefix);
+		}
+	}
+	
 	public Feature getFeature(FeatureName fn,boolean includeAllWords,String POSPrefix){
 		Feature ret;
 		if(cache.containsKey(fn)){
@@ -139,7 +151,7 @@ public class FeatureGenerator implements Serializable {
 				if(f1 instanceof ChildSetFeature && f2 instanceof ChildSetFeature){
 					ret=new QDoubleChildSetFeature((ChildSetFeature) f1,(ChildSetFeature) f2,includeAllWords,POSPrefix);
 				} else {
-					throw new Error("Features "+f1.getName()+" and "+f2.getName()+" can not be combined. Change your feature file");
+					throw new IllegalArgumentException("Features "+f1.getName()+" and "+f2.getName()+" can not be combined. Change your feature file");
 				}
 			}
 		}
@@ -159,6 +171,13 @@ public class FeatureGenerator implements Serializable {
 		} else {
 			return f2.toString()+"+"+f1.toString();
 		}
+	}
+	
+	public static String getCanonicalName(FeatureName fn1,FeatureName fn2){
+		if(fn2==null)
+			return fn1.toString();
+		else
+			return getCanonicalQFeatureName(fn1,fn2);
 	}
 	
 	public Feature getCachedFeature(String featureNameString){

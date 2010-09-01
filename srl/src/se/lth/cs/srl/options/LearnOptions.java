@@ -38,6 +38,8 @@ public class LearnOptions extends Options {
 	
 	private Map<Step,File> featureFiles;
 
+	LearnOptions(){}
+	
 	public LearnOptions(String[] args) {
 		superParseCmdLine(args);
 	}
@@ -124,13 +126,13 @@ public class LearnOptions extends Options {
 			System.err.println("The provided liblinear binary does not exists or can not be executed. Aborting.");
 			System.exit(1);
 		}
-		setupTempDir();
+		tempDir=setupTempDir();
 		return true;
 	}
-	private void setupTempDir() {
+	public static File setupTempDir() {
 		String curDateTime=new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 		String tempDirPath=System.getProperty("java.io.tmpdir")+File.separator+"srl_"+curDateTime;
-		tempDir=new File(tempDirPath);
+		File tempDir=new File(tempDirPath);
 		if(tempDir.exists()){
 			throw new Error("Temporary dir "+tempDir+" already exists. Look into this.");
 		} else { 
@@ -140,6 +142,7 @@ public class LearnOptions extends Options {
 			System.out.println("Using temporary directory "+tempDir);
 		}
 		tempDir.deleteOnExit();
+		return tempDir;
 	}
 	private void verifyFeatureFiles() {
 		if(featureFileDir==null){

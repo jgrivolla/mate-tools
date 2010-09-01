@@ -1,7 +1,10 @@
 package se.lth.cs.srl.features;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -76,5 +79,18 @@ public class FeatureFile {
 			}
 		}
 		out.flush();
+	}
+	
+	public static void writeToFile(List<Feature> features,String POSPrefix,List<String> comments,File file) throws FileNotFoundException{
+		PrintWriter out=new PrintWriter(new BufferedOutputStream(new FileOutputStream(file)));
+		out.println(POSPrefix);
+		for(int i=0;i<features.size();++i){
+			Feature f=features.get(i);
+			out.print(f.getName()+" - size: "+f.size(false)+"/"+f.size(true));
+			if(i<comments.size())
+				out.print(" # "+comments.get(i));
+			out.println();
+		}
+		out.close();
 	}
 }

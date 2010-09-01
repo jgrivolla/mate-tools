@@ -75,8 +75,13 @@ public abstract class AbstractCoNLL09Reader implements SentenceReader {
 	}
 	
 	@Override
-	public void close() throws IOException{
-		in.close();
+	public void close()  {
+		try {
+			in.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private class SentenceIterator implements Iterator<Sentence> {

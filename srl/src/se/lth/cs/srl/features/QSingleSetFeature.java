@@ -6,15 +6,12 @@ import se.lth.cs.srl.corpus.Word;
 
 public class QSingleSetFeature extends SetFeature implements QuadraticFeature {
 	private static final long serialVersionUID = 1L;
-
-	private FeatureName name2;
 	
 	private SingleFeature f1;
 	private SetFeature f2;
 	
 	protected QSingleSetFeature(SingleFeature f1,SetFeature f2,boolean usedForPredicateIdentification,String POSPrefix) {
 		super(f1.name, f1.includeArgs || f2.includeArgs, usedForPredicateIdentification, POSPrefix);
-		this.name2=f2.name;
 		this.f1=f1;
 		this.f2=f2;
 	}
@@ -46,7 +43,7 @@ public class QSingleSetFeature extends SetFeature implements QuadraticFeature {
 	}
 
 	public String getName(){
-		return name.toString()+"+"+name2.toString();
+		return FeatureGenerator.getCanonicalName(f1.name, f2.name);
 	}
 
 }

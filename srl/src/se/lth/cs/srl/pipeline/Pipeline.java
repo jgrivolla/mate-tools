@@ -37,7 +37,15 @@ public class Pipeline extends SemanticRoleLabeler {
 	
 	List<PipelineStep> steps;
 	private Pipeline(FeatureGenerator fg, Map<Step, FeatureSet> featureSets, Iterable<Sentence> sentences){
-		extractLabels(sentences, featureSets.get(Step.pd).POSPrefixes); //TODO, sort of nasty.
+		
+		if(featureSets.containsKey(Step.pd)){
+			predicateReference=new PredicateReference(featureSets.get(Step.pd).POSPrefixes);
+		}
+		if(featureSets.containsKey(Step.ac)){
+			argLabels=new ArrayList<String>();
+		}
+		extractLabels(sentences,predicateReference,argLabels);	
+//		extractLabels(sentences, featureSets.get(Step.pd).POSPrefixes); //TODO, sort of nasty.
 		this.fg=fg;
 		this.featureSets=featureSets;
 		setup(featureSets,predicateReference,argLabels);
@@ -72,19 +80,41 @@ public class Pipeline extends SemanticRoleLabeler {
 			step.parse(s);
 	}
 	
-	void extractLabels(Iterable<Sentence> reader,String[] POSPrefixes) {
+	
+	
+//	void extractLabels(Iterable<Sentence> reader,String[] POSPrefixes) {
+//		System.out.println("Extracting argument labels and predicate senses.");
+//		predicateReference=new PredicateReference(POSPrefixes);
+//		Set<String> argLabelSet=new HashSet<String>();
+//		for(Sentence s:reader){
+//			for(Predicate p:s.getPredicates()){
+//				predicateReference.extractSense(p);
+//				argLabelSet.addAll(p.getArgMap().values());
+//			}
+//		}
+//		argLabels=new ArrayList<String>(argLabelSet);
+//		predicateReference.trim(); //have to trim to reduce number of models to train.
+//	}
+
+	public static void extractLabels(Iterable<Sentence> reader,PredicateReference predicateReference,List<String> argLabels) {
+		if(predicateReference==null && argLabels==null)
+			return;
 		System.out.println("Extracting argument labels and predicate senses.");
-		predicateReference=new PredicateReference(POSPrefixes);
 		Set<String> argLabelSet=new HashSet<String>();
 		for(Sentence s:reader){
 			for(Predicate p:s.getPredicates()){
-				predicateReference.extractSense(p);
-				argLabelSet.addAll(p.getArgMap().values());
+				if(predicateReference!=null)
+					predicateReference.extractSense(p);
+				if(argLabels!=null)
+					argLabelSet.addAll(p.getArgMap().values());
 			}
 		}
-		argLabels=new ArrayList<String>(argLabelSet);
-		predicateReference.trim(); //have to trim to reduce number of models to train.
+		if(argLabels!=null)
+			argLabels.addAll(argLabelSet);
+		if(predicateReference!=null)
+			predicateReference.trim();
 	}
+
 	
 	private void train(Iterable<Sentence> sentences, ZipOutputStream zos) throws IOException {
 		for(PipelineStep step:steps)
@@ -110,7 +140,7 @@ public class Pipeline extends SemanticRoleLabeler {
 		}
 	}
 
-	static Pipeline trainNewPipeline(Iterable<Sentence> sentences,FeatureGenerator fg,ZipOutputStream zos,Map<Step,FeatureSet> featureSets) throws IOException {
+	public static Pipeline trainNewPipeline(Iterable<Sentence> sentences,FeatureGenerator fg,ZipOutputStream zos,Map<Step,FeatureSet> featureSets) throws IOException {
 		//Then create the arglabel list and predicatereference
 		Pipeline pipeline=new Pipeline(fg,featureSets,sentences);
 		//pipeline.extractLabels(sentences, featureSets.get(Step.pd).POSPrefixes);
