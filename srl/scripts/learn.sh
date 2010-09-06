@@ -31,7 +31,7 @@ JVM_ARGS="-cp $CP -Xmx$MEM"
 
 
 #Execute
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Learn $lang $corpus $model $RERANKER $LLBINARY"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Learn $lang $corpus $model -dPipeline $RERANKER $LLBINARY"
 echo "Executing: $CMD"
 
 $CMD
