@@ -48,11 +48,9 @@ public abstract class Handler implements HttpHandler {
 				  "  <font size=\"-1\">\n" +
 				  "    <b>System composition</b>" +
 				  "    <ul><li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer</li>" +
-				  "    <li>POS-tagging - by Bernd Bohnet</li>" +
-				  "    <li>Lemmatization - by Bernd Bohnet</li>" +
+				  "    <li>POS-tagging, Lemmatization and Dependency Parser - by Bernd Bohnet</li>" +
 				  "    <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>"+
-				  "    <li>Dependency Parser - by Bernd Bohnet</li>" +
-				  "    <li>Semantic Role Labeler - based on LTH's contribution to CoNLL 2009</li></ul>" +
+				  "    <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li></ul>" +
 				  "  </font>\n" +
 				  "  <font size=\"-1\">For downloads and more information see <a href=\"http://code.google.com/p/mate-tools/\">http://code.google.com/p/mate-tools/</a>.</font>");
 		
