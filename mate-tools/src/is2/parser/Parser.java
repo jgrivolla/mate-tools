@@ -8,7 +8,7 @@ import is2.data.Instances;
 import is2.data.PipeGen;
 
 import is2.data.Long2IntInterface;
-import is2.data.MFO;
+
 import is2.data.Parse;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
@@ -80,9 +80,6 @@ public class Parser {
 		
 		System.out.println("Found " + runtime.availableProcessors()+" cores use "+THREADS);
        
-//		Long2IntInterface long2int = new Long2Int(options.hsize);
-//		Long2IntInterface long2int = new Long2Int();
-		
 
 		if (options.train) {
 			Long2IntInterface long2int = new Long2Int(options.hsize);
@@ -181,6 +178,8 @@ public class Parser {
 
 		Extractor.initFeatures();
 		Extractor.initStat();
+
+
 		for (int t=0;t<THREADS;t++) {
 			pipe.extractor[t].init();
 		}

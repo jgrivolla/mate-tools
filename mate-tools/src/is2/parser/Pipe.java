@@ -3,11 +3,12 @@ package is2.parser;
 import is2.data.DataF;
 import is2.data.F2SF;
 import is2.data.Instances;
-import is2.data.MFO;
+
 import is2.data.Parse;
 import is2.data.PipeGen;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
+
 import is2.util.OptionsSuper;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.io.IOException;
 final public class Pipe extends PipeGen {
 
 	public Extractor[] extractor;
-
+	//public CopyOfExtractor[] extractor;
 //	final public MFO mf = new MFO();
 
 	private OptionsSuper options;
@@ -88,7 +89,8 @@ final public class Pipe extends PipeGen {
 		MFO.calculateBits();
 		Extractor.initStat();
 		
-		for(Extractor e : extractor)e.init();
+		
+		for(Extractor e : extractor) e.init();
 
 		depReader.startReading(file);
 
@@ -98,6 +100,8 @@ final public class Pipe extends PipeGen {
 
 		Edges.init(MFO.getFeatureCounter().get(POS));
 
+		
+		
 		System.out.print("Creating Features: ");
 
 		del = 0;
@@ -117,6 +121,13 @@ final public class Pipe extends PipeGen {
 				Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.deprels[last][k]);
 			}
 
+			pos = is.gpos[last];
+
+			for (int k = 0; k < is.length(last); k++) {
+				if (is.heads[last][k] < 0)	continue;
+				Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.deprels[last][k]);
+			}
+			
 			if (!options.allFeatures && num1 > options.count) break;
 
 			num1++;
@@ -125,7 +136,6 @@ final public class Pipe extends PipeGen {
 		del = outValue(num1, del);
 
 		Edges.findDefault();
-
 
 		System.out.print(" processed "+is.size());
 	}
@@ -158,7 +168,7 @@ final public class Pipe extends PipeGen {
 		int threads=is.length(inst)>Parser.THREADS? Parser.THREADS:length;
 
 		ParallelExtract[] efp = new ParallelExtract[threads]; 
-		for(int i=0;i<efp.length;i++) efp[i]=new ParallelExtract(extractor[i],is, inst, d,(F2SF)params.clone(), pos);
+		for(int i=0;i<efp.length;i++) efp[i]= new ParallelExtract(extractor[i],is, inst, d,(F2SF)params.clone(), pos);
 
 
 		for (int w1 = 0; w1 < length; w1++) {

@@ -4,7 +4,6 @@ import is2.data.DataF;
 import is2.data.FV;
 import is2.data.IFV;
 import is2.data.Long2IntInterface;
-import is2.data.MFO;
 
 
 
@@ -580,7 +579,7 @@ final public class Extractor {
 
 			int dir= (heads[i] < i)? 0:1;
 
-			v += d2.p_link[heads[i]][i];
+			v += d2.pl[heads[i]][i];
 			v += d2.p_label[heads[i]][i][types[i]][dir];
 
 			boolean left = i<heads[i]; 

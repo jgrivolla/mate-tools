@@ -73,57 +73,51 @@ final public class ParallelDecoder extends Thread
 
 			for(short dir =1;dir>=0;dir--) {
 				
-				short[] labels = (dir==1) ? Edges.get(pos[s],pos[t], false):Edges.get(pos[t],pos[s], true);
+				short[] labs = (dir==1) ? Edges.get(pos[s],pos[t], false):Edges.get(pos[t],pos[s], true);
 
-				O[s][t][dir] = new Open[labels.length];
-				double linkScore;
-				if (dir==1) linkScore= x.p_link[s][t];
-				else linkScore= x.p_link[t][s];
+				O[s][t][dir] = new Open[labs.length];
+				double sc;
+				if (dir==1) sc= x.pl[s][t];
+				else sc= x.pl[t][s];
 
-				for (int l = labels.length - 1; l >= 0; l--) {
+				for (int l = labs.length - 1; l >= 0; l--) {
 					
-					short label = labels[l];
+					short lab = labs[l];
 
-					double labelScore;
-					if (dir==1)labelScore= x.p_label[s][t][label][0];
-					else labelScore= x.p_label[t][s][label][1];
+					double labScore;
+					if (dir==1)labScore= x.p_label[s][t][lab][0];
+					else labScore= x.p_label[t][s][lab][1];
 
-					double bestRScore = INIT_BEST; 
-					
-					// in-lined create open structure
-					
-					Closed bestLeftAll = null, bestRightAll = null;
+					double bRS = INIT_BEST; 
+										
+					Closed bestL = null, bestR = null;
 					
 					for (int r = s; r < t; r++) {
 						
 						if (s == 0 && r != 0) continue;
 						
-						double blScore = INIT_BEST,bestRightScore = INIT_BEST;
-						Closed bestLeft = null, bestRight = null;
+						double bl = INIT_BEST,br = INIT_BEST;
+						Closed bLCld = null, bRCld = null;
 						
-						if (r == s) blScore = dir==1 ? x.p_sib[s][t][s][0][l] : x.p_gra[t][s][s][1 ][l];
-						else 
-							for (int li = s + 1; li <= r; li++) {
-									
+						if (r == s) bl = dir==1 ? x.p_sib[s][t][s][0][l] : x.p_gra[t][s][s][1 ][l];
+						else for (int li = s + 1; li <= r; li++) {		
 								Closed  c = C[s][r][1][li];
 								double leftScore = (dir==1 ? x.p_sib[s][t][li][0][l] : x.p_gra[t][s][li][1][l]) + c.p;
-								if (leftScore > blScore) {blScore = leftScore;bestLeft = c;}
+								if (leftScore > bl) {bl = leftScore;bLCld = c;}
 							}
 					
-						if (r == t-1) bestRightScore = dir==1 ? x.p_gra[s][t][s][0][l] : x.p_sib[t][s][s][1][l];
+						if (r == t-1) br = dir==1 ? x.p_gra[s][t][s][0][l] : x.p_sib[t][s][s][1][l];
 						else
 							for (int ri = r + 1; ri < t; ri++) {
 								
 								Closed c = C[r + 1][t][0][ri];
-								double rightScore = (dir == 1 ? x.p_gra[s][t][ri][0][l] : x.p_sib[t][s][ri][1][l]) + c.p;
-								if (rightScore > bestRightScore) {bestRightScore = rightScore; bestRight = c;}
+								double rs = (dir == 1 ? x.p_gra[s][t][ri][0][l] : x.p_sib[t][s][ri][1][l]) + c.p;
+								if (rs > br) {br = rs; bRCld = c;}
 							}
-					
-						double rScore = blScore + bestRightScore;
 						
-						if (rScore > bestRScore) {bestRScore = rScore; bestLeftAll = bestLeft;bestRightAll = bestRight;}
+						if (bl + br > bRS) {bRS = bl + br; bestL = bLCld;bestR = bRCld;}
 					}
-					O[s][t][dir][l] = new Open(s, t, dir, label,bestLeftAll, bestRightAll, (float) ( bestRScore+linkScore + labelScore));					
+					O[s][t][dir][l] = new Open(s, t, dir, lab,bestL, bestR, (float) ( bRS+sc + labScore));					
 				}
 			}
 			C[s][t][1] = new Closed[n];
@@ -136,36 +130,34 @@ final public class ParallelDecoder extends Thread
 						// create closed structure
 						
 						int from = dir ? s : t, to = dir ? t : s;
-						int upperStart = dir ? s : m, upperEnd = dir ? m : t;
-						int lowerStart = dir ? m : s,lowerEnd = dir ? t : m;
-						int step = dir ? 1 : -1;
+						int us = dir ? s : m, ue = dir ? m : t;
+						int ls = dir ? m : s,e = dir ? t : m;
+						int st = dir ? 1 : -1;
 						
-						double bestScore = INIT_BEST;
+						double bS = INIT_BEST;
 						
-						Open bestUpper = null;
-						Closed bestLower = null;
+						Open bUp = null;
+						Closed bDo = null;
 						
-						int numLabels =O[upperStart][upperEnd][dir?1:0].length;
+						int cnt =O[us][ue][dir?1:0].length;
 						
-						for (int l = 0; l < numLabels; l++) {
+						for (int l = 0; l < cnt; l++) {
 							
-							Open upper = O[upperStart][upperEnd][dir?1:0][l];
-							for (int cmo = m + step; cmo != to + step; cmo += step) {							
-								double score = upper.p + C[lowerStart][lowerEnd][dir?1:0][cmo].p +x.p_gra[from][m][cmo][(dir?0:1)][l];				
-								if (score > bestScore) {bestScore = score; bestUpper = upper; bestLower=C[lowerStart][lowerEnd][dir?1:0][cmo];}
+							Open up = O[us][ue][dir?1:0][l];
+							for (int cmo = m + st; cmo != to + st; cmo += st) {							
+								double sc = up.p + C[ls][e][dir?1:0][cmo].p +x.p_gra[from][m][cmo][(dir?0:1)][l];				
+								if (sc > bS) {bS = sc; bUp = up; bDo=C[ls][e][dir?1:0][cmo];}
 							}
 						
 							if (m != to) continue;
 							
-							double score = upper.p + x.p_gra[from][m][from][(dir ? 0 :1)][l]; // linkFE.extractGrandchildFeatures(x,inst, from, m, -1, upper.type,sv);
+							double sc = up.p + x.p_gra[from][m][from][(dir ? 0 :1)][l]; // linkFE.extractGrandchildFeatures(x,inst, from, m, -1, upper.type,sv);
 								
-							if (score > bestScore) { bestScore = score; bestUpper = upper; bestLower = null;}
+							if (sc > bS) { bS = sc; bUp = up; bDo = null;}
 						}
-						C[s][t][dir?1:0][m] = new Closed(s, t, m, dir?1:0,bestUpper,bestLower,(float) bestScore);
+						C[s][t][dir?1:0][m] = new Closed(s, t, m, dir?1:0,bUp,bDo,(float) bS);
 					}
 				}
-
-			
 			}
 		}
 	}

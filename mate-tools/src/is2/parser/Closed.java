@@ -6,26 +6,26 @@ import is2.data.Parse;
 final public class Closed  {
 
 	public float p;
-	short start,end,modifier;
+	short b,e,m;
 	byte dir;
 	
-	Closed lower;
-	Open upper;
+	Closed d;
+	Open u;
 
-	public Closed(short s, short t, int m, int dir,Open upper, Closed lower, float score) {
-		start = s;
-		end = t;
-		modifier = (short)m;
+	public Closed(short s, short t, int m, int dir,Open u, Closed d, float score) {
+		this.b = s;
+		this.e = t;
+		this.m = (short)m;
 		this.dir = (byte)dir;
-		this.upper=upper;
-		this.lower =lower;
+		this.u=u;
+		this.d =d;
 		p=score;
 	}
 
 
 	public void createTree(Parse parse) {
-		if (upper != null) upper.createTree(parse);
-		if (lower != null) lower.createTree(parse);
+		if (u != null) u.createTree(parse);
+		if (d != null) d.createTree(parse);
 	}
 }
 

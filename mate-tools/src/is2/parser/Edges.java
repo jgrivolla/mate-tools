@@ -3,7 +3,7 @@
  */
 package is2.parser;
 
-import is2.data.MFO;
+//import gnu.trove.TIntHashSet;
 import is2.data.PipeGen;
 
 import java.io.DataInputStream;
@@ -22,7 +22,7 @@ public final class Edges {
 
 	
 	private static short[][][][] edges;
-
+//	static TIntHashSet[][][]  edgesh;
 	private static HashMap<Short,Integer> labelCount = new HashMap<Short,Integer>();
 
 	private static HashMap<String,Integer> slabelCount = new HashMap<String,Integer>();
@@ -37,25 +37,64 @@ public final class Edges {
 	 */
 	public static void init(int length) {
 			edges = new short[length][length][2][];
+	//		edgesh = new TIntHashSet[length][length][2];
 	}
 	
 	
 	public static void findDefault(){
+		
 		int best =0;
+
+		int total =0;
+		/*
+		for(int k=0;k<edges.length;k++) {
+			for(int j=0;j<edges.length;j++) {
+	
+	    		TIntHashSet it  =edgesh[k][j][0];
+	    		if (it!=null && it.size()>0) {
+	    			short[] labels = new short[it.size()];
+	    			TIntIterator itt = it.iterator();
+	    			for (int l = it.size() - 1; l >= 0; l--) {
+	    				labels[l]=(short)itt.next();
+	    			}
+	    		//	System.out.println("found n labes "+it.size()+ " before "+edges[k][j][0].length);
+	    		//	edges[k][j][0] = labels;
+	    		}
+	    		
+	    		it  =edgesh[k][j][1];
+				if (it !=null && it.size()>0 ) {
+					short[] labels = new short[it.size()];
+					TIntIterator itt = it.iterator();
+					for (int l = it.size() - 1; l >= 0; l--) {
+						labels[l]=(short)itt.next();
+					}
+			//		edges[k][j][1] = labels;
+				}
+			
+			}
+		}
+		*/
+		
+		System.out.println("total edge pos combinations "+total);
+		
 		for(Entry<Short,Integer> e :  labelCount.entrySet()) {
+
+			
 			if (best<e.getValue()) {
 				best = e.getValue();
 				def[0]=e.getKey();
 			}
 		}
-	//	labelCount=null;
+
+		
+		//	labelCount=null;
 		String[] types = new String[MFO.getFeatureCounter().get(PipeGen.REL)];
 		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
 
     	is2.util.DB.println("set default label to "+types[def[0]]+" " );
 
 		System.out.println("found default "+def[0]);
-	//	System.exit(0);
+	
 	}
 	
 
@@ -81,6 +120,9 @@ public final class Edges {
 		if (edges[pos1][pos2][dir?0:1]==null) {
 			edges[pos1][pos2][dir?0:1]=new short[1];
 			edges[pos1][pos2][dir?0:1][0]=label;
+			
+//			edgesh[pos1][pos2][dir?0:1] = new TIntHashSet(2);
+//			edgesh[pos1][pos2][dir?0:1].add(label);
 		} else {
 			short labels[] = edges[pos1][pos2][dir?0:1];
 			for(short l : labels) {				
@@ -92,6 +134,8 @@ public final class Edges {
 			System.arraycopy(labels, 0, nlabels, 0, labels.length);
 			nlabels[labels.length]=label;
 			edges[pos1][pos2][dir?0:1]=nlabels;
+			
+	//		edgesh[pos1][pos2][dir?0:1].add(label);
 		}
 	}
 	

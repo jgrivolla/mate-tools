@@ -1,1 +1,11 @@
-package info
+Package info
+<br><br>
+This package provides the classes for the dependency parser. The parser uses the following techniques: <br>
+- For dependency decoding, we use the decoder of (Carrears, 2007)<br> 
+- For training, we use Mira with Hash Kernel (Bohnet, 2010) <br>
+- For non-projective dependency parsing, we use the non-projective approximation algorithm (McDonald, 2006) adapted to the higher order decoder of Carrears and an adaption threshold (Bohnet, 2010)<br>
+
+<br><br>
+Changes:<br>
+BB: 2. Sep. 2010: I added to the mapping of part-of-speech to labels (pos-h, pos-d -> label-set), the gold part of speech combinations.
+<br>

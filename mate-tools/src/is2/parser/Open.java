@@ -6,30 +6,30 @@ import is2.data.Parse;
 final public  class Open {
 
 	public float p;
-	short start, end, type;
+	short s, e, label;
 	byte dir;
 
 	Closed left;
 	Closed right;
 
-	public Open(short s, short t, short dir, short label,Closed left, Closed right, float score) {
-		start = s;
-		end = t;
-		type = label;
+	public Open(short s, short t, short dir, short label,Closed left, Closed right, float p) {
+		this.s = s;
+		this.e = t;
+		this.label = label;
 		this.dir = (byte)dir;
 		this.left =left;
 		this.right=right;
-		p=score;
+		this.p=p;
 	}
 
 
 	void createTree(Parse parse) {
 		if (dir == 0) {
-			parse.heads[start] = end;
-			if (type != -1) parse.types[start] = type;
+			parse.heads[s] = e;
+			if (label != -1) parse.types[s] = label;
 		} else {
-			parse.heads[end] = start;
-			if (type != -1) parse.types[end] = type;
+			parse.heads[e] = s;
+			if (label != -1) parse.types[e] = label;
 		}
 		if (left != null) left.createTree(parse);
 		if (right != null) right.createTree(parse);

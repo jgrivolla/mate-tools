@@ -18,7 +18,9 @@ final public class ParallelExtract extends Thread
 	final DataF d;
 
 	// the data extractor does the actual work
+//	final Extractor extractor;
 	final Extractor extractor;
+
 
 	private Instances is;
 	private int i;
@@ -62,7 +64,7 @@ final public class ParallelExtract extends Thread
 
 			f.clear();
 			extractor.extractFeatures(pos, w1, w2, f);
-			d.p_link[w1][w2]=f.getScoreF();
+			d.pl[w1][w2]=f.getScoreF();
 
 			short[] labels = Edges.get(pos[w1], pos[w2],false);
 			float[][] lab = d.p_label[w1][w2];
