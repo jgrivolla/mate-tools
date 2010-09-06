@@ -1,0 +1,37 @@
+This folder contains some scripts to execute the system. They all need
+to be edited slightly before use with proper paths to corpora and/or
+models. They are meant to be executed from the parent directory, e.g.
+
+  cd $DIST_ROOT
+  sh scripts/learn.sh
+
+There are some comments in the script on switches etc. The amount of
+memory used is typically whats required for the English CoNLL 2009
+corpora. It might be possible to push it down a bit.
+
+
+Since the system grew out of the CoNLL 2009 ST, there are a couple of
+different ways to parse a corpus:
+
+(i) parse_full.sh - parses a complete corpus using all steps of the
+                    pipeline except tokenization. It pretty much
+                    assumes that that the file contains tokens in the
+                    second column and disregards the rest. 
+                    If the -nopi switch is used, it needs to have the
+                    IsPred column from the CoNLL 2009 data format.
+
+(ii) parse_srl_only.sh - parses semantic roles only. The input is
+                         expected to be the CoNLL 2009 data format
+                         with proper dependency trees (ie. the
+                         SRLonly evaluation corpus).
+                         In order to replicate the setting of the 2009
+                         ST, one can use the -nopi switch to skip the
+                         predicate identification step.
+
+
+Then there is also the HTTP interface. This is started by the
+run_http_server.sh script. Again, edit the file with proper paths
+before executing it.
+
+
+Feedback and questions are appreciated: anders.bjorkelund@cs.lth.se
