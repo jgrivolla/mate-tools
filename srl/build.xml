@@ -1,5 +1,5 @@
 <project name="srl" default="compile" basedir=".">
-
+	
 	<tstamp/>
 	
 	<property name="classes" value="${basedir}/classes"/>
@@ -16,19 +16,17 @@
 		<pathelement location="${lib}/anna.jar"/>
 		<pathelement location="${lib}/junit.jar"/>
 	</path>
-	
+		
 	<target name="compile" description="Compile source">
 		<mkdir dir="${classes}"/>
-		<javac srcdir="${src}" destdir="${classes}" debug="on">
-		  <classpath refid="classpath"/>
-		</javac>
+		<javac srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath"/>
 	</target>
 	
 	<target name="dist" description="Create dist" depends="compile">
 		<property name="distdir" value="${dist}/${ant.project.name}-${DSTAMP}"/>
 		<mkdir dir="${distdir}"/>
-		<jar jarfile="${distdir}/${ant.project.name}-${DSTAMP}.jar">
-			<fileset dir="${classes}" includes="**/*.class"/>
+		<jar jarfile="${distdir}/${ant.project.name}.jar">
+			<fileset dir="${classes}" includes="**/*.class" excludes="**/test/*"/>
 			<fileset file="${LICENSE}" includes="${LICENSE}"/>
 		</jar>
 		<copy todir="${distdir}/lib">
@@ -37,21 +35,24 @@
 		<copy todir="${distdir}/featuresets">
 			<fileset dir="featuresets" includes="**/*"/>
 		</copy>
-<!--    Should the source be included in the dist? 
+		<copy todir="${distdir}/scripts">
+			<fileset dir="scripts" includes="**/*"/>
+		</copy>
+<!--    Should the source be included in the dist? I think yes. --> 
 		<copy todir="${distdir}/src">
 			<fileset dir="${src}" includes="**/*.java"/>	
-		</copy> 
--->	
+		</copy> 	
 	</target>
 	
 	<target name="clean" description="Clean">
-		<delete dir="${classes}"/>
-		<delete dir="${dist}"/>
+		<delete dir="${classes}" failonerror="false"/>
+		<delete dir="${dist}" failonerror="false"/>
 	</target>
 	
 	<target name="test" description="Run unit tests" depends="compile">
 		<java classname="org.junit.runner.JUnitCore" classpath="classes:${lib}/junit.jar">
 			<arg value="se.lth.cs.srl.test.TestFeatures"/>
+			<arg value="se.lth.cs.srl.test.TestCALS"/>
 		</java>
 	</target>
 	
