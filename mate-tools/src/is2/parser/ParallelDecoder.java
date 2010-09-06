@@ -76,21 +76,15 @@ final public class ParallelDecoder extends Thread
 				short[] labs = (dir==1) ? Edges.get(pos[s],pos[t], false):Edges.get(pos[t],pos[s], true);
 
 				O[s][t][dir] = new Open[labs.length];
-				double sc;
-				if (dir==1) sc= x.pl[s][t];
-				else sc= x.pl[t][s];
+				double sc= (dir==1) ?  x.pl[s][t]: x.pl[t][s];
 
-				for (int l = labs.length - 1; l >= 0; l--) {
-					
+				for (int l = labs.length - 1; l >= 0; l--) {					
 					short lab = labs[l];
 
-					double labScore;
-					if (dir==1)labScore= x.p_label[s][t][lab][0];
-					else labScore= x.p_label[t][s][lab][1];
+					double labScore = (dir==1) ? x.p_label[s][t][lab][0] : x.p_label[t][s][lab][1];
 
-					double bRS = INIT_BEST; 
-										
-					Closed bestL = null, bestR = null;
+					double bRS = INIT_BEST; 				
+					Closed bLC = null, bRC = null;
 					
 					for (int r = s; r < t; r++) {
 						
@@ -102,8 +96,8 @@ final public class ParallelDecoder extends Thread
 						if (r == s) bl = dir==1 ? x.p_sib[s][t][s][0][l] : x.p_gra[t][s][s][1 ][l];
 						else for (int li = s + 1; li <= r; li++) {		
 								Closed  c = C[s][r][1][li];
-								double leftScore = (dir==1 ? x.p_sib[s][t][li][0][l] : x.p_gra[t][s][li][1][l]) + c.p;
-								if (leftScore > bl) {bl = leftScore;bLCld = c;}
+								if ((dir==1 ? x.p_sib[s][t][li][0][l] : x.p_gra[t][s][li][1][l]) + c.p > bl) {
+									bl = (dir==1 ? x.p_sib[s][t][li][0][l] : x.p_gra[t][s][li][1][l]) + c.p;bLCld = c;}
 							}
 					
 						if (r == t-1) br = dir==1 ? x.p_gra[s][t][s][0][l] : x.p_sib[t][s][s][1][l];
@@ -111,33 +105,28 @@ final public class ParallelDecoder extends Thread
 							for (int ri = r + 1; ri < t; ri++) {
 								
 								Closed c = C[r + 1][t][0][ri];
-								double rs = (dir == 1 ? x.p_gra[s][t][ri][0][l] : x.p_sib[t][s][ri][1][l]) + c.p;
-								if (rs > br) {br = rs; bRCld = c;}
+								if ((dir == 1 ? x.p_gra[s][t][ri][0][l] : x.p_sib[t][s][ri][1][l]) + c.p > br) {
+									br = (dir == 1 ? x.p_gra[s][t][ri][0][l] : x.p_sib[t][s][ri][1][l]) + c.p; bRCld = c;}
 							}
 						
-						if (bl + br > bRS) {bRS = bl + br; bestL = bLCld;bestR = bRCld;}
+						if (bl + br > bRS) {bRS = bl + br; bLC = bLCld;bRC = bRCld;}
 					}
-					O[s][t][dir][l] = new Open(s, t, dir, lab,bestL, bestR, (float) ( bRS+sc + labScore));					
+					O[s][t][dir][l] = new Open(s, t, dir, lab,bLC, bRC, (float) ( bRS+sc + labScore));					
 				}
 			}
-			C[s][t][1] = new Closed[n];
-			C[s][t][0] = new Closed[n];
+			C[s][t][1] = new Closed[n];	C[s][t][0] = new Closed[n];
 
 			for (int m = s ; m <= t; m++) {
 				for(boolean dir : DIR) {
-					if ((dir && m!=s)||(!dir) && (m!=t && s!=0)) {
-						
+					if ((dir && m!=s)||(!dir) && (m!=t && s!=0)) {			
 						// create closed structure
 						
-						int from = dir ? s : t, to = dir ? t : s;
-						int us = dir ? s : m, ue = dir ? m : t;
-						int ls = dir ? m : s,e = dir ? t : m;
-						int st = dir ? 1 : -1;
+						int from = dir ? s : t, to = dir ? t : s, us = dir ? s : m, 
+							 ue = dir ? m : t, ls = dir ? m : s,e = dir ? t : m, st = dir ? 1 : -1;
 						
 						double bS = INIT_BEST;
 						
-						Open bUp = null;
-						Closed bDo = null;
+						Open bUp = null;Closed bDo = null;
 						
 						int cnt =O[us][ue][dir?1:0].length;
 						
@@ -145,14 +134,13 @@ final public class ParallelDecoder extends Thread
 							
 							Open up = O[us][ue][dir?1:0][l];
 							for (int cmo = m + st; cmo != to + st; cmo += st) {							
-								double sc = up.p + C[ls][e][dir?1:0][cmo].p +x.p_gra[from][m][cmo][(dir?0:1)][l];				
-								if (sc > bS) {bS = sc; bUp = up; bDo=C[ls][e][dir?1:0][cmo];}
+								if (up.p + C[ls][e][dir?1:0][cmo].p +x.p_gra[from][m][cmo][(dir?0:1)][l] > bS) {
+									bS = up.p + C[ls][e][dir?1:0][cmo].p +x.p_gra[from][m][cmo][(dir?0:1)][l]; bUp = up; bDo=C[ls][e][dir?1:0][cmo];}
 							}
 						
 							if (m != to) continue;
 							
-							double sc = up.p + x.p_gra[from][m][from][(dir ? 0 :1)][l]; // linkFE.extractGrandchildFeatures(x,inst, from, m, -1, upper.type,sv);
-								
+							double sc = up.p + x.p_gra[from][m][from][(dir ? 0 :1)][l]; 
 							if (sc > bS) { bS = sc; bUp = up; bDo = null;}
 						}
 						C[s][t][dir?1:0][m] = new Closed(s, t, m, dir?1:0,bUp,bDo,(float) bS);
