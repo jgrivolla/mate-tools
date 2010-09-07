@@ -125,7 +125,7 @@ final public class Pipe extends PipeGen {
 
 			for (int k = 0; k < is.length(last); k++) {
 				if (is.heads[last][k] < 0)	continue;
-				Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.deprels[last][k]);
+		//		Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.deprels[last][k]);
 			}
 			
 			if (!options.allFeatures && num1 > options.count) break;
