@@ -54,7 +54,7 @@ final public class Extractor {
 
 	}
 
-	public void extractFeatures(short[] pposs, int from, int to, IFV f)
+	public void basic(short[] pposs, int from, int to, IFV f)
 	{
 
 		int dir= (from < to)? ra:la;
@@ -71,7 +71,7 @@ final public class Extractor {
 	}
 
 
-	public void extractFeatures(short[] pposs, int[] form, int[] lemmas, short[][] feats, int prnt, int dpnt, int label, IFV f)
+	public void first(short[] pposs, int[] form, int[] lemmas, short[][] feats, int prnt, int dpnt, int label, IFV f)
 	{
 		int prntF = form[prnt];
 		int dpntF =  form[dpnt];
@@ -202,7 +202,7 @@ final public class Extractor {
      * @param label 
      * @param f feature collector or summerrizer
      */
-	public void gcF(short[] pos, int[] forms, int[] lemmas, short[][] feats,int prnt, int chld, int gc, int label, IFV f) {
+	public void grandchildren(short[] pos, int[] forms, int[] lemmas, short[][] feats,int prnt, int chld, int gc, int label, IFV f) {
 
 		int prntP = pos[prnt], chldP = pos[chld];
 		int prntF = forms[prnt], chldF = forms[chld];
@@ -342,7 +342,7 @@ final public class Extractor {
 			extractFeat(f, dir, featsP, featsD);
 	}
 
-	public void extractSiblingFeatures(short pos[], int forms[], int[] lemmas, short[][] feats, int prnt, int chld, int sblng, int label, IFV f)
+	public void sibling(short pos[], int forms[], int[] lemmas, short[][] feats, int prnt, int chld, int sblng, int label, IFV f)
 	{
 		int prntP = pos[prnt], chldP = pos[chld];
 		int prntW = forms[prnt],chldW = forms[chld];
@@ -548,23 +548,23 @@ final public class Extractor {
 
 		for (int i = 1; i < heads.length; i++) {
 
-			extractFeatures(pposs, heads[i], i, f); 
-			extractFeatures(pposs,forms,lemmas,feats, heads[i],  i, types[i], f);
+			basic(pposs, heads[i], i, f); 
+			first(pposs,forms,lemmas,feats, heads[i],  i, types[i], f);
 
 			int ch,cmi,cmo;
 			if (heads[i] < i) {
-				ch = findRightmostRightLink(heads, heads[i], i);
-				cmi = findLeftmostLeftLink(heads, i, heads[i]);
-				cmo = findRightmostRightLink(heads, i, heads.length);
+				ch = rightmostRight(heads, heads[i], i);
+				cmi = leftmostLeft(heads, i, heads[i]);
+				cmo = rightmostRight(heads, i, heads.length);
 
 			} else {
-				ch = findLeftmostLeftLink(heads, heads[i], i);
-				cmi = findRightmostRightLink(heads, i, heads[i]);
-				cmo = findLeftmostLeftLink(heads, i, 0);
+				ch = leftmostLeft(heads, heads[i], i);
+				cmi = rightmostRight(heads, i, heads[i]);
+				cmo = leftmostLeft(heads, i, 0);
 			}
-			extractSiblingFeatures(pposs, forms,lemmas, feats, heads[i], i, ch,types[i], f);
-			gcF(pposs,forms,lemmas, feats, heads[i],  i, cmi,types[i], f);
-			gcF(pposs,forms,lemmas, feats, heads[i],  i, cmo,types[i], f);
+			sibling(pposs, forms,lemmas, feats, heads[i], i, ch,types[i], f);
+			grandchildren(pposs,forms,lemmas, feats, heads[i],  i, cmi,types[i], f);
+			grandchildren(pposs,forms,lemmas, feats, heads[i],  i, cmo,types[i], f);
 		}
 
 		return f;
@@ -589,18 +589,18 @@ final public class Extractor {
 
 			int ch,cmi,cmo;
 			if (heads[i] < i) {
-				ch = findRightmostRightLink(heads, heads[i], i);
-				cmi = findLeftmostLeftLink(heads, i, heads[i]);
-				cmo = findRightmostRightLink(heads, i, heads.length);
+				ch = rightmostRight(heads, heads[i], i);
+				cmi = leftmostLeft(heads, i, heads[i]);
+				cmo = rightmostRight(heads, i, heads.length);
 
 				if (ch==-1) ch=heads[i];  
 				if (cmi==-1) cmi=heads[i];
 				if (cmo==-1) cmo=heads[i];
 
 			} else {
-				ch = findLeftmostLeftLink(heads, heads[i], i);
-				cmi = findRightmostRightLink(heads, i, heads[i]);
-				cmo = findLeftmostLeftLink(heads, i, 0);
+				ch = leftmostLeft(heads, heads[i], i);
+				cmi = rightmostRight(heads, i, heads[i]);
+				cmo = leftmostLeft(heads, i, 0);
 
 				if (ch==-1) ch=i;
 				if (cmi==-1) cmi=i;
@@ -614,14 +614,14 @@ final public class Extractor {
 	}
 
 
-	private static int findRightmostRightLink(short[] heads, int head, int max) {
+	private static int rightmostRight(short[] heads, int head, int max) {
 		int rightmost = -1;
 		for (int i = head + 1; i < max; i++) if (heads[i] == head) rightmost = i;
 
 		return rightmost;
 	}
 
-	private static int findLeftmostLeftLink(short[] heads, int head, int min) {
+	private static int leftmostLeft(short[] heads, int head, int min) {
 		int leftmost = -1;
 		for (int i = head - 1; i > min; i--) if (heads[i] == head) leftmost = i;
 		return leftmost;

@@ -18,9 +18,7 @@ final public class ParallelExtract extends Thread
 	final DataF d;
 
 	// the data extractor does the actual work
-//	final Extractor extractor;
 	final Extractor extractor;
-
 
 	private Instances is;
 	private int i;
@@ -54,8 +52,6 @@ final public class ParallelExtract extends Thread
 
 		while (true){
 
-//			if (sets.size()==0)break;
-
 			DSet set = get();
 			if (set ==null) break;
 
@@ -63,7 +59,7 @@ final public class ParallelExtract extends Thread
 			int w2=set.w2;
 
 			f.clear();
-			extractor.extractFeatures(pos, w1, w2, f);
+			extractor.basic(pos, w1, w2, f);
 			d.pl[w1][w2]=f.getScoreF();
 
 			short[] labels = Edges.get(pos[w1], pos[w2],false);
@@ -75,7 +71,7 @@ final public class ParallelExtract extends Thread
 
 					short label = labels[l];
 					f.clear();
-					extractor.extractFeatures(pos,forms,lemmas, feats, w1, w2, label, f);
+					extractor.first(pos,forms,lemmas, feats, w1, w2, label, f);
 					lab[label][0]=f.getScoreF();
 				}
 			}
@@ -88,7 +84,7 @@ final public class ParallelExtract extends Thread
 
 					int label = labels[l];
 					f.clear();
-					extractor.extractFeatures(pos,forms,lemmas, feats,w1, w2, label, f);
+					extractor.first(pos,forms,lemmas, feats,w1, w2, label, f);
 					lab[label][1]=f.getScoreF();
 				}
 			}
@@ -111,7 +107,7 @@ final public class ParallelExtract extends Thread
 						int label = labels[l];
 
 						f.clear();
-						extractor.gcF(pos,forms,lemmas, feats, w1, w2, g, label, f);
+						extractor.grandchildren(pos,forms,lemmas, feats, w1, w2, g, label, f);
 						lab2[l] = f.getScoreF();
 					}
 					d.gra[w1][w2][m][dir] =lab2;
@@ -129,7 +125,7 @@ final public class ParallelExtract extends Thread
 
 						int label = labels[l];
 						f.clear();
-						extractor.extractSiblingFeatures(pos,forms,lemmas,feats, w1, w2, g, label, f);
+						extractor.sibling(pos,forms,lemmas,feats, w1, w2, g, label, f);
 						lab2[l] = f.getScoreF();
 					}
 					d.sib[w1][w2][m][dir]=lab2;
