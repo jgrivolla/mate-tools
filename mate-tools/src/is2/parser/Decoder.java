@@ -103,7 +103,7 @@ final public class Decoder   {
 		// build the dependency tree from the chart 
 		Parse out= new Parse(pos.length);
 
-		bestSpan.createTree(out);
+		bestSpan.create(out);
 
 		out.heads[0]=-1;
 		out.types[0]=0;

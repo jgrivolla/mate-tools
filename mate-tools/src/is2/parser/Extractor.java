@@ -580,7 +580,7 @@ final public class Extractor {
 			int dir= (heads[i] < i)? 0:1;
 
 			v += d2.pl[heads[i]][i];
-			v += d2.p_label[heads[i]][i][types[i]][dir];
+			v += d2.lab[heads[i]][i][types[i]][dir];
 
 			boolean left = i<heads[i]; 
 			short[] labels = Edges.get(pos[heads[i]], pos[i], left);
@@ -606,9 +606,9 @@ final public class Extractor {
 				if (cmi==-1) cmi=i;
 				if (cmo==-1) cmo=i;
 			}
-			v += d2.p_sib[heads[i]][i][ch][dir][lid];
-			v += d2.p_gra[heads[i]][i][cmi][dir][lid];
-			v += d2.p_gra[heads[i]][i][cmo][dir][lid];
+			v += d2.sib[heads[i]][i][ch][dir][lid];
+			v += d2.gra[heads[i]][i][cmi][dir][lid];
+			v += d2.gra[heads[i]][i][cmo][dir][lid];
 		}
 		return v;
 	}

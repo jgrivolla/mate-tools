@@ -67,7 +67,7 @@ final public class ParallelExtract extends Thread
 			d.pl[w1][w2]=f.getScoreF();
 
 			short[] labels = Edges.get(pos[w1], pos[w2],false);
-			float[][] lab = d.p_label[w1][w2];
+			float[][] lab = d.lab[w1][w2];
 
 			if (labels!=null) {
 
@@ -114,7 +114,7 @@ final public class ParallelExtract extends Thread
 						extractor.gcF(pos,forms,lemmas, feats, w1, w2, g, label, f);
 						lab2[l] = f.getScoreF();
 					}
-					d.p_gra[w1][w2][m][dir] =lab2;
+					d.gra[w1][w2][m][dir] =lab2;
 				}
 			}
 
@@ -132,7 +132,7 @@ final public class ParallelExtract extends Thread
 						extractor.extractSiblingFeatures(pos,forms,lemmas,feats, w1, w2, g, label, f);
 						lab2[l] = f.getScoreF();
 					}
-					d.p_sib[w1][w2][m][dir]=lab2;
+					d.sib[w1][w2][m][dir]=lab2;
 				}
 			}
 

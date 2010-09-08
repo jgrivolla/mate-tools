@@ -23,9 +23,9 @@ final public class Closed  {
 	}
 
 
-	public void createTree(Parse parse) {
-		if (u != null) u.createTree(parse);
-		if (d != null) d.createTree(parse);
+	public void create(Parse parse) {
+		if (u != null) u.create(parse);
+		if (d != null) d.create(parse);
 	}
 }
 

@@ -23,7 +23,7 @@ final public  class Open {
 	}
 
 
-	void createTree(Parse parse) {
+	void create(Parse parse) {
 		if (dir == 0) {
 			parse.heads[s] = e;
 			if (label != -1) parse.types[s] = label;
@@ -31,8 +31,8 @@ final public  class Open {
 			parse.heads[e] = s;
 			if (label != -1) parse.types[e] = label;
 		}
-		if (left != null) left.createTree(parse);
-		if (right != null) right.createTree(parse);
+		if (left != null) left.create(parse);
+		if (right != null) right.create(parse);
 	}
 	
 }
