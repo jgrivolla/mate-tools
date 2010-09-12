@@ -82,7 +82,7 @@ public abstract class Options {
 	}
 	protected void printUsageLanguages(PrintStream out) {
 		out.println("<lang> corresponds to the language and is one of");
-		out.println(" eng, ger");
+		out.println(" chi, eng, ger");
 	}
 	
 }

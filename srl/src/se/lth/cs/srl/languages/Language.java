@@ -19,6 +19,7 @@ public abstract class Language {
 	
 	public static Language setLanguage(L l){
 		switch(l){
+		case chi: language=new Chinese(); break;
 		case eng: language=new English(); break;
 		case ger: language=new German(); break;
 		default: throw new IllegalArgumentException("Unknown language: '"+l+"'");

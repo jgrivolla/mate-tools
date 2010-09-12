@@ -42,7 +42,9 @@ public class FeatureFile {
         List<String> array=null;
         String line,prefix=null;
         while ((line = in.readLine()) != null) {
-        	if(prefix==null){ //Prefix was null, the line contains a POS-tag
+        	if(line.startsWith("#")){
+        		continue;
+        	} else if(prefix==null){ //Prefix was null, the line contains a POS-tag
         		prefix=line;
         		array=new ArrayList<String>();
         	} else if(line.equals("")) { //Empty line, this marks the end of a feature set

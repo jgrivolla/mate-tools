@@ -30,7 +30,7 @@ public class LearnOptions extends Options {
 	public boolean trainReranker=false;
 	public boolean deleteTrainFiles=true;
 	
-	public boolean deterministicPipeline=false;
+	public boolean deterministicPipeline=true;
 	public boolean deterministicReranker=false;
 	
 	public boolean global_insertGoldMapForTrain=true;
@@ -69,9 +69,9 @@ public class LearnOptions extends Options {
 		} else if(args[ai].equals("-dontDeleteTrainData")){
 			ai++;
 			deleteTrainFiles=false;
-		} else if(args[ai].equals("-dPipeline")){
+		} else if(args[ai].equals("-ndPipeline")){
 			ai++;
-			deterministicPipeline=true;
+			deterministicPipeline=false;
 		} else if(args[ai].equals("-dReranker")){
 			ai++;
 			deterministicPipeline=true;
@@ -106,9 +106,10 @@ public class LearnOptions extends Options {
 		System.err.println("                         the feature files.");
 		System.err.println(" -dontDeleteTrainData    doesn't delete the temporary files from training");
 		System.err.println("                         on exit. (For debug purposes)");
-		System.err.println(" -dPipeline              Causes the training data and feature mappings to be");
-		System.err.println("                         derived in a deterministic way. I.e. training the pipeline");
-		System.err.println("                         on the same corpus twice yields the exact same models.");
+		System.err.println(" -ndPipeline             Causes the training data and feature mappings to be");
+		System.err.println("                         derived in a non-deterministic way. I.e. training the pipeline");
+		System.err.println("                         on the same corpus twice does not yield the exact same models.");
+		System.err.println("                         This is however slightly faster.");
 		//There is some something undeterministic about the deterministic reranker. Needs to be looked into. TODO
 //		System.err.println(" -dReranker              Same as above, but with the reranker. This option implies");
 //		System.err.println("                         a deterministic pipeline as well. It also implies the");

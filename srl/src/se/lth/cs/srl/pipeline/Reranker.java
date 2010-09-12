@@ -66,6 +66,7 @@ public class Reranker extends SemanticRoleLabeler {
 	private int[] rankCount;
 	private int zeroArgMapCount=0;
 	
+	@SuppressWarnings("unchecked")
 	public Reranker(ParseOptions parseOptions) throws ZipException, IOException, ClassNotFoundException{
 		this(parseOptions.global_alfa,parseOptions.skipPI,parseOptions.global_aiBeam,parseOptions.global_acBeam);
 		ZipFile zipFile=new ZipFile(parseOptions.modelFile);
