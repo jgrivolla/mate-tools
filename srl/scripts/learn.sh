@@ -11,9 +11,9 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-corpus="/home/anders/corpora/conll09/eng/CoNLL2009-ST-English-train.txt" #training corpus
-lang="eng"
-model="srl-eng.model"
+CORPUS="/home/anders/corpora/conll09/eng/CoNLL2009-ST-English-train.txt" #training corpus
+LANG="eng"
+MODEL="srl-$LANG.model"
 
 ##################################################
 ## (2) These ones may need to be changed
@@ -31,7 +31,7 @@ JVM_ARGS="-cp $CP -Xmx$MEM"
 
 
 #Execute
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Learn $lang $corpus $model -dPipeline $RERANKER $LLBINARY"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Learn $LANG $CORPUS $MODEL $RERANKER $LLBINARY"
 echo "Executing: $CMD"
 
 $CMD
