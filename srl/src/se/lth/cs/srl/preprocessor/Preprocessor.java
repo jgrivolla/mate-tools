@@ -32,6 +32,9 @@ public class Preprocessor {
 		case eng:
 			tokenizer=new opennlp.tools.lang.english.Tokenizer(tokenizerModelFile.toString());
 			break;
+		case chi:
+			tokenizer=null; //This is a problem. OpenNLP tools doesn't provide Chinese models. 
+			break;
 		default: throw new Error("not implemented");
 		}
 		String[] argsL={"-model",lemmatizerModelFile.toString()};
