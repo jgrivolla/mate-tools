@@ -11,15 +11,15 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-lang="eng"
-tokenizer_model="models/eng/EnglishTok.bin.gz"
-lemmatizer_model="models/eng/lemma-eng.model"
-pos_model="models/eng/tag-eng.model"
-#morph_model="models/ger/morph-ger.model" #Morphological tagger is not applicable to English. Fix the path and uncomment if you are running german.
-parser_model="models/eng/prs-eng.model"
-srl_model="models/eng/srl-eng.model"
+LANG="eng"
+TOKENIZER_MODEL="models/eng/EnglishTok.bin.gz"
+LEMMATIZER_MODEL="models/eng/lemma-eng.model"
+POS_MODEL="models/eng/tag-eng.model"
+#MORPH_MODEL="models/ger/morph-ger.model" #Morphological tagger is not applicable to English. Fix the path and uncomment if you are running german.
+PARSER_MODEL="models/eng/prs-eng.model"
+SRL_MODEL="models/eng/srl-eng.model"
 
-port=8081 #The port to listen on
+PORT=8081 #The port to listen on
 
 ##################################################
 ## (2) These ones may need to be changed
@@ -34,9 +34,9 @@ JVM_ARGS="-cp $CP -Xmx$MEM"
 ##################################################
 #RERANKER="-reranker" #Uncomment this if you want to use a reranker too. The model is assumed to contain a reranker. While training, the corresponding parameter has to be provided.
 
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.HttpPipeline $lang -token $tokenizer_model -lemma $lemmatizer_model -tagger $pos_model -parser $parser_model -srl $srl_model -port $port $RERANKER"
-if [ "$morph_model" != "" ]; then
-  CMD="$CMD -morph $morph_model"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.HttpPipeline $LANG -token $TOKENIZER_MODEL -lemma $LEMMATIZER_MODEL -tagger $POS_MODEL -parser $PARSER_MODEL -srl $SRL_MODEL -port $PORT $RERANKER"
+if [ "$MORPH_MODEL" != "" ]; then
+  CMD="$CMD -morph $MORPH_MODEL"
 fi
 
 echo "Executing: $CMD"

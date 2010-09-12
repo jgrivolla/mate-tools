@@ -11,15 +11,15 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-input="/home/anders/corpora/conll09/eng/CoNLL2009-evaluation-English-SRLonly.txt" #evaluation corpus
-lang="eng"
-tokenizer_model="models/eng/EnglishTok.bin.gz"
-lemmatizer_model="models/eng/lemma-eng.model"
-pos_model="models/eng/tag-eng.model"
-#morph_model="models/ger/morph-ger.model" #Morphological tagger is not applicable to English. Fix the path and uncomment if you are running german.
-parser_model="models/eng/prs-eng.model"
-srl_model="models/eng/srl-eng.model"
-output="eng.out"
+INPUT="/home/anders/corpora/conll09/eng/CoNLL2009-evaluation-English-SRLonly.txt" #evaluation corpus
+LANG="eng"
+TOKENIZER_MODEL="models/eng/EnglishTok.bin.gz"
+LEMMATIZER_MODEL="models/eng/lemma-eng.model"
+POS_MODEL="models/eng/tag-eng.model"
+#MORPH_MODEL="models/ger/morph-ger.model" #Morphological tagger is not applicable to English. Fix the path and uncomment if you are running german.
+PARSER_MODEL="models/eng/prs-eng.model"
+SRL_MODEL="models/eng/srl-eng.model"
+OUTPUT="$LANG.out"
 
 ##################################################
 ## (2) These ones may need to be changed
@@ -36,7 +36,7 @@ JVM_ARGS="-cp $CP -Xmx$MEM"
 #NOPI="-nopi" #Uncomment this if you want to skip the predicate identification step.
 
 
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.CompletePipeline $tokenizer_model $lemmatizer_model $pos_model $parser_model $morph_model $lang $input $srl_model $RERANKER $NOPI $output"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.CompletePipeline $TOKENIZER_MODEL $LEMMATIZER_MODEL $POS_MODEL $PARSER_MODEL $MORPH_MODEL $LANG $INPUT $SRL_MODEL $RERANKER $NOPI $OUTPUT"
 echo "Executing: $CMD"
 
 $CMD

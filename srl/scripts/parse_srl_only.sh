@@ -11,10 +11,10 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-input="/home/anders/corpora/conll09/eng/CoNLL2009-evaluation-English-SRLonly.txt" #evaluation corpus
-lang="eng"
-model="models/eng/srl-eng.model"
-output="eng.out"
+INPUT="/home/anders/corpora/conll09/eng/CoNLL2009-evaluation-English-SRLonly.txt" #evaluation corpus
+LANG="eng"
+MODEL="models/eng/srl-eng.model"
+OUTPUT="$LANG.out"
 
 ##################################################
 ## (2) These ones may need to be changed
@@ -31,7 +31,7 @@ JVM_ARGS="-cp $CP -Xmx$MEM"
 #NOPI="-nopi" #Uncomment this if you want to skip the predicate identification step. This setting is equivalent to the CoNLL 2009 ST.
 
 
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Parse $lang $input $model $RERANKER $NOPI $output"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Parse $LANG $INPUT $MODEL $RERANKER $NOPI $OUTPUT"
 echo "Executing: $CMD"
 
 $CMD
