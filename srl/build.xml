@@ -13,7 +13,7 @@
 		<pathelement location="${lib}/opennlp-tools-1.4.3.jar"/>
 		<pathelement location="${lib}/trove.jar"/>
 		<pathelement location="${lib}/maxent-2.5.2.jar"/>
-		<pathelement location="${lib}/anna.jar"/>
+		<pathelement location="${lib}/anna-1.jar"/>
 		<pathelement location="${lib}/junit.jar"/>
 	</path>
 		
@@ -23,7 +23,8 @@
 	</target>
 	
 	<target name="dist" description="Create dist" depends="compile">
-		<property name="distdir" value="${dist}/${ant.project.name}-${DSTAMP}"/>
+		<property name="distname" value="${ant.project.name}-${DSTAMP}"/>
+		<property name="distdir" value="${dist}/${distname}"/>
 		<mkdir dir="${distdir}"/>
 		<jar jarfile="${distdir}/${ant.project.name}.jar">
 			<fileset dir="${classes}" includes="**/*.class" excludes="**/test/*"/>
@@ -40,8 +41,12 @@
 		</copy>
 <!--    Should the source be included in the dist? I think yes. --> 
 		<copy todir="${distdir}/src">
-			<fileset dir="${src}" includes="**/*.java"/>	
-		</copy> 	
+			<fileset dir="${src}" includes="**/*.java"/>
+		</copy>
+		<property name="tarfile" value="${dist}/${distname}.tar"/>
+		<property name="tgzfile" value="${dist}/${distname}.tgz"/>
+		<tar destfile="${tarfile}" basedir="${distdir}"/>
+		<gzip destfile="${tgzfile}" src="${tarfile}"/>
 	</target>
 	
 	<target name="clean" description="Clean">
@@ -50,6 +55,9 @@
 	</target>
 	
 	<target name="test" description="Run unit tests" depends="compile">
+		<!-- Note the tests are probably not working. 
+			 This should be fixed some day... and more tests should be included...
+		-->
 		<java classname="org.junit.runner.JUnitCore" classpath="classes:${lib}/junit.jar">
 			<arg value="se.lth.cs.srl.test.TestFeatures"/>
 			<arg value="se.lth.cs.srl.test.TestCALS"/>
