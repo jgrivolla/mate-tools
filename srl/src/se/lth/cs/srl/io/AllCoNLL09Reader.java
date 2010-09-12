@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import se.lth.cs.srl.corpus.Sentence;
-import se.lth.cs.srl.util.Patterns;
 
 public class AllCoNLL09Reader extends AbstractCoNLL09Reader {
 
@@ -20,7 +19,7 @@ public class AllCoNLL09Reader extends AbstractCoNLL09Reader {
 			if(!str.trim().equals("")) {
 				senBuffer.append(str).append("\n");
 			} else {
-				sen=Sentence.newSentence((Patterns.NEWLINE_PATTERN.split(senBuffer.toString())));
+				sen=Sentence.newSentence((NEWLINE_PATTERN.split(senBuffer.toString())));
 				break;
 			}
 		}

@@ -6,11 +6,12 @@ import is2.io.CONLLReader09;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import se.lth.cs.srl.util.Patterns;
+import java.util.regex.Pattern;
 
 public class Sentence extends ArrayList<Word> {
 
+	private static final Pattern WHITESPACE_PATTERN=Pattern.compile("\\s+");
+	
 	private static final long serialVersionUID = 10;
 	
 	private List<Predicate> predicates;
@@ -120,7 +121,7 @@ public class Sentence extends ArrayList<Word> {
 		Sentence ret=new Sentence();
 		Word nextWord;
 		for(String line:lines){
-			String[] cols=Patterns.WHITESPACE_PATTERN.split(line,13);
+			String[] cols=WHITESPACE_PATTERN.split(line,13);
 			nextWord=new Word(cols,ret);
 			ret.add(nextWord);
 		}
@@ -132,7 +133,7 @@ public class Sentence extends ArrayList<Word> {
 		Sentence ret=new Sentence();
 		Word nextWord;
 		for(String line:lines){
-			String[] cols=Patterns.WHITESPACE_PATTERN.split(line);
+			String[] cols=WHITESPACE_PATTERN.split(line);
 			if(cols[12].equals("Y")){
 				Predicate pred=new Predicate(cols,ret);
 				ret.addPredicate(pred);
@@ -150,7 +151,7 @@ public class Sentence extends ArrayList<Word> {
 		Sentence ret=new Sentence();
 		Word nextWord;
 		for(String line:lines){
-			String[] cols=Patterns.WHITESPACE_PATTERN.split(line,13);
+			String[] cols=WHITESPACE_PATTERN.split(line,13);
 			if(cols[12].charAt(0)=='Y'){
 				Predicate pred=new Predicate(cols,ret);
 				ret.addPredicate(pred);

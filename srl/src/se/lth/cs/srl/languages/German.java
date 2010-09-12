@@ -6,13 +6,14 @@ import java.util.regex.Pattern;
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
-import se.lth.cs.srl.util.Patterns;
 
 public class German extends Language {
 
+	private static final Pattern BAR_PATTERN=Pattern.compile("\\|");
+	
 	@Override
 	public Pattern getFeatSplitPattern() {
-		return Patterns.BAR_PATTERN;
+		return BAR_PATTERN;
 	}
 
 	@Override

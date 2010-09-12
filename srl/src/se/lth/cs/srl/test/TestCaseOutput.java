@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
 
 import se.lth.cs.srl.corpus.Sentence;
-import se.lth.cs.srl.util.Patterns;
 
 /**
  * @author Torbjorn Ekman (torbjorn.ekman@cs.lth.se)
@@ -86,10 +86,10 @@ public abstract class TestCaseOutput {
         }
     }
     
-
+    private static final Pattern NEWLINE_PATTERN=Pattern.compile("\n");
 	protected static final List<Sentence> sentences=new ArrayList<Sentence>();	
 	static {
-		sentences.add(Sentence.newSentence(Patterns.NEWLINE_PATTERN.split(
+		sentences.add(Sentence.newSentence(NEWLINE_PATTERN.split(
 				"1       They    they    they    PRP     PRP     _       _       2       2       SBJ     SBJ     _       _       A0\n"+
 				"2       had     have    have    VBD     VBD     _       _       0       0       ROOT    ROOT    Y       have.03 _\n"+
 				"3       brandy  brandy  brandy  NN      NN      _       _       2       2       OBJ     OBJ     _       _       A1\n"+
@@ -97,7 +97,7 @@ public abstract class TestCaseOutput {
 				"5       the     the     the     DT      DT      _       _       6       6       NMOD    NMOD    _       _       _\n"+
 				"6       library library library NN      NN      _       _       4       4       PMOD    PMOD    _       _       _\n"+
 				"7       .       .       .       .       .       _       _       2       2       P       P       _       _       _\n")));
-		sentences.add(Sentence.newSentence(Patterns.NEWLINE_PATTERN.split(
+		sentences.add(Sentence.newSentence(NEWLINE_PATTERN.split(
 				"1       ``      ``      ``      ``      ``      _       _       3       15      P       P       _       _       _       _       _       _\n"+
 				"2       There   there   there   EX      EX      _       _       3       3       SBJ     SBJ     _       _       _       _       _       _\n"+
 				"3       's      be      be      VBZ     VBZ     _       _       15      15      OBJ     OBJ     _       _       _       _       A1      _\n"+
@@ -122,7 +122,7 @@ public abstract class TestCaseOutput {
 				"22      at      at      at      IN      IN      _       _       19      19      NMOD    LOC     _       _       _       _       _       A2\n"+
 				"23      MMS     mm      mm      NNS     NNS     _       _       22      22      PMOD    PMOD    _       _       _       _       _       _\n"+
 				"24      .       .       .       .       .       _       _       15      15      P       P       _       _       _       _       _       _\n")));
-		sentences.add(Sentence.newSentence(Patterns.NEWLINE_PATTERN.split(
+		sentences.add(Sentence.newSentence(NEWLINE_PATTERN.split(
 				"1	Die	der	d	ART	ART	Nom|Sg|Fem	*|*|*	2	2	NK	NK	_	_	_\n"+
 				"2	Mehrheit	Mehrheit	Mehrheit	NN	NN	Nom|Sg|Fem	*|Sg|Fem	6	6	SB	SB	_	_	A1\n"+
 				"3	der	der	d	ART	ART	Gen|Sg|Fem	*|*|*	5	5	NK	NK	_	_	_\n"+
@@ -133,7 +133,7 @@ public abstract class TestCaseOutput {
 				"8	den	der	d	ART	ART	Acc|Sg|Masc	*|*|*	9	9	NK	NK	_	_	_\n"+
 				"9	Euro	Euro	Euro	NN	NN	Acc|Sg|Masc	*|Sg|Masc	6	6	OA	OA	_	_	A0\n"+
 				"10	.	_	.	$.	$.	_	_	6	6	PUNC	PUNC	_	_	_\n")));
-		sentences.add(Sentence.newSentence(Patterns.NEWLINE_PATTERN.split(
+		sentences.add(Sentence.newSentence(NEWLINE_PATTERN.split(
 				"1	Auf	auf	auf	APPR	APPR	_	_	7	7	MO	MO	_	_	_\n"+
 				"2	dem	der	d	ART	ART	Dat|Sg|Masc	Dat|Sg|*	1	1	NK	NK	_	_	_\n"+
 				"3	Umweg	Umweg	Umweg	NN	NN	Dat|Sg|Masc	*|Sg|Masc	1	1	NK	NK	_	_	_\n"+
@@ -155,7 +155,7 @@ public abstract class TestCaseOutput {
 				"19	erstickt	ersticken	ersticken	VVPP	VVPP	Psp	_	20	20	OC	OC	Y	ersticken.1	_\n"+
 				"20	werden	werden	werden	VAINF	VAINF	Inf	Inf	7	7	OC	OC	_	_	_\n"+
 				"21	.	_	.	$.	$.	_	_	7	7	PUNC	PUNC	_	_	_\n")));
-		sentences.add(Sentence.newSentence(Patterns.NEWLINE_PATTERN.split(
+		sentences.add(Sentence.newSentence(NEWLINE_PATTERN.split(
 				"1	The	the	the	DT	DT	_	_	2	2	NMOD	NMOD	_	_	_	_	_	_\n"+
 				"2	economy	economy	economy	NN	NN	_	_	4	4	NMOD	NMOD	_	_	A1	_	_	_\n"+
 				"3	's	's	's	POS	POS	_	_	2	2	SUFFIX	SUFFIX	_	_	_	_	_	_\n"+

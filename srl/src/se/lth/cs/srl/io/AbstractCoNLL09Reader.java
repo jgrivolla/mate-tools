@@ -9,11 +9,14 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import se.lth.cs.srl.corpus.Sentence;
 
 public abstract class AbstractCoNLL09Reader implements SentenceReader {
 
+	protected static final Pattern NEWLINE_PATTERN=Pattern.compile("\n");
+	
 	protected BufferedReader in;
 	protected Sentence nextSen;
 	private File file;

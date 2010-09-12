@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
 import is2.data.SentenceData09;
@@ -23,11 +24,12 @@ import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
 import se.lth.cs.srl.pipeline.Step;
 import se.lth.cs.srl.preprocessor.Preprocessor;
-import se.lth.cs.srl.util.Patterns;
 import se.lth.cs.srl.util.Util;
 
 public class CompletePipeline {
 
+	private static final Pattern WHITESPACE_PATTERN=Pattern.compile("\\s+");
+	
 	private Preprocessor pp;
 	private Parser dp;
 	private SemanticRoleLabeler srl;
@@ -177,7 +179,7 @@ public class CompletePipeline {
 					System.out.println("Processing sentence "+senCount);
 				}
 			} else {
-				String[] tokens=Patterns.WHITESPACE_PATTERN.split(str);
+				String[] tokens=WHITESPACE_PATTERN.split(str);
 				forms.add(tokens[1]);
 				if(parseOptions.skipPI)
 					isPred.add(tokens[12].equals("Y"));

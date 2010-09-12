@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import se.lth.cs.srl.corpus.Sentence;
-import se.lth.cs.srl.util.Patterns;
 
 public class DepsOnlyCoNLL09Reader extends AbstractCoNLL09Reader {
 
@@ -21,7 +20,7 @@ public class DepsOnlyCoNLL09Reader extends AbstractCoNLL09Reader {
 			if(!str.trim().equals("")) {
 				senBuffer.append(str).append("\n");
 			} else {
-				sen=Sentence.newDepsOnlySentence(Patterns.NEWLINE_PATTERN.split(senBuffer.toString()));
+				sen=Sentence.newDepsOnlySentence(NEWLINE_PATTERN.split(senBuffer.toString()));
 				break;
 			}
 		}
