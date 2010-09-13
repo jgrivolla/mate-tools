@@ -3,7 +3,6 @@
  */
 package is2.parser;
 
-//import gnu.trove.TIntHashSet;
 import is2.data.PipeGen;
 
 import java.io.DataInputStream;
@@ -22,7 +21,6 @@ public final class Edges {
 
 	
 	private static short[][][][] edges;
-//	static TIntHashSet[][][]  edgesh;
 	private static HashMap<Short,Integer> labelCount = new HashMap<Short,Integer>();
 
 	private static HashMap<String,Integer> slabelCount = new HashMap<String,Integer>();
@@ -37,7 +35,6 @@ public final class Edges {
 	 */
 	public static void init(int length) {
 			edges = new short[length][length][2][];
-	//		edgesh = new TIntHashSet[length][length][2];
 	}
 	
 	
@@ -46,34 +43,6 @@ public final class Edges {
 		int best =0;
 
 		int total =0;
-		/*
-		for(int k=0;k<edges.length;k++) {
-			for(int j=0;j<edges.length;j++) {
-	
-	    		TIntHashSet it  =edgesh[k][j][0];
-	    		if (it!=null && it.size()>0) {
-	    			short[] labels = new short[it.size()];
-	    			TIntIterator itt = it.iterator();
-	    			for (int l = it.size() - 1; l >= 0; l--) {
-	    				labels[l]=(short)itt.next();
-	    			}
-	    		//	System.out.println("found n labes "+it.size()+ " before "+edges[k][j][0].length);
-	    		//	edges[k][j][0] = labels;
-	    		}
-	    		
-	    		it  =edgesh[k][j][1];
-				if (it !=null && it.size()>0 ) {
-					short[] labels = new short[it.size()];
-					TIntIterator itt = it.iterator();
-					for (int l = it.size() - 1; l >= 0; l--) {
-						labels[l]=(short)itt.next();
-					}
-			//		edges[k][j][1] = labels;
-				}
-			
-			}
-		}
-		*/
 		
 		System.out.println("total edge pos combinations "+total);
 		
@@ -100,8 +69,7 @@ public final class Edges {
 
 	final static public void put(int pos1, int pos2, boolean dir, short label) {
 		putD(pos1, pos2,dir, label);
-	//	putD(pos2, pos1,!dir, label);
-		
+	//	putD(pos2, pos1,!dir, label);		
 	}
 	
 	

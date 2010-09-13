@@ -92,13 +92,11 @@ final public class ParallelDecoder extends Thread
 								if (((dir==1 ? x.sib[s][t][i][0][l] : x.gra[t][s][i][1][l]) + C[s][r][1][i].p) > tLPr) {
 									tLPr = ((dir==1 ? x.sib[s][t][i][0][l] : x.gra[t][s][i][1][l]) + C[s][r][1][i].p);tLCld = C[s][r][1][i];}
 							
-					
 						if (r == t-1) tRPr = dir==1 ? x.gra[s][t][s][0][l] : x.sib[t][s][s][1][l];
 						else
 							for (int i = r + 1; i < t; i++) 
 								if (((dir == 1 ? x.gra[s][t][i][0][l] : x.sib[t][s][i][1][l]) + C[r+1][t][0][i].p) > tRPr) {
 									tRPr = ((dir==1?x.gra[s][t][i][0][l]:x.sib[t][s][i][1][l]) + C[r+1][t][0][i].p); tRCld=C[r + 1][t][0][i];}
-							
 											
 						if (tLPr + tRPr > tRP) {tRP = tLPr + tRPr; tL = tLCld;tR = tRCld;}
 					}
