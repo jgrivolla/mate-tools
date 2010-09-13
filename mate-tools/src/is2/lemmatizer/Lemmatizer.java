@@ -18,8 +18,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+
 import java.util.Map.Entry;
+
+import java.io.EOFException;
 
 
 
@@ -27,37 +29,45 @@ public class Lemmatizer {
 
 	public static final double MAX = 0.000000000000001; // 0.001
 
-	public static Pipe pipe;
-	public static ParametersDouble params;
+	private Pipe pipe;
+	private ParametersDouble params;
 	
 	public Lemmatizer(Options options) throws FileNotFoundException, IOException {
 		init(options);
 	}
 	
+	/**
+	 * 
+	 */
+	public Lemmatizer() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public static void main (String[] args) throws FileNotFoundException, Exception
 	{
 
 		long start = System.currentTimeMillis();
 		Options options = new Options(args);
 
+		Lemmatizer lemmatizer = new Lemmatizer();
 	
 		
 		if (options.train) {
 
-			Pipe pipe =  new Pipe (options);
+			lemmatizer.pipe =  new Pipe (options);
 			
 			Instances is = new Instances();
-			pipe.createInstances(options.trainfile,options.trainforest,is);
+			lemmatizer.pipe.createInstances(options.trainfile,options.trainforest,is);
 
 			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(options.modelName)));
-			System.out.println("Features: " + pipe.mf.size()+" Relations "+pipe.mf.getFeatureCounter().get(Pipe.REL));   
+			System.out.println("Features: " + lemmatizer.pipe.mf.size()+" Relations "+lemmatizer.pipe.mf.getFeatureCounter().get(Pipe.REL));   
 
-			pipe.mf.writeData(dos);
+			lemmatizer.pipe.mf.writeData(dos);
 
-			ParametersDouble params = new ParametersDouble(pipe.mf.size());
-			train(options, pipe,params,is);
+			ParametersDouble params = new ParametersDouble(lemmatizer.pipe.mf.size());
+			train(options, lemmatizer.pipe,params,is);
 
-			pipe.mf.clearData();
+			lemmatizer.pipe.mf.clearData();
 
 			System.out.println("Data cleared ");
 
@@ -74,13 +84,14 @@ public class Lemmatizer {
 			
 			System.out.println("Writting "+k+" values of "+c+" (rest is 0.0)");
 
-			k =pipe.mf.wirteMapping(dos,params.parameters,k,MAX); 
+			k =lemmatizer.pipe.mf.wirteMapping(dos,params.parameters,k,MAX); 
 			DB.println("number of parameters "+params.parameters.length);
 			dos.flush();
 			params.write(dos,k,MAX);
 			
-			dos.writeBoolean(options.upper);
-						
+			try {
+				dos.writeBoolean(options.upper);
+			} catch(EOFException e) {DB.println("Warning: models contains no uppercase information: use default (lowercase) ");}		
 			dos.flush();
 			dos.close();
 			
@@ -90,9 +101,9 @@ public class Lemmatizer {
 
 		if (options.test) {
 
-			init(options);
+			lemmatizer.init(options);
 
-			outputParses(options,pipe, params);
+			lemmatizer.lemmatize(options);
 		}
 
 		System.out.println();
@@ -106,7 +117,7 @@ public class Lemmatizer {
 	}
 
 
-	public static void init(Options options) throws IOException,FileNotFoundException {
+	public void init(Options options) throws IOException,FileNotFoundException {
 		pipe = new Pipe(options);
 		//Parameters params = new ParametersFloat(pipe.mf.size());
 		params = new ParametersDouble(pipe.mf.size());
@@ -119,7 +130,9 @@ public class Lemmatizer {
 		pipe.initFeatures();
 		
 		params.read(dis);
-		options.upper = dis.readBoolean();
+		try {options.upper = dis.readBoolean();} catch(Exception ex) {
+			DB.println("Warning: models contains no uppercase information: use default (lowercase) ");
+		}
 		dis.close();
 
 		DB.println("num params "+params.parameters.length);
@@ -194,13 +207,13 @@ public class Lemmatizer {
 
 
 	/**
-	 * Do the parsing
-	 * @param options
-	 * @param pipe
+	 * Lemmatize the input forms of a file in CoNLL-2009 format 
+	 * @param options the options form the command line define the input file and output file
+	 * @param pipe 
 	 * @param params
 	 * @throws IOException
 	 */
-	static public void outputParses (Options options, Pipe pipe, Parameters params) 
+	public void lemmatize (Options options) 
 	throws Exception {
 
 		
@@ -217,63 +230,19 @@ public class Lemmatizer {
 		int del=0;
 		while(true) {
 
-		//	Instance09 instance = pipe.nextInstance();
 			SentenceData09 instance = pipe.nextInstance(null, depReader);
 
 			if (instance==null) break;
 			
 			cnt++;
 
-			String[] forms = instance.forms;
-
- 			int length = instance.ppos.length;
-			FV[][] fvs = new FV[length][pipe.types.length];
-			double[][] probs = new double[length][pipe.types.length];
-
-			Object[][] d = new Object[length][2];
-			for(int j = 1; j < length; j++) {
-
-				pipe.fillFeatureVectorsOne(instance.forms,params, j,fvs, probs, d);
-				instance.lemmas[j] = StringEdit.change(instance.forms[j], (String)d[j][1]);
-				
-				if (options.upper && Character.isUpperCase(instance.forms[j].charAt(0))) {
-					instance.lemmas[j] = instance.forms[j].charAt(0)+instance.lemmas[j].substring(1);
-				} 
-				
-				
-				if (options.upper ) {
-					
-					boolean allUpperCase =true;
-					for(int index =0;index<instance.forms[j].length();index++ ) {
-						char c= instance.forms[j].charAt(index);
-						if (Character.isLowerCase(c)) {
-							allUpperCase = false;
-							break;
-						}
-					}
-					if (allUpperCase)
-						instance.lemmas[j] = instance.lemmas[j].toUpperCase();
-				}
-				
-				if (!options.upper) {
-					instance.lemmas[j] = instance.lemmas[j].toLowerCase(); 
-				}
-				
-			//	if (!operation.equals("0")) System.out.println("changed "+instance.forms[j]+" to "+instance.lemmas[j]+" op "+operation);
-			}
-
-
-		
 			
-//			for(int j = 0; j < length; j++) {
 
-//				pipe.fillFeatureVectorsOne(instance,params, decoder,j, fvs, probs,d,instance.pposs);
-//				instance.pposs[j]= (String)d[j][1];
-//			}
+			this.lemmatize(options, instance);
 
-			Arrays.toString(forms);
+//			Arrays.toString(forms);
 			
-			String[] formsNoRoot = new String[forms.length-1];
+			String[] formsNoRoot = new String[instance.forms.length-1];
 			String[] posNoRoot = new String[formsNoRoot.length];
 			String[] lemmas = new String[formsNoRoot.length];
 
@@ -291,7 +260,7 @@ public class Lemmatizer {
 			int[] heads = new int[formsNoRoot.length];
 
 			for(int j = 0; j < formsNoRoot.length; j++) {
-				formsNoRoot[j] = forms[j+1];
+				formsNoRoot[j] = instance.forms[j+1];
 				posNoRoot[j] = instance.gpos[j+1];
 
 				pposs[j] = instance.ppos[j+1];
@@ -348,15 +317,63 @@ public class Lemmatizer {
 		System.out.println("Used time " + (end-start));
 
 	}
+
+	public void lemmatize(Options options, SentenceData09 instance) {
+		
+		
+		int length = instance.ppos.length;
+
+		
+		FV[][] fvs = new FV[length][pipe.types.length];
+		double[][] probs = new double[length][pipe.types.length];
+		Object[][] d = new Object[length][2];
+		for(int j = 0; j < length; j++) {
+
+			pipe.fillFeatureVectorsOne(instance.forms,params, j,fvs, probs, d);
+			instance.lemmas[j] = StringEdit.change(instance.forms[j], (String)d[j][1]);
+			
+			if (options.upper && Character.isUpperCase(instance.forms[j].charAt(0))) {
+				instance.lemmas[j] = instance.forms[j].charAt(0)+instance.lemmas[j].substring(1);
+			} 
+			
+			
+			if (options.upper ) {
+				
+				boolean allUpperCase =true;
+				for(int index =0;index<instance.forms[j].length();index++ ) {
+					char c= instance.forms[j].charAt(index);
+					if (Character.isLowerCase(c)) {
+						allUpperCase = false;
+						break;
+					}
+				}
+				if (allUpperCase)
+					instance.lemmas[j] = instance.lemmas[j].toUpperCase();
+			}
+			
+			if (!options.upper) {
+				instance.lemmas[j] = instance.lemmas[j].toLowerCase(); 
+			}
+			
+			
+			
+		}
+	}
 	
 	
+	
+	/**
+	 * Computes the lemmata for a list of input forms
+	 * @param inForms the input forms
+	 * @param lower all forms in lower case?
+	 * @return the lemmata
+	 */
 	public String[] lemma (String[] inForms, boolean lower)  {
 
 		String[] forms = new String[inForms.length+1];
 		System.arraycopy(inForms, 0, forms, 1, inForms.length);
 		forms[0] = is2.io.CONLLReader09.ROOT;
 		                            
-		
 		
 		int length = forms.length;
 		FV[][] fvs = new FV[length][pipe.types.length];
@@ -371,19 +388,11 @@ public class Lemmatizer {
 			lemmas[j] = StringEdit.change(forms[j], (String)d[j][1]);
 		}
 
-
-	
-
 		String[] outLemmas = new String[inForms.length];
 
 		for(int j = 0; j < inForms.length; j++) {
 			outLemmas[j] = lower?lemmas[j+1].toLowerCase():lemmas[j+1];
 		}
-
-		
-		
-		
-			
 		return 	outLemmas;
 	}
 

@@ -148,7 +148,7 @@ public class CONLLWriter09  {
 				else writer.write(DASH);
 				writer.write('\t');  
 							
-				if (inst.ppos!=null) writer.write(inst.ppos[i]); 
+				if (inst.ppos!=null && inst.ppos[i]!=null) writer.write(inst.ppos[i]); 
 				else writer.write(DASH);									// ppos
 				writer.write('\t');  
 				

@@ -5,12 +5,10 @@ package is2.tag3;
 import is2.data.FV;
 import is2.data.Instances;
 import is2.data.PipeGen;
-
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
 import is2.util.DB;
-import is2.util.OptionsSuper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -29,19 +27,15 @@ import java.util.zip.ZipOutputStream;
 
 public class Tagger {
 
-	public static Pipe pipe;
-	public static ParametersFloat params;
-	private OptionsSuper options;
-
-	
+	public  Pipe pipe;
+	public  ParametersFloat params;
 	/**
 	 * Initialize 
 	 * @param options
 	 */
 	public Tagger (Options options) {
 	
-		this.options=options;
-//		pipe = new Pipe(options);
+		//		pipe = new Pipe(options);
 		Long2Int li = new Long2Int();
 
 //		params = new ParametersFloat(0);  
@@ -55,35 +49,44 @@ public class Tagger {
 				
 	}
 	
+	/**
+	 * 
+	 */
+	public Tagger() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public static void main (String[] args) throws FileNotFoundException, Exception
 	{
 
 		long start = System.currentTimeMillis();
 		Options options = new Options(args);
 		Long2Int li = new Long2Int();
+		Tagger tagger = new Tagger();
+		
 		if (options.train) {
 
-			Pipe pipe =  new Pipe (options,li);
+			tagger.pipe =  new Pipe (options,li);
 			
 			Instances is = new Instances();
-			pipe.createInstances(options.trainfile,options.trainforest,is);
+			tagger.pipe.createInstances(options.trainfile,options.trainforest,is);
 			
 			ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(options.modelName)));
 			zos.putNextEntry(new ZipEntry("data")); 
 			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(zos));
 
 
-			ParametersFloat params = new ParametersFloat(li.size());
+			tagger.params = new ParametersFloat(li.size());
 			
-			train(options, pipe,params,is);
+			train(options, tagger.pipe,tagger.params,is);
 
 			MFO.writeData(dos);
 			MFO.clearData();
 
-			DB.println("number of parameters "+params.parameters.length);
+			DB.println("number of parameters "+tagger.params.parameters.length);
 			dos.flush();
 
-			params.write(dos);
+			tagger.params.write(dos);
 
 			dos.flush();
 			dos.close();
@@ -93,9 +96,9 @@ public class Tagger {
 
 		if (options.test) {
 
-			init(options,li);
+			tagger.init(options,li);
 
-			out(options,pipe, params);
+			tagger.out(options,tagger.pipe, tagger.params);
 		}
 
 		System.out.println();
@@ -109,7 +112,7 @@ public class Tagger {
 	}
 
 
-	public static void init(Options options, Long2Int li) throws IOException,FileNotFoundException {
+	public void init(Options options, Long2Int li) throws IOException,FileNotFoundException {
 		pipe = new Pipe(options, li);
 		params = new ParametersFloat(li.size());
 
@@ -231,7 +234,7 @@ public class Tagger {
 	}
 
 	
-	static public void outputParses (Options options) throws Exception  {
+	public void outputParses (Options options) throws Exception  {
 		out ( options,  pipe,  params);
 	}
 
@@ -242,7 +245,7 @@ public class Tagger {
 	 * @param params
 	 * @throws IOException
 	 */
-	static public void out (Options options, Pipe pipe, ParametersFloat params) 
+	public void out (Options options, Pipe pipe, ParametersFloat params) 
 	throws Exception {
 
 		
@@ -270,27 +273,10 @@ public class Tagger {
 
 			instance.ppos = new String[instance.gpos.length];
 
-			int length = instance.ppos.length;
-
-			short[] pos = new short[instance.gpos.length];
 			
-			Object[][] d = new Object[length][2];
-			for(int j = 0; j < length; j++) {
+			tag(is, instance);
 
-				short bestType = (short)pipe.fillFeatureVectorsOne(instance,params, j, d,is,0,pos);
-			 	pos[j] = bestType;
-				instance.ppos[j]= (String)d[j][1];
-			}
-
-			for(int j = 0; j < length; j++) {
-
-				pipe.fillFeatureVectorsOne(instance,params, j, d,is,0,pos);
-				instance.ppos[j]= (String)d[j][1];
-			}
-
-		
-
-			Arrays.toString(forms);
+			//Arrays.toString(forms);
 			
 			String[] formsNoRoot = new String[forms.length-1];
 			String[] posNoRoot = new String[formsNoRoot.length];
@@ -373,6 +359,44 @@ public class Tagger {
 		System.out.println("Used time " + (end-start));
 
 	}
+
+	
+	// check if everything works well!!!
+	public SentenceData09 tag(SentenceData09 instance){
+		Instances is = new Instances();
+		is.init(1, pipe.mf);
+		try {
+			new CONLLReader09().insert(is, instance);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	//	for (int k : is.forms[0]) System.out.println("forms "+k);
+		tag(is, instance);
+		
+		return instance;
+	}
+	
+	public void tag(Instances is, SentenceData09 instance) {
+		
+		int length = instance.ppos.length;
+
+		short[] pos = new short[instance.gpos.length];
+
+		Object[][] d = new Object[length][2];
+				
+		for(int j = 0; j < length; j++) {
+
+			short bestType = (short)pipe.fillFeatureVectorsOne(instance,params, j, d,is,0,pos);
+		 	pos[j] = bestType;
+			instance.ppos[j]= (String)d[j][1];
+		}
+
+		for(int j = 0; j < length; j++) {
+
+			pipe.fillFeatureVectorsOne(instance,params, j, d,is,0,pos);
+			instance.ppos[j]= (String)d[j][1];
+		}
+	}
 	
 	/**
 	 * Tag a sentence
@@ -381,7 +405,7 @@ public class Tagger {
 	 * @param params
 	 * @throws IOException
 	 */
-	public String[] tag (String[] words, String[] lemmas)  {
+	public  String[] tag (String[] words, String[] lemmas)  {
 
 		String[] pposs = new String[words.length];
 
@@ -442,7 +466,7 @@ public class Tagger {
 
 			for(int j = 0; j < words.length; j++) {
 					pposs[j] = instance.ppos[j+1];	
-//					System.out.print(pposs[j]+" ");
+		//			System.out.print(pposs[j]+" ");
 			}
 //			System.out.println();
 		} catch(Exception e) {

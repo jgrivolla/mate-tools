@@ -5,7 +5,7 @@ import is2.parser.Options;
 import is2.parser.Parser;
 
 
-public class ParseExample {
+public class ParseOnly {
 
 	public static void main(String[] args) {
 
@@ -21,7 +21,7 @@ public class ParseExample {
 	public static void plain() {
 
 		// initialize the options 
-		String[] opts ={"-model","/Users/bohnet/models/prs-090727k99991.model"};
+		String[] opts ={"-model","models/prs-eng-x.model"};
 		Options options = new Options(opts);
 		
 		// create a parser

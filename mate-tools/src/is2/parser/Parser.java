@@ -591,7 +591,7 @@ public class Parser {
 			if (instance.fillp!=null) fillp[j] = instance.fillp[j+1];
 		}
 
-		SentenceData09 i09 = new SentenceData09(formsNoRoot, lemmas, org_lemmas,posNoRoot, pposs, labels, heads,fillp,of, pf);
+		SentenceData09 i09 = new SentenceData09(formsNoRoot, org_lemmas, lemmas,posNoRoot, pposs, labels, heads,fillp,of, pf);
 		i09.sem = instance.sem;
 		i09.semposition = instance.semposition;
 
@@ -618,46 +618,6 @@ public class Parser {
 	}
 
 
-
-	static class Sims implements Comparable<Sims> {
-		double sim;
-		String fn1, fn2;
-		public Sims(String f1, String f2, double d) {
-			fn1=f1;
-			fn2=f2;
-			sim=d;
-		}
-		@Override
-		public int compareTo(Sims s) {
-			return sim==s.sim?0:sim<s.sim?1:-1;
-		}
-
-		@Override
-		public String toString() {
-			return ""+fn1+" "+fn2+" "+sim;
-		}
-
-	}
-
-	public static class Count implements Comparable<Count> {
-		int ct =0;
-		String fn;
-		public double sim;
-		public Count(String key, Integer value) {
-			fn =key;
-			ct = value;
-		}
-		@Override
-		public int compareTo(Count o) {
-			// TODO Auto-generated method stub
-			return sim==o.sim?0:sim<o.sim?1:-1;
-		}
-
-		@Override
-		public String toString() {
-			return ""+fn+":"+ct+" "+sim+" ";
-		}
-	}
 
 
 }
