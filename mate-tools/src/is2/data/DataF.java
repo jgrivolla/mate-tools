@@ -8,28 +8,28 @@ final public class DataF {
 		final public int len;
 		
 		// first order features
-		final public float[][] p_link;
+		final public float[][] pl;
 		
 		//final public FV[][][] label;
-		final public float[][][][] p_label;
+		final public float[][][][] lab;
 
 		
 		public FV fv;
 		
-		final public float[][][][][] p_sib;
+		final public float[][][][][] sib;
 
-		final public float[][][][][] p_gra;
+		final public float[][][][][] gra;
 	
 	
 		public DataF(int length, short types) {
 			typesLen=types;
 			len =length;
 			
-			p_link = new float[length][length];
-			p_label = new float[length][length][types][2];
+			pl = new float[length][length];
+			lab = new float[length][length][types][2];
 			
-			p_sib = new float[length][length][length][2][];
-			p_gra = new float[length][length][length][2][];
+			sib = new float[length][length][length][2][];
+			gra = new float[length][length][length][2][];
 		
 		}
 }

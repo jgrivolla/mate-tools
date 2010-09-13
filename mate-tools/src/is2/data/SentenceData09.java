@@ -119,7 +119,7 @@ public class SentenceData09 {
 		fillp =fillpred;
 	}
 
-	public SentenceData09(String[] forms, String[] lemmas, String[] olemmas,String[] gpos, 
+	public SentenceData09(String[] forms, String[] olemmas, String[] lemmas,String[] gpos, 
 			String[] ppos, String[] labs, int[] heads, String[] fillpred, String[] of, String[] pf) {
 		this.forms = forms;
 		this.gpos = gpos;
