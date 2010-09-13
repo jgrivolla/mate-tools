@@ -30,15 +30,15 @@ public class Evaluator {
 			if (instanceLength != predInstance.length())
 				System.out.println("Lengths do not match on sentence "+numsent);
 
-			int[] goldHeads = goldInstance.heads;
-			String[] goldLabels = goldInstance.labels;
-			int[] predHeads = predInstance.heads;
-			String[] predLabels = predInstance.labels;
+		//	int[] goldHeads = goldInstance.heads;
+		//	String[] goldLabels = goldInstance.labels;
+		//	int[] predHeads = predInstance.heads;
+		//	String[] predLabels = predInstance.labels;
 		//	String goldPos[] = goldInstance.gpos;
 		//	String predPos[] = predInstance.gpos;
 
-			String goldPos[] = goldInstance.org_lemmas;
-			String predPos[] = predInstance.lemmas;
+			String goldLemma[] = goldInstance.org_lemmas;
+			String predLemma[] = predInstance.lemmas;
 
 			
 			boolean whole = true;
@@ -47,8 +47,8 @@ public class Evaluator {
 			// NOTE: the first item is the root info added during nextInstance(), so we skip it.
 
 			for (int i = 1; i < instanceLength; i++) {
-				if (goldPos[i].equals(predPos[i])) corrT++;
-		//		else System.out.println("error gold:"+goldPos[i]+" pred:"+predPos[i]+" "+goldInstance.forms[i]+" snt "+numsent+" i:"+i);
+				if (goldLemma[i].equals(predLemma[i])) corrT++;
+				else System.out.println("error gold:"+goldLemma[i]+" pred:"+predLemma[i]+" form:"+goldInstance.forms[i]+" snt "+numsent+" i:"+i);
 				
 			}
 			total += instanceLength - 1; // Subtract one to not score fake root token

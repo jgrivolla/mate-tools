@@ -49,7 +49,6 @@ public class Lemmatizer {
 			Instances is = new Instances();
 			pipe.createInstances(options.trainfile,options.trainforest,is);
 
-		//	System.exit(0);
 			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(options.modelName)));
 			System.out.println("Features: " + pipe.mf.size()+" Relations "+pipe.mf.getFeatureCounter().get(Pipe.REL));   
 
@@ -73,19 +72,19 @@ public class Lemmatizer {
 				first=false;
 			}
 			
-		//	evaluate(pipe.mf, params.parameters);
-			
 			System.out.println("Writting "+k+" values of "+c+" (rest is 0.0)");
 
-			 k =pipe.mf.wirteMapping(dos,params.parameters,k,MAX); 
+			k =pipe.mf.wirteMapping(dos,params.parameters,k,MAX); 
 			DB.println("number of parameters "+params.parameters.length);
 			dos.flush();
 			params.write(dos,k,MAX);
+			
+			dos.writeBoolean(options.upper);
+						
 			dos.flush();
 			dos.close();
 			
 			
-		//	evaluate(pipe.mf, params.parameters); 
 			System.out.print("done.");
 		}
 
@@ -120,6 +119,7 @@ public class Lemmatizer {
 		pipe.initFeatures();
 		
 		params.read(dis);
+		options.upper = dis.readBoolean();
 		dis.close();
 
 		DB.println("num params "+params.parameters.length);
@@ -148,11 +148,6 @@ public class Lemmatizer {
 	static public void train(Options options, Pipe pipe, ParametersDouble params, Instances is) 
 	throws IOException, InterruptedException, ClassNotFoundException {
 
-		
-		
-		//for(int k =0;k<params.parameters.length;k++) {
-		//	params.parameters[k]=(double)(1+ k)/params.parameters.length;
-		//}
 	
 		int i = 0;
 		int del=0; 
@@ -214,10 +209,6 @@ public class Lemmatizer {
 		CONLLReader09 depReader = new CONLLReader09(options.testfile, options.formatTask);
 		CONLLWriter09 depWriter = new CONLLWriter09(options.outfile, options.formatTask);
 
-//		pipe.initInputFile(options.testfile);
-//		pipe.initOutputFile(options.outfile);
-
-
 
 		System.out.print("Processing Sentence: ");
 		pipe.initValues();
@@ -243,9 +234,31 @@ public class Lemmatizer {
 			for(int j = 1; j < length; j++) {
 
 				pipe.fillFeatureVectorsOne(instance.forms,params, j,fvs, probs, d);
-//				String operation = (String)d[j][1];
-			//	instance.pposs[j]= (String)d[j][1];
 				instance.lemmas[j] = StringEdit.change(instance.forms[j], (String)d[j][1]);
+				
+				if (options.upper && Character.isUpperCase(instance.forms[j].charAt(0))) {
+					instance.lemmas[j] = instance.forms[j].charAt(0)+instance.lemmas[j].substring(1);
+				} 
+				
+				
+				if (options.upper ) {
+					
+					boolean allUpperCase =true;
+					for(int index =0;index<instance.forms[j].length();index++ ) {
+						char c= instance.forms[j].charAt(index);
+						if (Character.isLowerCase(c)) {
+							allUpperCase = false;
+							break;
+						}
+					}
+					if (allUpperCase)
+						instance.lemmas[j] = instance.lemmas[j].toUpperCase();
+				}
+				
+				if (!options.upper) {
+					instance.lemmas[j] = instance.lemmas[j].toLowerCase(); 
+				}
+				
 			//	if (!operation.equals("0")) System.out.println("changed "+instance.forms[j]+" to "+instance.lemmas[j]+" op "+operation);
 			}
 
@@ -266,6 +279,8 @@ public class Lemmatizer {
 
 			String[] org_lemmas = new String[formsNoRoot.length];
 
+			String[] plabels = new String[formsNoRoot.length];
+
 			String[] of = new String[formsNoRoot.length];
 			String[] pf = new String[formsNoRoot.length];
 			
@@ -279,11 +294,10 @@ public class Lemmatizer {
 				formsNoRoot[j] = forms[j+1];
 				posNoRoot[j] = instance.gpos[j+1];
 
-
-		//		posNoRoot[j] = (String)d[j+1][1];
 				pposs[j] = instance.ppos[j+1];
 
 				labels[j] = instance.labels[j+1];// Pipe.types[is.deprels[cnt-1][j+1]];
+				plabels[j]= instance.pedge[j+1];
 				heads[j] = instance.heads[j+1];
 				org_lemmas[j] = instance.org_lemmas[j+1];
 
@@ -296,10 +310,8 @@ public class Lemmatizer {
 				if (instance.fillp!=null) fillp[j] = instance.fillp[j+1];
 			}
 
-//			Instance09 i09 = new Instance09(formsNoRoot, lemmas, org_lemmas,posNoRoot, posNoRoot, labels, heads,fillp,of, pf);
-
 			SentenceData09 i09 = new SentenceData09(formsNoRoot, org_lemmas, lemmas,posNoRoot, pposs, labels, heads,fillp,of, pf);
-
+			i09.pedge=plabels;
 			
 			i09.fillp = fillp;
 			i09.sem = instance.sem;

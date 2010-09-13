@@ -805,7 +805,6 @@ final public class Pipe extends PipeGen {
 				FV prodFV = new FV(dis);
 				fvs[w1][t] = prodFV;  
 				probs[w1][t] = prodFV.getScore(params.parameters,false);
-				//		if (probs[w1][t]>0) System.out.println(" "+probs[w1][t]+" t:"+t);
 
 
 			}
@@ -815,20 +814,12 @@ final public class Pipe extends PipeGen {
 
 		for(int k=0;k<length;k++) {
 			nfv[k] = new FV(dis);
-			//instance.m_fvs[k].writeKeys(dos);
 		}
 
 
-		 
-
-	//	m_instance = (Instance)in.readObject();
-		//	m_instance.setFeatureVector(nfv);	
-		m_instance = new SentenceData09();
+			m_instance = new SentenceData09();
 		m_instance.read(dis);
 		m_instance.m_fvs=nfv;
-
-	//	last = in.readInt();
-	//	if(last != -1) { System.out.println("Error reading file."); System.exit(0); }
 
 		Object o[][] = new Object[length][2];
 		for(int w1 = 0; w1 < length; w1++) {
@@ -840,7 +831,6 @@ final public class Pipe extends PipeGen {
 					o[w1][0] = fvs[w1][t];
 					o[w1][1] = types[t];
 					best =probs[w1][t];
-				//	System.out.println(""+t+" w1 "+w1 +" "+probs[w1][t]);
 				}		
 			}
 

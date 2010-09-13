@@ -33,6 +33,9 @@ public final class Options extends OptionsSuper {
 				cores= Integer.parseInt(args[i+1]); i++;
 			} else	if (args[i].equals("-tmp")) {
 				tmp = args[i+1]; i++;
+			} else	if (args[i].equals("-uc")) {
+				upper=true;
+				System.out.println("set uppercase "+upper);
 
 			} else super.addOption(args, i);
 					
