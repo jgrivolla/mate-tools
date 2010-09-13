@@ -12,7 +12,7 @@ final public class Long2Int implements Long2IntInterface {
 
 	
 	public Long2Int() {
-		size=11591164;
+		size=115911564;
 	}
 	
 	

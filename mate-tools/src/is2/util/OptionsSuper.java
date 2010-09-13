@@ -14,7 +14,7 @@ public class OptionsSuper {
 	public String pbframes = null;
 
 	public boolean nopred = false;
-
+	public boolean upper = false;
 	
 	public boolean train = false;
 	public boolean eval = false;
@@ -36,7 +36,7 @@ public class OptionsSuper {
 	public String charset = "UTF-8";
 	public String goldfile = null;
 	public String features = null;
-	public int hsize = 11591164;
+	public int hsize = 115911564;
 	public int maxLen = 255;
 	
 	//public boolean secondOrder = true;
