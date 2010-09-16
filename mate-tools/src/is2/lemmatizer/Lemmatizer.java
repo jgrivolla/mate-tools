@@ -25,22 +25,22 @@ import java.io.EOFException;
 
 
 
-public class Lemmatizer {
+public class Lemmatizer implements LemmatizerInterface {
 
 	public static final double MAX = 0.000000000000001; // 0.001
 
 	private Pipe pipe;
 	private ParametersDouble params;
-	
+	private Options m_options;
+
 	public Lemmatizer(Options options) throws FileNotFoundException, IOException {
 		init(options);
 	}
-	
+
 	/**
 	 * 
 	 */
 	public Lemmatizer() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public static void main (String[] args) throws FileNotFoundException, Exception
@@ -50,12 +50,12 @@ public class Lemmatizer {
 		Options options = new Options(args);
 
 		Lemmatizer lemmatizer = new Lemmatizer();
-	
-		
+
+
 		if (options.train) {
 
 			lemmatizer.pipe =  new Pipe (options);
-			
+
 			Instances is = new Instances();
 			lemmatizer.pipe.createInstances(options.trainfile,options.trainforest,is);
 
@@ -72,30 +72,30 @@ public class Lemmatizer {
 			System.out.println("Data cleared ");
 
 			int k=0, c=0;
-			
+
 			boolean first=true;
 			for(double d : params.parameters) {
 				if (d>MAX || d<-MAX || first){
 					k++;
-					
+
 				}  
 				first=false;
 			}
-			
+
 			System.out.println("Writting "+k+" values of "+c+" (rest is 0.0)");
 
 			k =lemmatizer.pipe.mf.wirteMapping(dos,params.parameters,k,MAX); 
 			DB.println("number of parameters "+params.parameters.length);
 			dos.flush();
 			params.write(dos,k,MAX);
-			
+
 			try {
 				dos.writeBoolean(options.upper);
 			} catch(EOFException e) {DB.println("Warning: models contains no uppercase information: use default (lowercase) ");}		
 			dos.flush();
 			dos.close();
-			
-			
+
+
 			System.out.print("done.");
 		}
 
@@ -117,18 +117,25 @@ public class Lemmatizer {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see is2.lemmatizer.LemmatizerInterface#init(is2.lemmatizer.Options)
+	 */
 	public void init(Options options) throws IOException,FileNotFoundException {
+		
+		// store the options since they contains some information about the uppercase usage
+		m_options=options;
+		
 		pipe = new Pipe(options);
 		//Parameters params = new ParametersFloat(pipe.mf.size());
 		params = new ParametersDouble(pipe.mf.size());
 
-	
+
 		// load the model
 		DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(options.modelName)));
 		pipe.mf.read(dis);
 		pipe.initValues();
 		pipe.initFeatures();
-		
+
 		params.read(dis);
 		try {options.upper = dis.readBoolean();} catch(Exception ex) {
 			DB.println("Warning: models contains no uppercase information: use default (lowercase) ");
@@ -136,17 +143,17 @@ public class Lemmatizer {
 		dis.close();
 
 		DB.println("num params "+params.parameters.length);
-		
+
 		pipe.types = new String[pipe.mf.getFeatureCounter().get(Pipe.OPERATION)];
 		for(Entry<String,Integer> e : pipe.mf.getFeatureSet().get(Pipe.OPERATION).entrySet()) 
 			pipe.types[e.getValue()] = e.getKey();
-		
+
 		System.out.println("Loading data finnished. "+pipe.types.length);
-		
+
 		pipe.mf.stop();
 	}
 
-	
+
 
 	/**
 	 * Do the training
@@ -161,7 +168,7 @@ public class Lemmatizer {
 	static public void train(Options options, Pipe pipe, ParametersDouble params, Instances is) 
 	throws IOException, InterruptedException, ClassNotFoundException {
 
-	
+
 		int i = 0;
 		int del=0; 
 		for(i = 0; i < options.numIters; i++) {
@@ -169,30 +176,30 @@ public class Lemmatizer {
 			System.out.print("Iteration "+i+": ");
 
 			long start = System.currentTimeMillis();
-		
+
 			BufferedInputStream bos = new BufferedInputStream(new FileInputStream(options.trainforest));
 			DataInputStream dos = new DataInputStream(bos);
-			
+
 			int numInstances = is.size();
-					
+
 			long last= System.currentTimeMillis();
 			for(int n = 0; n < numInstances; n++) {
 				if((n+1) % 500 == 0) del= PipeGen.outValue(n+1,del, last);
-				
+
 				Object[][] d = pipe.readInstance(dos, is.length(n),params,options,null);
-			
+
 				SentenceData09 instance = pipe.getInstance();
 
 				double upd = (options.numIters*numInstances - (numInstances*i+(n+1))+ 1);
-			
+
 				params.updateParamsMIRA(instance,d,upd, pipe);
 
 			}
 
 
 			System.out.print(numInstances);
- 
-			
+
+
 
 			long end = System.currentTimeMillis();
 			//System.out.println("Training iter took: " + (end-start));
@@ -203,7 +210,7 @@ public class Lemmatizer {
 
 	}
 
-	
+
 
 
 	/**
@@ -216,7 +223,7 @@ public class Lemmatizer {
 	public void lemmatize (Options options) 
 	throws Exception {
 
-		
+
 		long start = System.currentTimeMillis();
 
 		CONLLReader09 depReader = new CONLLReader09(options.testfile, options.formatTask);
@@ -233,15 +240,15 @@ public class Lemmatizer {
 			SentenceData09 instance = pipe.nextInstance(null, depReader);
 
 			if (instance==null) break;
-			
+
 			cnt++;
 
-			
+
 
 			this.lemmatize(options, instance);
 
-//			Arrays.toString(forms);
-			
+			//			Arrays.toString(forms);
+
 			String[] formsNoRoot = new String[instance.forms.length-1];
 			String[] posNoRoot = new String[formsNoRoot.length];
 			String[] lemmas = new String[formsNoRoot.length];
@@ -252,11 +259,11 @@ public class Lemmatizer {
 
 			String[] of = new String[formsNoRoot.length];
 			String[] pf = new String[formsNoRoot.length];
-			
+
 			String[] pposs = new String[formsNoRoot.length];
 			String[] labels = new String[formsNoRoot.length];
 			String[] fillp = new String[formsNoRoot.length];
-			                             
+
 			int[] heads = new int[formsNoRoot.length];
 
 			for(int j = 0; j < formsNoRoot.length; j++) {
@@ -281,32 +288,32 @@ public class Lemmatizer {
 
 			SentenceData09 i09 = new SentenceData09(formsNoRoot, org_lemmas, lemmas,posNoRoot, pposs, labels, heads,fillp,of, pf);
 			i09.pedge=plabels;
-			
+
 			i09.fillp = fillp;
 			i09.sem = instance.sem;
 			i09.semposition = instance.semposition;
-			
+
 			if (instance.semposition!=null)
-			for (int k= 0;k< instance.semposition.length;k++) {
-				i09.semposition[k]=instance.semposition[k]-1;
-			}
-			
-			
+				for (int k= 0;k< instance.semposition.length;k++) {
+					i09.semposition[k]=instance.semposition[k]-1;
+				}
+
+
 			i09.arg = instance.arg;
 
-			
+
 			i09.argposition = instance.argposition;
 
 			if (i09.argposition!=null)
-			for (int p= 0;p< instance.argposition.length;p++) {
-				if (i09.argposition[p]!=null)
-				for(int a=0;a<instance.argposition[p].length;a++)
-				i09.argposition[p][a]=instance.argposition[p][a]-1;
-			}
+				for (int p= 0;p< instance.argposition.length;p++) {
+					if (i09.argposition[p]!=null)
+						for(int a=0;a<instance.argposition[p].length;a++)
+							i09.argposition[p][a]=instance.argposition[p][a]-1;
+				}
 
 
 			depWriter.write(i09);
-			
+
 			del=PipeGen.outValue(cnt, del);
 
 		}
@@ -319,11 +326,11 @@ public class Lemmatizer {
 	}
 
 	public void lemmatize(Options options, SentenceData09 instance) {
-		
-		
+
+
 		int length = instance.ppos.length;
 
-		
+
 		FV[][] fvs = new FV[length][pipe.types.length];
 		double[][] probs = new double[length][pipe.types.length];
 		Object[][] d = new Object[length][2];
@@ -331,14 +338,14 @@ public class Lemmatizer {
 
 			pipe.fillFeatureVectorsOne(instance.forms,params, j,fvs, probs, d);
 			instance.lemmas[j] = StringEdit.change(instance.forms[j], (String)d[j][1]);
-			
+
 			if (options.upper && Character.isUpperCase(instance.forms[j].charAt(0))) {
 				instance.lemmas[j] = instance.forms[j].charAt(0)+instance.lemmas[j].substring(1);
 			} 
-			
-			
+
+
 			if (options.upper ) {
-				
+
 				boolean allUpperCase =true;
 				for(int index =0;index<instance.forms[j].length();index++ ) {
 					char c= instance.forms[j].charAt(index);
@@ -350,18 +357,62 @@ public class Lemmatizer {
 				if (allUpperCase)
 					instance.lemmas[j] = instance.lemmas[j].toUpperCase();
 			}
-			
+
 			if (!options.upper) {
 				instance.lemmas[j] = instance.lemmas[j].toLowerCase(); 
 			}
-			
-			
-			
+
+
+
 		}
 	}
-	
-	
-	
+
+	/* (non-Javadoc)
+	 * @see is2.lemmatizer.LemmatizerInterface#getLemmas(java.lang.String[])
+	 */
+	public String[] getLemmas (String[] forms)  {
+		
+		int length = forms.length;
+		String [] lemmas = new String[length];
+
+
+		FV[][] fvs = new FV[length][pipe.types.length];
+		double[][] probs = new double[length][pipe.types.length];
+		Object[][] d = new Object[length][2];
+		for(int j = 0; j < length; j++) {
+
+			pipe.fillFeatureVectorsOne(forms,params, j,fvs, probs, d);
+			lemmas[j] = StringEdit.change(forms[j], (String)d[j][1]);
+
+			if (m_options.upper && Character.isUpperCase(forms[j].charAt(0))) {
+				lemmas[j] = forms[j].charAt(0)+lemmas[j].substring(1);
+			} 
+
+
+			if (m_options.upper ) {
+
+				boolean allUpperCase =true;
+				for(int index =0;index<forms[j].length();index++ ) {
+					char c= forms[j].charAt(index);
+					if (Character.isLowerCase(c)) {
+						allUpperCase = false;
+						break;
+					}
+				}
+				if (allUpperCase)
+					lemmas[j] = lemmas[j].toUpperCase();
+			}
+
+			if (!m_options.upper) lemmas[j] = lemmas[j].toLowerCase(); 
+			
+		}
+		
+		return lemmas;
+
+	}
+
+
+
 	/**
 	 * Computes the lemmata for a list of input forms
 	 * @param inForms the input forms
@@ -373,14 +424,14 @@ public class Lemmatizer {
 		String[] forms = new String[inForms.length+1];
 		System.arraycopy(inForms, 0, forms, 1, inForms.length);
 		forms[0] = is2.io.CONLLReader09.ROOT;
-		                            
-		
+
+
 		int length = forms.length;
 		FV[][] fvs = new FV[length][pipe.types.length];
 		double[][] probs = new double[length][pipe.types.length];
 
 		String lemmas[] = new String[length];
-		
+
 		Object[][] d = new Object[length][2];
 		for(int j = 1; j < length; j++) {
 
@@ -396,7 +447,7 @@ public class Lemmatizer {
 		return 	outLemmas;
 	}
 
-	
-	
+
+
 
 }
