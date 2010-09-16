@@ -15,10 +15,12 @@ import is2.tag3.Tagger;
  * 
  * Illustrates the application of some components: lemmatizer, tagger, and parser
  */
-public class Pipeline {
+public class Lemmatize {
 
 	
-	//	how to parse a sentences and call the tools
+	/**
+	 * How to lemmatize a sentences?
+	 */
 	public static void main(String[] args) throws IOException {
 
 		
@@ -36,14 +38,14 @@ public class Pipeline {
 			
 		} else {
 			// provide a default sentence 
-			i.init(new String[] {"<root>","This","is","a","test","."});
+			i.init(new String[] {"<root>","HŠuser","hat","ein","Umlaut","."});
 		}
 
 		//print the forms
-		for (String l : i.forms) System.out.println("form : "+l);
+		for (String l : i.forms) System.out.println("forms : "+l);
 
 		// tell the lemmatizer the location of the model
-		is2.lemmatizer.Options optsLemmatizer = new is2.lemmatizer.Options(new String[] {"-model","models/lemma-eng.model"});
+		is2.lemmatizer.Options optsLemmatizer = new is2.lemmatizer.Options(new String[] {"-model","models/lemma-ger.model"});
 
 		// create a lemmatizer
 		Lemmatizer lemmatizer = new Lemmatizer(optsLemmatizer);
@@ -54,38 +56,12 @@ public class Pipeline {
 		
 		// output the lemmata
 		for (String l : i.lemmas) System.out.println("lemma : "+l);
-
-		// tell the tagger the location of the model
-		is2.tag3.Options optsTagger = new is2.tag3.Options(new String[]{"-model","models/tag-eng.model"});
-		Tagger tagger = new Tagger(optsTagger);
-
-
 		
-//		String pos[] =tagger.tag(i.forms, i.lemmas);
-//		i.setPPos(pos);
-
+		System.out.println("A variant to call the lemmatizer");
 		
-		SentenceData09 tagged = tagger.tag(i);
-		for (String p : tagged.ppos) System.out.println("pos "+p);
-
-
+		String[] lemmata = lemmatizer.getLemmas(i.forms);
+		for (String l : lemmata) System.out.println("lemma : "+l);
 		
-		// initialize the options 
-		Options optsParser = new Options(new String[]{"-model","models/prs-eng-x.model"});
-
-		// create a parser
-		Parser parser = new Parser(optsParser);
-		
-		// parse the sentence (you get a copy of the input i)
-		SentenceData09 parse = parser.parse(tagged);
-
-		System.out.println(parse.toString());
-
-		// create some trash on the hard drive :-)
-		is2.io.CONLLWriter09 writer = new is2.io.CONLLWriter09("example-out.txt");
-		
-		writer.write(i);
-		writer.finishWriting();
 	}
 
 	
