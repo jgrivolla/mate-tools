@@ -7,14 +7,17 @@
 	<property name="dist" value="${basedir}/dist"/>
 	<property name="lib" value="${basedir}/lib"/>
 	<property name="LICENSE" value="${basedir}/LICENSE"/>
+
+	<property name="dist.version" value="2"/>
 	
 	<path id="classpath">
 		<pathelement location="${lib}/liblinear-1.51-with-deps.jar"/>
 		<pathelement location="${lib}/opennlp-tools-1.4.3.jar"/>
 		<pathelement location="${lib}/trove.jar"/>
 		<pathelement location="${lib}/maxent-2.5.2.jar"/>
-		<pathelement location="${lib}/anna-1.jar"/>
+		<pathelement location="${lib}/anna.jar"/>
 		<pathelement location="${lib}/junit.jar"/>
+		<pathelement location="${lib}/seg.jar"/>
 	</path>
 		
 	<target name="compile" description="Compile source">
@@ -26,6 +29,9 @@
 		<property name="distname" value="${ant.project.name}-${DSTAMP}"/>
 		<property name="distdir" value="${dist}/${distname}"/>
 		<mkdir dir="${distdir}"/>
+		<copy todir="${distdir}">
+			<fileset file="${LICENSE}" includes="${LICENSE}"/>
+		</copy>
 		<jar jarfile="${distdir}/${ant.project.name}.jar">
 			<fileset dir="${classes}" includes="**/*.class" excludes="**/test/*"/>
 			<fileset file="${LICENSE}" includes="${LICENSE}"/>
@@ -40,9 +46,10 @@
 			<fileset dir="scripts" includes="**/*"/>
 		</copy>
 <!--    Should the source be included in the dist? I think yes. --> 
-		<copy todir="${distdir}/src">
+		<jar jarfile="${distdir}/${ant.project.name}-src.jar">
 			<fileset dir="${src}" includes="**/*.java"/>
-		</copy>
+			<fileset file="${LICENSE}" includes="${LICENSE}"/>
+		</jar>
 		<property name="tarfile" value="${dist}/${distname}.tar"/>
 		<property name="tgzfile" value="${dist}/${distname}.tgz"/>
 		<tar destfile="${tarfile}" basedir="${distdir}"/>

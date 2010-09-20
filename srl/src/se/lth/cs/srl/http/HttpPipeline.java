@@ -5,6 +5,7 @@ import java.util.Date;
 
 import se.lth.cs.srl.CompletePipeline;
 import se.lth.cs.srl.options.HttpOptions;
+import se.lth.cs.srl.util.FileExistenceVerifier;
 
 import com.sun.net.httpserver.HttpServer;
 
@@ -21,14 +22,23 @@ public class HttpPipeline {
 	public static void main(String[] args) {
 		try {
 			serverStart=new Date(System.currentTimeMillis());
-			HttpOptions options=new HttpOptions(args);
+			HttpOptions options=new HttpOptions();
+			options.parseCmdLineArgs(args);
+			String error=FileExistenceVerifier.verifyFiles(options.tagger,options.parser,options.srl);
+			if(error!=null){
+				System.err.println(error);
+				System.err.println("Aborting.");
+				System.exit(1);
+			}
+			//options.verifyFiles(true, true, true, false, true, true); //Note: MTagger not verified.
 			defaultHandler=new DefaultHandler();
 			server=HttpServer.create(new InetSocketAddress(options.port),0);
 			server.createContext("/",defaultHandler);
 			server.start();
 			System.out.println("Server up and listening on port "+options.port);
 			System.out.println("Setting up pipeline");
-			CompletePipeline pipeline=new CompletePipeline(options);
+			//CompletePipeline pipeline=new CompletePipeline(options);
+			CompletePipeline pipeline=CompletePipeline.getCompletePipeline(options);
 			parseHandler=new ParseRequestHandler(defaultHandler, pipeline);
 			server.createContext("/parse",parseHandler);
 			statusHandler=new ParserStatusHandler(pipeline);

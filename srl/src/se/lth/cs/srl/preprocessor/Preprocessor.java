@@ -1,68 +1,105 @@
 package se.lth.cs.srl.preprocessor;
 
-import is2.lemmatizer.Lemmatizer;
+import is2.lemmatizer.LemmatizerInterface;
 import is2.tag3.Tagger;
 
-import java.io.File;
-import java.io.IOException;
-
-import opennlp.tools.tokenize.Tokenizer;
+import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
 import se.lth.cs.srl.corpus.Sentence;
-import se.lth.cs.srl.languages.Language;
 
 public class Preprocessor {
 
-	private Tokenizer tokenizer;
-	private Lemmatizer lemmatizer;
-	private Tagger postagger;
-	private is2.mtag.Main mtagger;
+	private final Tokenizer tokenizer;
+	private final LemmatizerInterface lemmatizer;
+	private final Tagger tagger;
+	private final is2.mtag.Main mtagger;
 	
-	public long loadingTime;
-	public long parsingTime=0;
-	
-	public Preprocessor(File tokenizerModelFile,File lemmatizerModelFile,File POSTaggerModelFile,File morphTaggerModelFile) throws IOException{
-		long start=System.currentTimeMillis();
-		Language l=Language.getLanguage();
-		switch(l.getL()){
-		case ger:
-			tokenizer=new opennlp.tools.lang.german.Tokenizer(tokenizerModelFile.toString());
-			String[] argsMT={"-model",morphTaggerModelFile.toString()};
-			mtagger=new is2.mtag.Main(new is2.mtag.Options(argsMT));
-			break;
-		case eng:
-			tokenizer=new opennlp.tools.lang.english.Tokenizer(tokenizerModelFile.toString());
-			break;
-		case chi:
-			tokenizer=null; //This is a problem. OpenNLP tools doesn't provide Chinese models. 
-			break;
-		default: throw new Error("not implemented");
-		}
-		String[] argsL={"-model",lemmatizerModelFile.toString()};
-		lemmatizer=new Lemmatizer(new is2.lemmatizer.Options(argsL));
-		String[] argsT={"-model",POSTaggerModelFile.toString()};
-		postagger=new Tagger(new is2.tag3.Options(argsT));
-		loadingTime=System.currentTimeMillis()-start;
+	public Preprocessor(Tokenizer tokenizer,LemmatizerInterface lemmatizer,Tagger tagger,is2.mtag.Main mtagger){
+		this.tokenizer=tokenizer;
+		this.lemmatizer=lemmatizer;
+		this.tagger=tagger;
+		this.mtagger=mtagger;
 	}
 	
-	public Sentence preprocess(String[] words) throws Exception{
-		long start=System.currentTimeMillis();
-		String[] lemmas=lemmatizer.lemma(words, false);
-		String[] tags=postagger.tag(words, lemmas);
-		String[] morphs;
-		if(mtagger!=null){
-			morphs=mtagger.out(words, lemmas).pfeats;
-		} else {
-			morphs=new String[words.length];
+	
+	//TODO break these apart and measure each of them individually.
+	
+	//public long loadingTime;
+	//public long parsingTime=0;
+	
+	public long tokenizeTime=0;
+	public long lemmatizeTime=0;
+	public long tagTime=0;
+	public long mtagTime=0;
+
+	
+	
+	
+//	public Preprocessor(File tokenizerModelFile,File lemmatizerModelFile,File POSTaggerModelFile,File morphTaggerModelFile) throws IOException{
+//		long start=System.currentTimeMillis();
+//		Language l=Language.getLanguage();
+//		switch(l.getL()){
+//		case ger:
+//			tokenizer=new opennlp.tools.lang.german.Tokenizer(tokenizerModelFile.toString());
+//			String[] argsMT={"-model",morphTaggerModelFile.toString()};
+//			mtagger=new is2.mtag.Main(new is2.mtag.Options(argsMT));
+//			break;
+//		case eng:
+//			tokenizer=new opennlp.tools.lang.english.Tokenizer(tokenizerModelFile.toString());
+//			break;
+//		case chi:
+//			tokenizer=null; //This is a problem. OpenNLP tools doesn't provide Chinese models. 
+//			break;
+//		default: throw new Error("not implemented");
+//		}
+//		String[] argsL={"-model",lemmatizerModelFile.toString()};
+//		lemmatizer=new Lemmatizer(new is2.lemmatizer.Options(argsL));
+//		String[] argsT={"-model",POSTaggerModelFile.toString()};
+//		postagger=new Tagger(new is2.tag3.Options(argsT));
+//		loadingTime=System.currentTimeMillis()-start;
+//	}
+
+	public Sentence preprocess(String[] forms) throws Exception{
+		String[] lemmas=null;
+		String[] tags=null;
+		String[] morphs=null;
+		if(lemmatizer!=null){
+			long start=System.currentTimeMillis();
+			lemmas=lemmatizer.getLemmas(forms);
+			lemmatizeTime+=System.currentTimeMillis()-start;
 		}
-		Sentence ret=new Sentence(words,lemmas,tags,morphs);
-		parsingTime+=(System.currentTimeMillis()-start);
+		if(tagger!=null){
+			long start=System.currentTimeMillis();
+			tags=tagger.tag(forms, lemmas);
+			tagTime=System.currentTimeMillis()-start;
+		}
+		if(mtagger!=null){
+			long start=System.currentTimeMillis();
+			morphs=mtagger.out(forms, lemmas).pfeats;
+			mtagTime=System.currentTimeMillis()-start;
+		}
+		Sentence ret=new Sentence(forms,lemmas,tags,morphs);
 		return ret;
 	}
+	
+//	public Sentence preprocess(String[] words) throws Exception{
+//		long start=System.currentTimeMillis();
+//		String[] lemmas=lemmatizer.lemma(words, false);
+//		String[] tags=postagger.tag(words, lemmas);
+//		String[] morphs;
+//		if(mtagger!=null){
+//			morphs=mtagger.out(words, lemmas).pfeats;
+//		} else {
+//			morphs=new String[words.length];
+//		}
+//		Sentence ret=new Sentence(words,lemmas,tags,morphs);
+//		parsingTime+=(System.currentTimeMillis()-start);
+//		return ret;
+//	}
 	
 	public String[] tokenize(String sentence) throws Exception {
 		long start=System.currentTimeMillis();
 		String[] words=tokenizer.tokenize(sentence);
-		parsingTime+=(System.currentTimeMillis()-start);
+		tokenizeTime+=(System.currentTimeMillis()-start);
 		return words;		
 	}
 

@@ -190,6 +190,7 @@ public class ParseRequestHandler extends Handler {
 	private boolean isValidURL(String url) { 
 		try {
 			HttpURLConnection conn=(HttpURLConnection) new URL(url).openConnection();
+			conn.setRequestMethod("HEAD");
 			conn.connect();
 			return conn.getResponseCode()==HttpURLConnection.HTTP_OK;
 		} catch (MalformedURLException e) {

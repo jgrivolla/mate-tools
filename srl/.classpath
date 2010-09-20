@@ -7,6 +7,7 @@
 	<classpathentry kind="lib" path="lib/opennlp-tools-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/trove.jar"/>
 	<classpathentry kind="lib" path="lib/liblinear-1.51-with-deps.jar"/>
-	<classpathentry kind="lib" path="lib/anna-1.jar"/>
+	<classpathentry kind="lib" path="lib/seg.jar"/>
+	<classpathentry kind="lib" path="lib/anna.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

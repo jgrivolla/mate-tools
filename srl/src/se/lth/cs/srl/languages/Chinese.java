@@ -1,11 +1,20 @@
 package se.lth.cs.srl.languages;
 
+import is2.lemmatizer.LemmatizerInterface;
+import is2.tag3.Tagger;
+
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
+import se.lth.cs.srl.options.FullPipelineOptions;
+import se.lth.cs.srl.preprocessor.Preprocessor;
+import se.lth.cs.srl.preprocessor.SimpleChineseLemmatizer;
+import se.lth.cs.srl.preprocessor.tokenization.StanfordChineseSegmenterWrapper;
+import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
+import se.lth.cs.srl.util.BohnetHelper;
 
 public class Chinese extends Language {
 
@@ -46,6 +55,14 @@ public class Chinese extends Language {
 	@Override
 	public String getLexiconURL(Predicate pred) {
 		return null;
+	}
+
+	@Override
+	public Preprocessor getPreprocessor(FullPipelineOptions options) {
+		Tokenizer tokenizer=new StanfordChineseSegmenterWrapper(options.tokenizer);
+		LemmatizerInterface lemmatizer=new SimpleChineseLemmatizer();
+		Tagger tagger=BohnetHelper.getTagger(options.tagger);
+		return new Preprocessor(tokenizer,lemmatizer,tagger,null);
 	}
 
 }

@@ -43,6 +43,15 @@ Package that provides various NLP tools.
 Used for the tokenization step in the pipeline.
 
 ------------------------------------------------------------------------
+seg.jar
+
+Stanford Chinese Word Segmenter, version 2008-05-21
+Homepage: http://nlp.stanford.edu/software/segmenter.shtml
+License: GPL (see GPL.txt)
+
+Chinese word segementer. Used for Chinese.
+
+------------------------------------------------------------------------
 trove.jar
 
 GNU Trove, version 1.0.2

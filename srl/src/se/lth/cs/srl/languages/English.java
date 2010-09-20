@@ -1,11 +1,20 @@
 package se.lth.cs.srl.languages;
 
+import is2.lemmatizer.Lemmatizer;
+import is2.tag3.Tagger;
+
+import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
+import se.lth.cs.srl.options.FullPipelineOptions;
+import se.lth.cs.srl.preprocessor.Preprocessor;
+import se.lth.cs.srl.preprocessor.tokenization.OpenNLPToolsTokenizerWrapper;
+import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
+import se.lth.cs.srl.util.BohnetHelper;
 
 public class English extends Language {
 
@@ -60,6 +69,15 @@ public class English extends Language {
 		} else {
 			return "http://nlp.cs.nyu.edu/meyers/nombank/nombank.1.0/frames/"+pred.getLemma()+".xml";
 		}
+	}
+
+	@Override
+	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
+		Tokenizer tokenizer=new OpenNLPToolsTokenizerWrapper(new opennlp.tools.lang.english.Tokenizer(options.tokenizer.toString()));
+		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
+		Tagger tagger=BohnetHelper.getTagger(options.tagger);
+		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, null);
+		return pp;
 	}
 
 }

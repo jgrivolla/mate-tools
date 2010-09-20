@@ -37,9 +37,10 @@ public abstract class Handler implements HttpHandler {
 				  "  <h3>Try the semantic parser</h3>\n" +
 				  "  <form action=\"/parse\" method=\"POST\">\n" +
 				  "    <table cellpadding=\"2\" cellspacing=\"2\">\n" +
-				  "      <tr><td valign=\"center\"><b>Input</b><td><textarea name=\""+sentenceDataVarName+"\" rows=\"3\" cols=\"40\"></textarea>\n" +
-				  "      <tr><td valign=\"center\"><b>Return type</b><td><input type=\"radio\" name=\"returnType\" value=\"html\" checked=\"checked\" />&nbsp;&nbsp;HTML<br /><input type=\"radio\" name=\"returnType\" value=\"text\"/>&nbsp;&nbsp;Raw text\n" +
-				  "      <tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Parse\" /><br />\n" +
+				  "      <tr><td valign=\"center\"><b>Input</b><td><textarea name=\""+sentenceDataVarName+"\" rows=\"3\" cols=\"40\"></textarea></td></tr>\n" +
+				  "      <tr><td valign=\"center\"><b>Return type</b><td><input type=\"radio\" name=\"returnType\" value=\"html\" checked=\"checked\" />&nbsp;&nbsp;HTML<br /><input type=\"radio\" name=\"returnType\" value=\"text\"/>&nbsp;&nbsp;Raw text</td></tr>\n" +
+				  "      <tr><td colspan=\"2\"><input type=\"checkbox\" name=\"doPerformDictionaryLookup\" /> Attempt to lookup and reference predicates in dictionary<sup>&dagger;</sup></td></tr>." +
+				  "      <tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Parse\" /><br /></td></tr>\n" +
 				  "  </table></form><br/>\n" +
 				  "  <font size=\"-1\">\n" +
 				  "    <b>Note:</b> For optimal performance, please" +
@@ -52,7 +53,8 @@ public abstract class Handler implements HttpHandler {
 				  "    <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>"+
 				  "    <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li></ul>" +
 				  "  </font>\n" +
-				  "  <font size=\"-1\">For downloads and more information see <a href=\"http://code.google.com/p/mate-tools/\">http://code.google.com/p/mate-tools/</a>.</font>");
+				  "  <font size=\"-1\">For downloads and more information see <a href=\"http://code.google.com/p/mate-tools/\">http://code.google.com/p/mate-tools/</a>.</font><br/>" +
+				  "  <font size=\"-1\"><sup>&dagger;</sup> This is only applicable for HTML response, and with English. Note that this takes longer, and if the online dictionary is down, it may time out and take a significant amount of time.</font>");
 		
 		pages.put("notReady",
 				  "Parser is not loaded yet, please be patient. (Shouldn't be longer than 1-2 minutes, roughly)\n");

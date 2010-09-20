@@ -1,7 +1,6 @@
 package se.lth.cs.srl;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import is2.data.SentenceData09;
@@ -17,13 +17,14 @@ import is2.parser.Parser;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.io.CoNLL09Writer;
 import se.lth.cs.srl.io.SentenceWriter;
-import se.lth.cs.srl.languages.Language.L;
-import se.lth.cs.srl.options.HttpOptions;
-import se.lth.cs.srl.options.ParseOptions;
+import se.lth.cs.srl.languages.Language;
+import se.lth.cs.srl.options.CompletePipelineCMDLineOptions;
+import se.lth.cs.srl.options.FullPipelineOptions;
 import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
 import se.lth.cs.srl.pipeline.Step;
 import se.lth.cs.srl.preprocessor.Preprocessor;
+import se.lth.cs.srl.util.BohnetHelper;
 import se.lth.cs.srl.util.Util;
 
 public class CompletePipeline {
@@ -36,28 +37,29 @@ public class CompletePipeline {
 	
 	public long dpTime=0;
 	
-	public CompletePipeline(File tokenizerModelFile,File lemmatizerModelFile,File POSTaggerModelFile,File morphTaggerModelFile,File dependencyParserModelFile,ParseOptions parseOptions) throws IOException, ClassNotFoundException{
-		
-		//Language.setLanguage(l); //Sort of redundant since the creation of ParseOptions should set this for us.
-		pp=new Preprocessor(tokenizerModelFile,lemmatizerModelFile,POSTaggerModelFile,morphTaggerModelFile);
-		String[] argsDP={"-model",dependencyParserModelFile.toString()};
-		dp=new Parser(new is2.parser.Options(argsDP));
-		Parse.parseOptions=parseOptions;
-		if(parseOptions.useReranker){
-			srl=new Reranker(parseOptions);
+	public static CompletePipeline getCompletePipeline(FullPipelineOptions options) throws ZipException, IOException, ClassNotFoundException{
+		Preprocessor pp=Language.getLanguage().getPreprocessor(options);
+		Parser dp=BohnetHelper.getParser(options.parser);
+		Parse.parseOptions=options.getParseOptions();
+		SemanticRoleLabeler srl;
+		if(options.reranker){
+			srl=new Reranker(Parse.parseOptions);
 		} else {
-			ZipFile zipFile=new ZipFile(parseOptions.modelFile);
-			if(parseOptions.skipPI){
+			ZipFile zipFile=new ZipFile(Parse.parseOptions.modelFile);
+			if(Parse.parseOptions.skipPI){
 				srl=Pipeline.fromZipFile(zipFile, new Step[]{Step.pd,Step.ai,Step.ac});
 			} else {
 				srl=Pipeline.fromZipFile(zipFile);
 			}
-			zipFile.close();
+			zipFile.close();			
 		}
+		return new CompletePipeline(pp,dp,srl);
 	}
 	
-	public CompletePipeline(HttpOptions options) throws IOException, ClassNotFoundException {
-		this(options.tokenizer,options.lemmatizer,options.tagger,options.morph,options.parser,options.getParseOptions());
+	public CompletePipeline(Preprocessor preprocessor,Parser parser,SemanticRoleLabeler srl){
+		this.pp=preprocessor;
+		this.dp=parser;
+		this.srl=srl;
 	}
 	
 //	public Sentence parse(String sentence) throws Exception{
@@ -128,49 +130,20 @@ public class CompletePipeline {
 //	}
 
 	
-
 	public static void main(String[] args) throws Exception{
-		File tokenizer=new File(args[0]);
-		File lemmatizer=new File(args[1]);
-		File tagger=new File(args[2]);
-		File parser=new File(args[3]);
-		File mtagger=null;
-		File[] files=new File[]{tokenizer,lemmatizer,tagger,parser};
-		int argOffset=4;
-		try {
-			L.valueOf(args[4]);
-		} catch(IllegalArgumentException e){
-			mtagger=new File(args[4]);
-			files=new File[]{tokenizer,lemmatizer,tagger,parser,mtagger};
-			argOffset++;
-		}
-		for(File f:files){
-			if(!f.exists()){
-				System.err.println("File "+f+" does not exist. Aborting.");
-				System.exit(1);
-			}
-			if(!f.canRead()){
-				System.err.println("File "+f+" can not be read. Aborting.");
-				System.exit(1);
-			}
-		}
-		String[] srlArgs=new String[args.length-argOffset];
-		for(int i=0;i<srlArgs.length;++i){
-			srlArgs[i]=args[argOffset+i];
-		}
-		ParseOptions parseOptions=new ParseOptions(srlArgs);
-		CompletePipeline pipeline=new CompletePipeline(tokenizer,lemmatizer,tagger,mtagger,parser,parseOptions);
-		
-		BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(parseOptions.inputCorpus),Charset.forName("UTF-8")));
+		CompletePipelineCMDLineOptions options=new CompletePipelineCMDLineOptions();
+		options.parseCmdLineArgs(args);
+		CompletePipeline pipeline=getCompletePipeline(options);
+		BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(options.input),Charset.forName("UTF-8")));
 		String str;
 		List<String> forms=new ArrayList<String>();
 		List<Boolean> isPred=new ArrayList<Boolean>();
-		SentenceWriter writer=new CoNLL09Writer(parseOptions.output);
+		SentenceWriter writer=new CoNLL09Writer(options.output);
 		int senCount=0;
 		long start=System.currentTimeMillis();
 		while ((str = in.readLine()) != null) {
 			if(str.trim().equals("")){
-				Sentence s=parseOptions.skipPI ? pipeline.parseOraclePI(forms, isPred) : pipeline.parse(forms);
+				Sentence s=options.skipPI ? pipeline.parseOraclePI(forms, isPred) : pipeline.parse(forms);
 				forms.clear();
 				isPred.clear();
 				writer.write(s);
@@ -181,7 +154,7 @@ public class CompletePipeline {
 			} else {
 				String[] tokens=WHITESPACE_PATTERN.split(str);
 				forms.add(tokens[1]);
-				if(parseOptions.skipPI)
+				if(options.skipPI)
 					isPred.add(tokens[12].equals("Y"));
 			}
 		}
@@ -196,8 +169,9 @@ public class CompletePipeline {
 		System.out.println();
 		System.out.println("Total parsing time (ms):  "+time);
 		System.out.println("Overall speed (ms/sen):   "+time/senCount);
-	}
 	
+	}
+
 	public String getStatusString(){
 		//StringBuilder ret=new StringBuilder("Semantic role labeling pipeline status\n\n");
 		StringBuilder ret=new StringBuilder();
@@ -208,9 +182,14 @@ public class CompletePipeline {
 		ret.append("Free:\t\t"+Util.insertCommas(free)+"kb\n");
 		ret.append("Used:\t\t"+Util.insertCommas((allocated-free))+"kb\n");		
 		ret.append("\n");
-		ret.append(srl.getStatus()+"\n\n");
-		ret.append("Time spent in the preprocessor (ms):\t"+Util.insertCommas(pp.parsingTime)+"\n");
-		ret.append("Time spent parsing dependencies (ms):\t"+Util.insertCommas(dpTime)+"\n");
+		ret.append("Time spent doing tokenization (ms):           "+Util.insertCommas(pp.tokenizeTime)+"\n");
+		ret.append("Time spent doing lemmatization (ms):          "+Util.insertCommas(pp.lemmatizeTime)+"\n");
+		ret.append("Time spent doing pos-tagging (ms):            "+Util.insertCommas(pp.tagTime)+"\n");
+		ret.append("Time spent doing morphological tagging (ms):  "+Util.insertCommas(pp.mtagTime)+"\n");
+		ret.append("Time spent doing dependency parsing (ms):     "+Util.insertCommas(dpTime)+"\n");
+		ret.append("Time spent doing semantic role labeling (ms): "+Util.insertCommas(srl.parsingTime)+"\n");
+		ret.append("\n\n");
+		ret.append(srl.getStatus());
 		return ret.toString().trim();
 	}
 }
