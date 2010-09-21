@@ -48,7 +48,7 @@ public abstract class Handler implements HttpHandler {
 				  "  </font>\n" +
 				  "  <font size=\"-1\">\n" +
 				  "    <b>System composition</b>" +
-				  "    <ul><li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer</li>" +
+				  "    <ul><li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer</li>" + //TODO add stanford segmenter here
 				  "    <li>POS-tagging, Lemmatization and Dependency Parser - by Bernd Bohnet</li>" +
 				  "    <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>"+
 				  "    <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li></ul>" +

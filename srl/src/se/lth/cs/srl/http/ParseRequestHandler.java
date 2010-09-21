@@ -64,7 +64,8 @@ public class ParseRequestHandler extends Handler {
 		
 		//Prepare the response;
 		if(vars.containsKey("returnType") && vars.get("returnType").equals("html")){
-			httpResponse=getHTMLResponse(sen,parsingTime);
+			boolean performURLLookup=vars.containsKey("doPerformDictionaryLookup"); //TODO: verify that this works.
+			httpResponse=getHTMLResponse(sen,parsingTime,performURLLookup);
 			content_type="text/html";
 		} else {
 			httpResponse=sen.toString();
@@ -92,7 +93,7 @@ public class ParseRequestHandler extends Handler {
 		styleSheetArgs.add("AM-MNR");
 	}
 	
-	private String getHTMLResponse(Sentence sen, long parsingTime){
+	private String getHTMLResponse(Sentence sen, long parsingTime, boolean performURLLookup){
 		StringBuilder ret=new StringBuilder(HTMLHEAD);
 		//ret.append("<html><head><title>Semantic Parser</title>\n"+STYLESHEET+"</head><body>\n");
 		ret.append("<table cellpadding=10 cellspacing=1>\n<tr><td class=\"topRowCell\">&nbsp;</td>");
@@ -104,7 +105,7 @@ public class ParseRequestHandler extends Handler {
 			int indexCount=1;
 			ret.append("\n<tr><td>");
 			String URL=Language.getLanguage().getLexiconURL(pred);
-			if(URL!=null && isValidURL(URL)){
+			if(performURLLookup && URL!=null && isValidURL(URL)){
 				ret.append("<a href=\""+URL+"\">");
 				ret.append(pred.getSense());
 				ret.append("</a>");
