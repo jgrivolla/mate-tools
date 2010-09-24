@@ -54,13 +54,13 @@ final public class Extractor {
 
 	}
 
-	public void basic(short[] pposs, int from, int to, IFV f)
+	public void basic(short[] pposs, int p, int d, IFV f)
 	{
 
-		int dir= (from < to)? ra:la;
-		d0.v0= _f39; d0.v1=pposs[from]; d0.v2=pposs[to]; //d0.stop=4;
-		int end= (from >= to ? from : to);
-		int start = (from >= to ? to : from) + 1;
+		int dir= (p < d)? ra:la;
+		d0.v0= _f39; d0.v1=pposs[p]; d0.v2=pposs[d]; //d0.stop=4;
+		int end= (p >= d ? p : d);
+		int start = (p >= d ? d : p) + 1;
 
 		for(int i = start ; i <end ; i++) {
 			d0.v3=pposs[i];
