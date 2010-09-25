@@ -90,7 +90,7 @@ final public class Extractor {
 		dl2.v0= _f1;	dl2.v1=label; dl2.v2=prntF; dl2.v3=prntP; l= mf.calc4(dl2); l=dl2.calcs(s_dir,dir,l); f.add(li.l2i(l));
 		dl2.v0= _f2;						                    l= mf.calc3(dl2); l=dl2.calcs(s_dir,dir,l); f.add(li.l2i(l));
 		dl2.v0= _f4;	dl2.v2=dpntF; dl2.v3=dpntP;               l= mf.calc4(dl2); l=dl2.calcs(s_dir,dir,l); f.add(li.l2i(l));
-		dl2.v0= _f5;	/* dl2.v2=toWord; */    	              l= mf.calc3(dl2); l=dl2.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
+		dl2.v0= _f5;		              l= mf.calc3(dl2); l=dl2.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 		
 		dl1.v1=label;
 		dl1.v0= _f6; dl1.v2=dpntP;                                l= mf.calc3(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
@@ -129,20 +129,20 @@ final public class Extractor {
 		dwp.v0= _f7l;	/*dwp.v1=label;*/ dwp.v2=dpntL; dwp.v3=prntP;dwp.v4=dpntP;dwp.v5=prntL;
 		l= mf.calc6(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
-		dwp.v0= _f8l;	/*dwp.v1=label; dwp.v2=toLemma;  dwp.v3=fromPOS;dwp.v[4]=toPOS; */ 
+		dwp.v0= _f8l; 
 		l= mf.calc5(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
-		dwp.v0= _f10l; /*dwp.v1=label;*/ dwp.v2=prntL; /* dwp.v3=fromPOS; dwp.v[4]=toPOS; dwp.stop=5; */
+		dwp.v0= _f10l; /*dwp.v1=label;*/ dwp.v2=prntL; 
 		l= mf.calc5(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l));
 
 
 		dwwp.v0= _f9l; /*dwwp.v1=label;*/ dwwp.v2=prntL; dwwp.v3=dpntL; dwwp.v4=dpntP; 
 		l= mf.calc5(dwwp); l=dwwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
-		dwwp.v0= _f11l; /*dwwp.v1=label;  dwwp.v2=fromLemma; dwwp.v3=toLemma; */ dwwp.v4=prntP; 
+		dwwp.v0= _f11l; /*dwwp.v1=label;  */ dwwp.v4=prntP; 
 		l= mf.calc5(dwwp); l=dwwp.calcs(s_dir,dir,l); f.add(li.l2i(l));
 
-		dwwp.v0= _f12l; /*dwwp.v1=label;  dwwp.v2=fromLemma; dwwp.v3=toLemma; */ 
+		dwwp.v0= _f12l; /*dwwp.v1=label;   */ 
 		l= mf.calc4(dwwp); l=dwwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
 
@@ -161,21 +161,21 @@ final public class Extractor {
 		dl1.v0= _f14;	/*d3l1.v1=label;*/ dl1.v2=prntP; dl1.v3=prntPp1;dl1.v4=dpntP; 
 		l= mf.calc5(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l));
 
-		dl1.v0= _f15;	/*d3l1.v1=label; d3l1.v2=fromPOS; */dl1.v3=chldPm1;dl1.v4=dpntP; 
+		dl1.v0= _f15;	/*d3l1.v1=label;  */dl1.v3=chldPm1;dl1.v4=dpntP; 
 		l= mf.calc5(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l));
 
-		dl1.v0= _f16;	/*d3l1.v1=label; d3l1.v2=fromPOS; */dl1.v3=dpntP;dl1.v4=chldPp1; 
+		dl1.v0= _f16;	/*d3l1.v1=label;  */dl1.v3=dpntP;dl1.v4=chldPp1; 
 		l= mf.calc5(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
-		dl1.v0= _f17;	/* d3l1.v2=fromPOS; */ dl1.v3=prntPp1;dl1.v4=chldPm1;dl1.v5=dpntP; l= mf.calc6(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
+		dl1.v0= _f17;	dl1.v3=prntPp1;dl1.v4=chldPm1;dl1.v5=dpntP; l= mf.calc6(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
-		dl1.v0= _f18; dl1.v2=prntPm1; dl1.v3=prntP;//d3l1.v4=beforeToPOS;d3l1.v5=toPOS; 
+		dl1.v0= _f18; dl1.v2=prntPm1; dl1.v3=prntP;
 		l= mf.calc6(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
 		dl1.v0= _f19;	/*d3l1.v1=label;*/ dl1.v2=prntP; dl1.v3=prntPp1;dl1.v4=dpntP;dl1.v5=chldPp1; 
 		l= mf.calc6(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
 
-		dl1.v0= _f20;	/*d3l1.v1=label;*/ dl1.v2=prntPm1; dl1.v3=prntP;dl1.v4=dpntP;//d3l1.v5=afterToPOS; d3l1.stop=6;
+		dl1.v0= _f20;	/*d3l1.v1=label;*/ dl1.v2=prntPm1; dl1.v3=prntP;dl1.v4=dpntP;
 		l= mf.calc6(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l));
 
 
@@ -275,8 +275,8 @@ final public class Extractor {
 		int chldPp1 = chld != pos.length - 1 ? pos[chld + 1] : s_end;
 
 		
-		int gcPm1 = gc > 0 ? pos[gc - 1] : s_str; // grandchild-pos-minus1
-		int gcPp1 = gc < pos.length - 1 ? pos[gc + 1] : s_end; // grandchild-pos-plus1
+		int gcPm1 = gc > 0 ? pos[gc - 1] : s_str; 
+		int gcPp1 = gc < pos.length - 1 ? pos[gc + 1] : s_end; 
 
 		dl1.v0= _f42;	dl1.v2=gcP; dl1.v3=gcPp1;dl1.v4=chldP;  
 					  l=mf.calc5(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); 
@@ -368,10 +368,10 @@ final public class Extractor {
 		dl1.v0= _f30;	dl1.v1=label; dl1.v2=prntP; dl1.v3=chldP;dl1.v4=sblP; //d3l1.stop=5;
 		l= mf.calc5(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dl1.calcs(s_dist,dist,l)));
 
-		dl1.v0= _f31;	/*dl1.v1=label; dl1.v2=fromPOS;*/  dl1.v3=sblP; //d3l1.stop=4;
+		dl1.v0= _f31;	/*dl1.v1=label; */  dl1.v3=sblP; //d3l1.stop=4;
 		l= mf.calc4(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dl1.calcs(s_dist,dist,l)));
 
-		dl1.v0= _f32;	/*dl1.v1=label;*/ dl1.v2=chldP;   //dl1.v3=siblingPOS; d3l1.stop=4;
+		dl1.v0= _f32;	/*dl1.v1=label;*/ dl1.v2=chldP;   
 		l= mf.calc4(dl1); l=dl1.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dl1.calcs(s_dist,dist,l))); 
 
 		// sibling only could be tried
@@ -381,19 +381,19 @@ final public class Extractor {
 		dwwp.v0= _f33;	dwwp.v1=label; dwwp.v2=prntW; dwwp.v3=sblW; 
 		l= mf.calc4(dwwp); l=dwwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwwp.calcs(s_dist,dist,l)));
 
-		dwwp.v0= _f34;	/*dwwp.v1=label;*/ dwwp.v2=chldW; //dwwp.v3=siblingWord; 
+		dwwp.v0= _f34;	/*dwwp.v1=label;*/ dwwp.v2=chldW;  
 		l= mf.calc4(dwwp); l=dwwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwwp.calcs(s_dist,dist,l)));
 
 		dwp.v0= _f35;	dwp.v1=label; dwp.v2=sblW; dwp.v3=prntP; 
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 
-		dwp.v0= _f36;	/*dwp.v1=label; dwp.v2=siblingWord; */dwp.v3=chldP; 
+		dwp.v0= _f36;	/*dwp.v1=label;  */dwp.v3=chldP; 
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 
 		dwp.v0= _f37;	/*dwp.v1=label;*/ dwp.v2=prntW; dwp.v3=sblP; 
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 
-		dwp.v0= _f38;	/*dwp.v1=label;*/ dwp.v2=chldW;   //dwp.v3=siblingPOS; 
+		dwp.v0= _f38;	/*dwp.v1=label;*/ dwp.v2=chldW;   
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 
 
@@ -414,7 +414,7 @@ final public class Extractor {
 		dwp.v0= _f35l;	/*dwp.v1=label;*/ dwp.v2=sblL; dwp.v3=prntP; //dwp.stop=4;
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 		//100
-		dwp.v0= _f36l; /*dwp.v1=label; dwp.v2=siblingLemma; */ dwp.v3=chldP; //dwp.stop=4;
+		dwp.v0= _f36l; /*dwp.v1=label; */ dwp.v3=chldP; //dwp.stop=4;
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 
 		//101
@@ -422,7 +422,7 @@ final public class Extractor {
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 
 		//102
-		dwp.v0= _f38l; /*dwp.v1=label;*/ dwp.v2=chldL; //dwp.v3=siblingPOS; // dwp.stop=4;
+		dwp.v0= _f38l; /*dwp.v1=label;*/ dwp.v2=chldL; 
 		l= mf.calc4(dwp); l=dwp.calcs(s_dir,dir,l); f.add(li.l2i(l)); f.add(li.l2i(dwp.calcs(s_dist,dist,l)));
 
 
@@ -692,8 +692,8 @@ final public class Extractor {
 	static public void initFeatures() {
 
 		MFO mf = new MFO();
-		mf.register(POS, MID);
-		s_str = mf.register(POS, STR);
+		MFO.register(POS, MID);
+		s_str = MFO.register(POS, STR);
 		s_end = mf.register(POS, END);
 
 		mf.register(TYPE, POS);
