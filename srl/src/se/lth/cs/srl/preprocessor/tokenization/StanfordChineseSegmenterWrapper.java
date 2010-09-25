@@ -19,24 +19,31 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 public class StanfordChineseSegmenterWrapper implements Tokenizer {
 
 	CRFClassifier classifier;
-	
+	/**
+	 * Initialize the segmenter
+	 * 
+	 * @param dataDir this is the 'datadir' from the 2008-05-21 distribution.
+	 */
 	public StanfordChineseSegmenterWrapper(File dataDir){
 		/*
 		 * This is pretty much a copy&paste of the SegDemo.java, with minor edits on the files.
 		 * No idea if this is the fastest or best way to do this.
 		 */
 	    Properties props = new Properties();
-	    props.setProperty("sighanCorporaDict", "data");
+	    //props.setProperty("sighanCorporaDict", "data");
+	    props.setProperty("sighanCorporaDict", dataDir.toString());
 	    // props.setProperty("NormalizationTable", "data/norm.simp.utf8");
 	    // props.setProperty("normTableEncoding", "UTF-8");
 	    // below is needed because CTBSegDocumentIteratorFactory accesses it
-	    props.setProperty("serDictionary","data/dict-chris6.ser.gz");
+	    //props.setProperty("serDictionary","data/dict-chris6.ser.gz");
+	    props.setProperty("serDictionary",new File(dataDir,"dict-chris6.ser.gz").toString());
 	    //props.setProperty("testFile", args[0]);
 	    props.setProperty("inputEncoding", "UTF-8");
 	    props.setProperty("sighanPostProcessing", "true");
 
 	    classifier = new CRFClassifier(props);
-	    classifier.loadClassifierNoExceptions("data/ctb.gz", props);
+	    //classifier.loadClassifierNoExceptions("data/ctb.gz", props);
+	    classifier.loadClassifierNoExceptions(new File(dataDir,"ctb.gz").toString(), props);
 	    // flags must be re-set after data is loaded
 	    classifier.flags.setProperties(props);
 	    //classifier.writeAnswers(classifier.test(args[0]));
