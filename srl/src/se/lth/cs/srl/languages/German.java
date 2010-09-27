@@ -3,6 +3,7 @@ package se.lth.cs.srl.languages;
 import is2.lemmatizer.Lemmatizer;
 import is2.tag3.Tagger;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -15,6 +16,7 @@ import se.lth.cs.srl.preprocessor.Preprocessor;
 import se.lth.cs.srl.preprocessor.tokenization.OpenNLPToolsTokenizerWrapper;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
+import se.lth.cs.srl.util.FileExistenceVerifier;
 
 public class German extends Language {
 
@@ -61,18 +63,32 @@ public class German extends Language {
 
 	@Override
 	public String getLexiconURL(Predicate pred) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
-		Tokenizer tokenizer=new OpenNLPToolsTokenizerWrapper(new opennlp.tools.lang.german.Tokenizer(options.tokenizer.toString()));
+		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new OpenNLPToolsTokenizerWrapper(new opennlp.tools.lang.german.Tokenizer(options.tokenizer.toString())) : null);
 		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
 		is2.mtag.Main mtagger=BohnetHelper.getMTagger(options.morph);
 		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, mtagger);
 		return pp;
+	}
+
+	@Override
+	public String verifyLanguageSpecificModelFiles(FullPipelineOptions options) { //TODO this could be done nicer... I guess the proper way would be to create an enum of all the modules in the complete pipeline, and let each language enumerate which modules it requires. Then the language class can handle the verification, and not every subclass. 
+		File[] files;
+		if(options.loadPreprocessorWithTokenizer){
+			files=new File[3];
+			files[2]=options.tokenizer;
+		} else {
+			files=new File[2];
+		}
+		files[0]=options.lemmatizer;
+		files[1]=options.morph;
+		return FileExistenceVerifier.verifyFiles(files);
+
 	}
 	
 }

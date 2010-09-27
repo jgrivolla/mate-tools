@@ -3,6 +3,7 @@ package se.lth.cs.srl.languages;
 import is2.lemmatizer.LemmatizerInterface;
 import is2.tag3.Tagger;
 
+import java.io.File;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,7 @@ import se.lth.cs.srl.preprocessor.SimpleChineseLemmatizer;
 import se.lth.cs.srl.preprocessor.tokenization.StanfordChineseSegmenterWrapper;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
+import se.lth.cs.srl.util.FileExistenceVerifier;
 
 public class Chinese extends Language {
 
@@ -59,10 +61,21 @@ public class Chinese extends Language {
 
 	@Override
 	public Preprocessor getPreprocessor(FullPipelineOptions options) {
-		Tokenizer tokenizer=new StanfordChineseSegmenterWrapper(options.tokenizer);
+		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new StanfordChineseSegmenterWrapper(options.tokenizer) : null); 
 		LemmatizerInterface lemmatizer=new SimpleChineseLemmatizer();
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
 		return new Preprocessor(tokenizer,lemmatizer,tagger,null);
+	}
+
+	@Override
+	public String verifyLanguageSpecificModelFiles(FullPipelineOptions options) {
+		if(options.loadPreprocessorWithTokenizer){
+			File serDictionaryFile=new File(options.tokenizer,"dict-chris6.ser.gz");
+			File ctbFile=new File(options.tokenizer,"ctb.gz");
+			return FileExistenceVerifier.verifyFiles(serDictionaryFile,ctbFile);
+		} else {
+			return null;
+		}
 	}
 
 }

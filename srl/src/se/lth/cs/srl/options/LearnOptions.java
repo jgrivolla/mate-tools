@@ -110,7 +110,7 @@ public class LearnOptions extends Options {
 		System.err.println("                         derived in a non-deterministic way. I.e. training the pipeline");
 		System.err.println("                         on the same corpus twice does not yield the exact same models.");
 		System.err.println("                         This is however slightly faster.");
-		//There is some something undeterministic about the deterministic reranker. Needs to be looked into. TODO
+		//TODO There is some something undeterministic about the deterministic reranker. Needs to be looked into.
 //		System.err.println(" -dReranker              Same as above, but with the reranker. This option implies");
 //		System.err.println("                         a deterministic pipeline as well. It also implies the");
 //		System.err.println("                         -reranker option (obviously)");

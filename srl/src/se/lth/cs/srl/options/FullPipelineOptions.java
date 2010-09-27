@@ -21,6 +21,8 @@ public abstract class FullPipelineOptions {
 	public int acBeam=4;
 	public double alfa=1.0;
 	
+	public boolean loadPreprocessorWithTokenizer=true;
+	
 //	public void verifyFiles(boolean verifyTokenizer,boolean verifyLemmatizer,boolean verifyTagger,boolean verifyMTagger,boolean verifyParser,boolean verifySRL) {
 //		List<File> files=new ArrayList<File>();
 //		if(verifyTokenizer){
@@ -172,10 +174,11 @@ public abstract class FullPipelineOptions {
 		return ai;
 	}
 
+	abstract Class<?> getIntendedEntryClass();
 	abstract String getSubUsageOptions();
 	public void printUsage(PrintStream out){		
 			out.println("Usage:");
-			out.println("java -cp ... "+this.getClass().getName()+" <lang> <options>");
+			out.println("java -cp ... "+getIntendedEntryClass().getName()+" <lang> <options>");
 			out.println();
 			out.println("Where <lang> is one of: "+Language.getLsString());
 			out.println();
@@ -189,7 +192,7 @@ public abstract class FullPipelineOptions {
 						"Segmenter, as provided in the 2008-05-21 distribution.\n" +
 						"\n" +
 						"For further information check the website:\n" +
-						"http://code.google.com/p/mate-tools/");
+						"http://code.google.com/p/mate-tools/\n");
 		
 	}
 	private static final String USAGE_OPTIONS=

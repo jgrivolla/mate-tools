@@ -8,6 +8,7 @@ import se.lth.cs.srl.options.HttpOptions;
 import se.lth.cs.srl.util.FileExistenceVerifier;
 
 import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsServer;
 
 public class HttpPipeline {
 
@@ -21,18 +22,23 @@ public class HttpPipeline {
 	
 	public static void main(String[] args) {
 		try {
+			
 			serverStart=new Date(System.currentTimeMillis());
 			HttpOptions options=new HttpOptions();
 			options.parseCmdLineArgs(args);
-			String error=FileExistenceVerifier.verifyFiles(options.tagger,options.parser,options.srl);
+			String error=FileExistenceVerifier.verifyCompletePipelineAllNecessaryModelFiles(options);
 			if(error!=null){
 				System.err.println(error);
 				System.err.println("Aborting.");
 				System.exit(1);
 			}
 			//options.verifyFiles(true, true, true, false, true, true); //Note: MTagger not verified.
-			defaultHandler=new DefaultHandler();
-			server=HttpServer.create(new InetSocketAddress(options.port),0);
+			defaultHandler=new DefaultHandler(options.l);
+			if(options.https){
+				server=HttpsServer.create(new InetSocketAddress(options.port),0);
+			} else {
+				server=HttpServer.create(new InetSocketAddress(options.port),0);
+			}
 			server.createContext("/",defaultHandler);
 			server.start();
 			System.out.println("Server up and listening on port "+options.port);

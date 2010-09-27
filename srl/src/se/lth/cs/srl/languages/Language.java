@@ -24,6 +24,15 @@ public abstract class Language {
 		return "chi, eng, ger";
 	}
 	
+	public static String LtoString(L l){
+		switch(l){
+		case chi: return "Chinese";
+		case eng: return "English";
+		case ger: return "German";
+		default: throw new IllegalArgumentException("Unknown language: '"+l+"'");
+		}
+	}
+	
 	public static Language setLanguage(L l){
 		switch(l){
 		case chi: language=new Chinese(); break;
@@ -42,5 +51,7 @@ public abstract class Language {
 	
 	
 	public abstract Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException;
+
+	public abstract String verifyLanguageSpecificModelFiles(FullPipelineOptions options);
 
 }

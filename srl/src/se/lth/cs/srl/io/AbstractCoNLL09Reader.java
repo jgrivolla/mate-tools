@@ -27,7 +27,6 @@ public abstract class AbstractCoNLL09Reader implements SentenceReader {
 	}
 	
 	private void restart() {
-		// TODO Auto-generated method stub
 		try {
 			in.close();
 			open();

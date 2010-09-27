@@ -95,7 +95,6 @@ public class LibLinearModel implements Model {
 				liblinear.Linear.disableDebugOutput(); //We would like to have llargs=new String[]{"-q","-s","0",dataFile.toString(),outputFile.toString()};, but there is something buggy with the java implmentation.
 				liblinear.Train.main(llargs);
 			} catch (InvalidInputDataException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.err.println("LibLinear java failed. Look into this.");
 				System.exit(1);

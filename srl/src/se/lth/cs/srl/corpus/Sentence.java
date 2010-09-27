@@ -21,13 +21,13 @@ public class Sentence extends ArrayList<Word> {
 		predicates=new ArrayList<Predicate>();
 	}
 
-	public Sentence(SentenceData09 data){
+	private Sentence(SentenceData09 data){ //Not used.
 		this(data.forms,data.lemmas,data.ppos,data.pfeats);
 	}
 	
 	public Sentence(String[] words, String[] lemmas, String[] tags,	String[] morphs) {
 		this();
-		for(int i=0;i<words.length;++i){
+		for(int i=1;i<words.length;++i){ //Skip root-tokens.
 			Word nextWord=new Word(words[i],lemmas[i],tags[i],morphs[i],this);
 			super.add(nextWord);
 		}
@@ -88,18 +88,19 @@ public class Sentence extends ArrayList<Word> {
 	
 	/*
 	 * Functions used when interfacing with Bohnets parser
+	 * These need to be fixed. Or rather the Sentence object should go altogether.
 	 */
 	public String[] getFormArray(){
 		String[] ret=new String[this.size()];
-		ret[0]="<root>";
-		for(int i=1;i<this.size();++i)
+		//ret[0]="<root>";
+		for(int i=0;i<this.size();++i)
 			ret[i]=this.get(i).Form;
 		return ret;
 	}
 	public String[] getPOSArray(){
 		String[] ret=new String[this.size()];
-		ret[0]="<root-POS>";
-		for(int i=1;i<this.size();++i)
+		//ret[0]="<root-POS>";
+		for(int i=0;i<this.size();++i)
 			ret[i]=this.get(i).POS;
 		return ret;
 	}

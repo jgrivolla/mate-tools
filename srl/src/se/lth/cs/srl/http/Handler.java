@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import se.lth.cs.srl.languages.Language;
+import se.lth.cs.srl.languages.Language.L;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -27,34 +30,43 @@ public abstract class Handler implements HttpHandler {
 		"  .AM-MNR {background-color:#00CCCC}\n" +
 		"  .ARG_DEFAULT {background-color:#CCCCCC}\n" +
 		"</style>\n";
+	
+	//TODO improve the color codes for different labels, and across languages. I.e. refactor this and put it in the Language classes, rather than here.
+	
 	protected static final String sentenceDataVarName="sentence";
-	protected static final String HTMLHEAD="<html><head>\n<title>Semantic Parser</title>\n"+STYLESHEET+"</head>\n<body>\n";
+	protected static final String HTMLHEAD="<html><head>\n<title>Semantic Role Labeler</title>\n"+STYLESHEET+"</head>\n<body>\n";
 	protected static final String HTMLTAIL="</body>\n</html>";
 	protected static Map<String,String> pages=new HashMap<String,String>();
 	
-	static {
+	protected void setupPages(L currentL) {
 		pages.put("default",
-				  "  <h3>Try the semantic parser</h3>\n" +
+				  "  <h3>Try the semantic role labeler</h3>\n" +
+				  "  Enter a sentence in <b>"+Language.LtoString(currentL)+"</b> and press Parse.<br/>\n" +
 				  "  <form action=\"/parse\" method=\"POST\">\n" +
 				  "    <table cellpadding=\"2\" cellspacing=\"2\">\n" +
 				  "      <tr><td valign=\"center\"><b>Input</b><td><textarea name=\""+sentenceDataVarName+"\" rows=\"3\" cols=\"40\"></textarea></td></tr>\n" +
 				  "      <tr><td valign=\"center\"><b>Return type</b><td><input type=\"radio\" name=\"returnType\" value=\"html\" checked=\"checked\" />&nbsp;&nbsp;HTML<br /><input type=\"radio\" name=\"returnType\" value=\"text\"/>&nbsp;&nbsp;Raw text</td></tr>\n" +
-				  "      <tr><td colspan=\"2\"><input type=\"checkbox\" name=\"doPerformDictionaryLookup\" /> Attempt to lookup and reference predicates in dictionary<sup>&dagger;</sup></td></tr>." +
+				  "      <tr><td colspan=\"2\"><input type=\"checkbox\" name=\"doPerformDictionaryLookup\" /> <font size=\"-1\">Attempt to lookup and reference predicates in dictionary<sup>&dagger;</sup>.</font></td></tr>\n" +
 				  "      <tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Parse\" /><br /></td></tr>\n" +
 				  "  </table></form><br/>\n" +
 				  "  <font size=\"-1\">\n" +
-				  "    <b>Note:</b> For optimal performance, please" +
-				  "    <ul><li>Spell properly</li><li>Make sure to end the sentence with a period (or other punctuation)</li><li>Start the sentence with an uppercase letter</li><li>Only feed the parser one sentence a time</li></ul>\n" +
+				  "    <b>Note:</b> For optimal performance, please\n" +
+				  "    <ul>\n" +
+				  "      <li>Spell properly.</li>\n" +
+				  "      <li>Make sure to end the sentence with a period (or other punctuation) ((In languages where punctuation is typically used, that is.)).</li>\n" +
+				  "      <li>Start the sentence with an uppercase letter</li>\n" +
+				  "      <li>Only feed the parser one sentence a time</li>\n" +
+				  "    </ul>\n" +
 				  "  </font>\n" +
 				  "  <font size=\"-1\">\n" +
-				  "    <b>System composition</b>" +
-				  "    <ul><li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer</li>" + //TODO add stanford segmenter here
-				  "    <li>POS-tagging, Lemmatization and Dependency Parser - by Bernd Bohnet</li>" +
-				  "    <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>"+
-				  "    <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li></ul>" +
+				  "    <b>System composition</b>\n" +
+				  "    <ul><li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer (English and German), <a href=\"http://nlp.stanford.edu/software/segmenter.shtml\">Stanford Chinese Segmenter (Chinese)</a></li>\n"+
+				  "    <li>POS-tagging, Lemmatization and Dependency Parser - by Bernd Bohnet</li>\n" +
+				  "    <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>\n"+
+				  "    <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li></ul>\n"+
 				  "  </font>\n" +
-				  "  <font size=\"-1\">For downloads and more information see <a href=\"http://code.google.com/p/mate-tools/\">http://code.google.com/p/mate-tools/</a>.</font><br/>" +
-				  "  <font size=\"-1\"><sup>&dagger;</sup> This is only applicable for HTML response, and with English. Note that this takes longer, and if the online dictionary is down, it may time out and take a significant amount of time.</font>");
+				  "  <font size=\"-1\">For downloads and more information see <a href=\"http://code.google.com/p/mate-tools/\">http://code.google.com/p/mate-tools/</a>.</font><br/>\n" +
+				  "  <font size=\"-1\"><sup>&dagger;</sup> This is only applicable for HTML response, and with English. Note that this takes longer, and if the online dictionary is down, it may time out and take a significant amount of time.</font>\n");
 		
 		pages.put("notReady",
 				  "Parser is not loaded yet, please be patient. (Shouldn't be longer than 1-2 minutes, roughly)\n");
@@ -65,7 +77,7 @@ public abstract class Handler implements HttpHandler {
 	private static final Pattern eqPattern =Pattern.compile("=");
 	
 	protected String getContent(HttpExchange exchange) throws IOException {
-		BufferedReader httpInput=new BufferedReader(new InputStreamReader(exchange.getRequestBody()));
+		BufferedReader httpInput=new BufferedReader(new InputStreamReader(exchange.getRequestBody(),"UTF-8"));
 		StringBuilder in=new StringBuilder();
 		String input;
 		while((input=httpInput.readLine())!=null){

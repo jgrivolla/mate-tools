@@ -25,6 +25,8 @@ import se.lth.cs.srl.pipeline.Reranker;
 import se.lth.cs.srl.pipeline.Step;
 import se.lth.cs.srl.preprocessor.Preprocessor;
 import se.lth.cs.srl.util.BohnetHelper;
+import se.lth.cs.srl.util.ChineseDesegmenter;
+import se.lth.cs.srl.util.FileExistenceVerifier;
 import se.lth.cs.srl.util.Util;
 
 public class CompletePipeline {
@@ -34,12 +36,15 @@ public class CompletePipeline {
 	private Preprocessor pp;
 	private Parser dp;
 	private SemanticRoleLabeler srl;
-	
+
+	public long dpLoadTime=0;
 	public long dpTime=0;
 	
 	public static CompletePipeline getCompletePipeline(FullPipelineOptions options) throws ZipException, IOException, ClassNotFoundException{
 		Preprocessor pp=Language.getLanguage().getPreprocessor(options);
+		long startDPLoad=System.currentTimeMillis();
 		Parser dp=BohnetHelper.getParser(options.parser);
+		long dpLoadTime=System.currentTimeMillis()-startDPLoad;
 		Parse.parseOptions=options.getParseOptions();
 		SemanticRoleLabeler srl;
 		if(options.reranker){
@@ -53,10 +58,12 @@ public class CompletePipeline {
 			}
 			zipFile.close();			
 		}
-		return new CompletePipeline(pp,dp,srl);
+		CompletePipeline pipeline=new CompletePipeline(pp,dp,srl);
+		pipeline.dpLoadTime=dpLoadTime;
+		return pipeline;
 	}
 	
-	public CompletePipeline(Preprocessor preprocessor,Parser parser,SemanticRoleLabeler srl){
+	private CompletePipeline(Preprocessor preprocessor,Parser parser,SemanticRoleLabeler srl){
 		this.pp=preprocessor;
 		this.dp=parser;
 		this.srl=srl;
@@ -109,7 +116,7 @@ public class CompletePipeline {
 		s.buildDependencyTree();
 		for(int i=0;i<isPred.size();++i){
 			if(isPred.get(i)){
-				s.makePredicate(i+1);
+				s.makePredicate(i);
 			}
 		}
 		srl.parseSentence(s);
@@ -133,22 +140,76 @@ public class CompletePipeline {
 	public static void main(String[] args) throws Exception{
 		CompletePipelineCMDLineOptions options=new CompletePipelineCMDLineOptions();
 		options.parseCmdLineArgs(args);
+		String error=FileExistenceVerifier.verifyCompletePipelineAllNecessaryModelFiles(options);
+		if(error!=null){
+			System.err.println(error);
+			System.err.println();
+			System.err.println("Aborting.");
+			System.exit(1);
+		}
+		
 		CompletePipeline pipeline=getCompletePipeline(options);
 		BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(options.input),Charset.forName("UTF-8")));
-		String str;
-		List<String> forms=new ArrayList<String>();
-		List<Boolean> isPred=new ArrayList<Boolean>();
 		SentenceWriter writer=new CoNLL09Writer(options.output);
-		int senCount=0;
 		long start=System.currentTimeMillis();
+		int senCount;
+		
+		if(options.loadPreprocessorWithTokenizer){
+			senCount=parseNonSegmentedLineByLine(options,pipeline,in,writer);
+		} else {
+			senCount=parseCoNLL09(options, pipeline, in, writer);
+		}
+		
+		in.close();
+		writer.close();
+		
+		long time=System.currentTimeMillis()-start;
+		System.out.println(pipeline.getStatusString());
+		System.out.println();
+		System.out.println("Total parsing time (ms):  "+Util.insertCommas(time));
+		System.out.println("Overall speed (ms/sen):   "+Util.insertCommas(time/senCount));
+	
+	}
+	
+	private static int parseNonSegmentedLineByLine(CompletePipelineCMDLineOptions options,CompletePipeline pipeline, BufferedReader in, SentenceWriter writer)	throws IOException, Exception {
+		int senCount=0;
+		String str;
+		
+		while((str=in.readLine()) != null){
+			Sentence s=pipeline.parse(str);
+			writer.write(s);
+			senCount++;
+			if(senCount%100==0)
+				System.out.println("Processing sentence "+senCount); //TODO, same as below.
+		}
+		
+		
+		return senCount;
+	}
+
+	private static int parseCoNLL09(CompletePipelineCMDLineOptions options,CompletePipeline pipeline, BufferedReader in, SentenceWriter writer)	throws IOException, Exception {
+		List<String> forms=new ArrayList<String>();
+		forms.add("<root>");
+		List<Boolean> isPred=new ArrayList<Boolean>();
+		isPred.add(false);
+		String str;		
+		int senCount=0;
+
 		while ((str = in.readLine()) != null) {
 			if(str.trim().equals("")){
-				Sentence s=options.skipPI ? pipeline.parseOraclePI(forms, isPred) : pipeline.parse(forms);
+				Sentence s;
+				if(options.desegment){
+					s=pipeline.parse(ChineseDesegmenter.desegment(forms.toArray(new String[0])));
+				} else {
+					s=options.skipPI ? pipeline.parseOraclePI(forms, isPred) : pipeline.parse(forms);
+				}
 				forms.clear();
+				forms.add("<root>");
 				isPred.clear();
+				isPred.add(false); //Root is not a predicate
 				writer.write(s);
 				senCount++;
-				if(senCount%100==0){
+				if(senCount%100==0){ //TODO fix output in general, don't print to System.out. Wrap a printstream in some (static) class, and allow people to adjust this. While doing this, also add the option to make the output file be -, ie so it prints to stdout. All kinds of errors should goto stderr, and nothing should be printed to stdout by default
 					System.out.println("Processing sentence "+senCount);
 				}
 			} else {
@@ -158,29 +219,26 @@ public class CompletePipeline {
 					isPred.add(tokens[12].equals("Y"));
 			}
 		}
-		in.close();
-		if(!forms.isEmpty()){
+
+		if(forms.size()>1){ //We have the root token too, remember!
 			writer.write(pipeline.parse(forms));
 			senCount++;
 		}
-		writer.close();
-		long time=System.currentTimeMillis()-start;
-		System.out.println(pipeline.getStatusString());
-		System.out.println();
-		System.out.println("Total parsing time (ms):  "+time);
-		System.out.println("Overall speed (ms/sen):   "+time/senCount);
-	
+		return senCount;
 	}
-
+	
 	public String getStatusString(){
 		//StringBuilder ret=new StringBuilder("Semantic role labeling pipeline status\n\n");
 		StringBuilder ret=new StringBuilder();
 		long allocated=Runtime.getRuntime().totalMemory()/1024;
 		long free     =Runtime.getRuntime().freeMemory()/1024;
 		ret.append("Memory usage:\n");
-		ret.append("Allocated:\t"+Util.insertCommas(allocated)+"kb\n");
-		ret.append("Free:\t\t"+Util.insertCommas(free)+"kb\n");
-		ret.append("Used:\t\t"+Util.insertCommas((allocated-free))+"kb\n");		
+		ret.append("Allocated:\t\t\t"+Util.insertCommas(allocated)+"kb\n");
+		ret.append("Used:\t\t\t\t"+Util.insertCommas((allocated-free))+"kb\n");
+		ret.append("Free:\t\t\t\t"+Util.insertCommas(free)+"kb\n");
+		System.gc();
+		long freeWithGC=Runtime.getRuntime().freeMemory()/1024;
+		ret.append("Free (after gc call):\t"+Util.insertCommas(freeWithGC)+"kb\n");
 		ret.append("\n");
 		ret.append("Time spent doing tokenization (ms):           "+Util.insertCommas(pp.tokenizeTime)+"\n");
 		ret.append("Time spent doing lemmatization (ms):          "+Util.insertCommas(pp.lemmatizeTime)+"\n");

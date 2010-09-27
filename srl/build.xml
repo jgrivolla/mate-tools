@@ -37,7 +37,7 @@
 			<fileset file="${LICENSE}" includes="${LICENSE}"/>
 		</jar>
 		<copy todir="${distdir}/lib">
-			<fileset dir="${lib}" includes="**/*.jar" excludes="junit.jar"/>
+			<fileset dir="${lib}" includes="**/*" excludes="junit.jar"/>
 		</copy> 
 		<copy todir="${distdir}/featuresets">
 			<fileset dir="featuresets" includes="**/*"/>

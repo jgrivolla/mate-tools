@@ -1,9 +1,17 @@
 package se.lth.cs.srl.preprocessor;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import is2.lemmatizer.LemmatizerInterface;
 import is2.tag3.Tagger;
 
+import se.lth.cs.srl.preprocessor.tokenization.StanfordChineseSegmenterWrapper;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
+import se.lth.cs.srl.util.BohnetHelper;
 import se.lth.cs.srl.corpus.Sentence;
 
 public class Preprocessor {
@@ -20,18 +28,12 @@ public class Preprocessor {
 		this.mtagger=mtagger;
 	}
 	
-	
-	//TODO break these apart and measure each of them individually.
-	
-	//public long loadingTime;
-	//public long parsingTime=0;
-	
 	public long tokenizeTime=0;
 	public long lemmatizeTime=0;
 	public long tagTime=0;
 	public long mtagTime=0;
 
-	
+	//TODO add loading times for each module too.
 	
 	
 //	public Preprocessor(File tokenizerModelFile,File lemmatizerModelFile,File POSTaggerModelFile,File morphTaggerModelFile) throws IOException{
@@ -66,16 +68,22 @@ public class Preprocessor {
 			long start=System.currentTimeMillis();
 			lemmas=lemmatizer.getLemmas(forms);
 			lemmatizeTime+=System.currentTimeMillis()-start;
+		} else {
+			lemmas=new String[forms.length]; //TODO fix all the sentence crap and lose this.
 		}
 		if(tagger!=null){
 			long start=System.currentTimeMillis();
 			tags=tagger.tag(forms, lemmas);
 			tagTime=System.currentTimeMillis()-start;
+		} else {
+			tags=new String[forms.length]; //TODO fix all the sentence crap and lose this.
 		}
 		if(mtagger!=null){
 			long start=System.currentTimeMillis();
 			morphs=mtagger.out(forms, lemmas).pfeats;
 			mtagTime=System.currentTimeMillis()-start;
+		} else {
+			morphs=new String[forms.length]; //TODO fix all the sentence crap and lose this.
 		}
 		Sentence ret=new Sentence(forms,lemmas,tags,morphs);
 		return ret;
@@ -96,11 +104,11 @@ public class Preprocessor {
 //		return ret;
 //	}
 	
-	public String[] tokenize(String sentence) throws Exception {
+	public String[] tokenize(String sentence) {
 		long start=System.currentTimeMillis();
 		String[] words=tokenizer.tokenize(sentence);
 		tokenizeTime+=(System.currentTimeMillis()-start);
-		return words;		
+		return words;
 	}
 
 	public boolean hasMorphTagger() {
@@ -149,4 +157,23 @@ public class Preprocessor {
 //		ret = lemmatizer.lemma(words, false);		
 //		return ret;
 //	}
+
+	public static void main(String[] args) throws Exception{
+		File desegmentedInput=new File("chi-desegmented.out");
+		Tokenizer tokenizer=new StanfordChineseSegmenterWrapper(new File("/home/anders/Download/stanford-chinese-segmenter-2008-05-21/data"));
+		LemmatizerInterface lemmatizer=new SimpleChineseLemmatizer();
+		Tagger tagger=BohnetHelper.getTagger(new File("models/chi/tag-chn.model"));
+		Preprocessor pp=new Preprocessor(tokenizer,lemmatizer,tagger,null);
+		BufferedReader reader=new BufferedReader(new InputStreamReader(new FileInputStream(desegmentedInput),"UTF-8"));
+		String line;
+		while((line=reader.readLine())!=null){
+			String[] tokens=pp.tokenize(line);
+			Sentence s=pp.preprocess(tokens);
+			System.out.println(s);
+		}
+		
+		
+	}
+	
+	
 }

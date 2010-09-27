@@ -3,6 +3,8 @@ package se.lth.cs.srl.preprocessor.tokenization;
 import java.io.File;
 import java.util.Properties;
 
+import se.lth.cs.srl.util.FileExistenceVerifier;
+
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 
 /**
@@ -25,6 +27,12 @@ public class StanfordChineseSegmenterWrapper implements Tokenizer {
 	 * @param dataDir this is the 'datadir' from the 2008-05-21 distribution.
 	 */
 	public StanfordChineseSegmenterWrapper(File dataDir){
+		File serDictionaryFile=new File(dataDir,"dict-chris6.ser.gz");
+		File ctbFile=new File(dataDir,"ctb.gz");
+		String error=FileExistenceVerifier.verifyFiles(serDictionaryFile,ctbFile);
+		if(error!=null)
+			throw new Error(error);
+		
 		/*
 		 * This is pretty much a copy&paste of the SegDemo.java, with minor edits on the files.
 		 * No idea if this is the fastest or best way to do this.
@@ -36,14 +44,14 @@ public class StanfordChineseSegmenterWrapper implements Tokenizer {
 	    // props.setProperty("normTableEncoding", "UTF-8");
 	    // below is needed because CTBSegDocumentIteratorFactory accesses it
 	    //props.setProperty("serDictionary","data/dict-chris6.ser.gz");
-	    props.setProperty("serDictionary",new File(dataDir,"dict-chris6.ser.gz").toString());
+	    props.setProperty("serDictionary",serDictionaryFile.toString());
 	    //props.setProperty("testFile", args[0]);
 	    props.setProperty("inputEncoding", "UTF-8");
 	    props.setProperty("sighanPostProcessing", "true");
 
 	    classifier = new CRFClassifier(props);
 	    //classifier.loadClassifierNoExceptions("data/ctb.gz", props);
-	    classifier.loadClassifierNoExceptions(new File(dataDir,"ctb.gz").toString(), props);
+	    classifier.loadClassifierNoExceptions(ctbFile.toString(), props);
 	    // flags must be re-set after data is loaded
 	    classifier.flags.setProperties(props);
 	    //classifier.writeAnswers(classifier.test(args[0]));
@@ -52,7 +60,15 @@ public class StanfordChineseSegmenterWrapper implements Tokenizer {
 	
 	@Override
 	public String[] tokenize(String sentence) {
-		return (String[]) classifier.segmentString(sentence).toArray();
+		String[] tokens=(String[]) classifier.segmentString(sentence).toArray();
+		String[] withRoot=new String[tokens.length+1];
+		withRoot[0]="<root>";
+		int i=1;
+		for(String token:tokens){
+			withRoot[i]=token;
+			++i;
+		}
+		return withRoot;
 	}
 
 /*

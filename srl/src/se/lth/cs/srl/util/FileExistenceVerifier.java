@@ -2,6 +2,9 @@ package se.lth.cs.srl.util;
 
 import java.io.File;
 
+import se.lth.cs.srl.languages.Language;
+import se.lth.cs.srl.options.FullPipelineOptions;
+
 public class FileExistenceVerifier {
 	
 	/**
@@ -10,15 +13,39 @@ public class FileExistenceVerifier {
 	 * @return null if all is good, otherwise a String containing the error message.
 	 */
 	public static String verifyFiles(File... files){
+		StringBuilder sb=new StringBuilder();
 		for(File f:files){
 			if(!f.exists()){
-				return "File "+f+" does not exist.";
+				sb.append("File "+f+" does not exist.\n");
 			}
 			if(!f.canRead()){
-				return "File "+f+" can not be read.";
+				sb.append("File "+f+" can not be read.\n");
 			}
 		}
-		return null;
+		if(sb.length()==0)
+			return null;
+		else
+			return sb.toString();
+	}
+	
+	public static String verifyCompletePipelineAlwaysNecessaryFiles(FullPipelineOptions options){
+		return verifyFiles(options.tagger,options.parser,options.srl);
+	}
+	
+	public static String verifyCompletePipelineAllNecessaryModelFiles(FullPipelineOptions options){
+		String error1=verifyCompletePipelineAlwaysNecessaryFiles(options);
+		String error2=Language.getLanguage().verifyLanguageSpecificModelFiles(options);
+		if(error1!=null){
+			if(error2!=null){
+				return error1+error2;
+			} else {
+				return error1;
+			}
+		} else if(error2!=null){
+			return error2;
+		} else {
+			return null;
+		}
 	}
 	
 }
