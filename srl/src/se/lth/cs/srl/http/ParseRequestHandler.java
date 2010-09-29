@@ -43,7 +43,7 @@ public class ParseRequestHandler extends Handler {
 		String inputSentence=vars.get(sentenceDataVarName);
 		//Return if we didnt get a proper sentence to parse
 		if(inputSentence==null || inputSentence.length()==0){
-			sendContent(exchange,new byte[0],"text/plain");
+			sendContent(exchange,"Error, invalid request.","text/plain");
 			return;
 		}
 		
@@ -75,7 +75,7 @@ public class ParseRequestHandler extends Handler {
 		System.out.println("Sentence returned:");
 		System.out.println(sen.toString());
 		//Return the response to the client
-		sendContent(exchange,httpResponse.getBytes(),content_type);
+		sendContent(exchange,httpResponse,content_type);
 	}
 		
 	private static final HashSet<String> styleSheetArgs;

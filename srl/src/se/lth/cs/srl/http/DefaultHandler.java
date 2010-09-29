@@ -35,6 +35,6 @@ public class DefaultHandler extends Handler {
 		} else {
 			return; //This is just wrong. We shouldn't enter here.
 		}
-		sendContent(exchange,content.getBytes(),"text/html; charset=utf-8");
+		sendContent(exchange,content,"text/html; charset=utf-8");
 	}
 }

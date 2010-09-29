@@ -1,5 +1,6 @@
 package se.lth.cs.srl.http;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -97,11 +98,12 @@ public abstract class Handler implements HttpHandler {
 		return ret;
 	}
 	
-	protected void sendContent(HttpExchange exchange,byte[] content,String content_type) throws IOException{
+	protected void sendContent(HttpExchange exchange,String content,String content_type) throws IOException{
 		exchange.getResponseHeaders().add("Content-type",content_type);
-		exchange.sendResponseHeaders(200,content.length);
-		OutputStream os=exchange.getResponseBody();
-		os.write(content);
+		byte[] bytes=content.getBytes("UTF-8");
+		exchange.sendResponseHeaders(200,bytes.length);
+		OutputStream os=new BufferedOutputStream(exchange.getResponseBody());
+		os.write(bytes);
 		os.close();
 	}
 	

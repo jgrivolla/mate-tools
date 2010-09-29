@@ -25,6 +25,6 @@ public class ParserStatusHandler extends Handler {
 		ret.append("\n\n");
 
 		ret.append(pipeline.getStatusString());
-		sendContent(exchange,ret.toString().trim().getBytes(),"text/plain");
+		sendContent(exchange,ret.toString().trim(),"text/plain");
 	}
 }
