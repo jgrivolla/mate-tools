@@ -39,7 +39,7 @@ public class MorphTagger {
 			
 		} else {
 			// provide a default sentence 
-			i.init(new String[] {"<root>","HŠuser","hat","ein","Umlaut","."});
+			i.init(new String[] {"<root>","HÃ¤user","hat","ein","Umlaut","."});
 		}
 
 		//print the forms
@@ -64,7 +64,7 @@ public class MorphTagger {
 		for (String l : lemmata) System.out.println("lemma : "+l);
 		
 		
-		is2.mtag.Options morphologicTaggerOptions = new  is2.mtag.Options(new String[] {"-model","models/spa-mtest2.model"});
+		is2.mtag.Options morphologicTaggerOptions = new  is2.mtag.Options(new String[] {"-model","models/mtag-ger.model"});
 		
 		is2.mtag.Main.init(morphologicTaggerOptions,  new is2.mtag.Long2Int());
 		
