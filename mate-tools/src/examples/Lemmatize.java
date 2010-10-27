@@ -38,7 +38,7 @@ public class Lemmatize {
 			
 		} else {
 			// provide a default sentence 
-			i.init(new String[] {"<root>","HŠuser","hat","ein","Umlaut","."});
+			i.init(new String[] {"<root>","HÃ¤user","hat","ein","Umlaut","."});
 		}
 
 		//print the forms
