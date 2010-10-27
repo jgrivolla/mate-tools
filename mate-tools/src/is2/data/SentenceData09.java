@@ -1,10 +1,13 @@
 package is2.data;
 
 
+import is2.io.CONLLWriter09;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.StringWriter;
 
 public class SentenceData09 {
 
@@ -153,9 +156,21 @@ public class SentenceData09 {
 
 	@Override
 	public String toString () {
+		// prepare the output
+		StringWriter sw = new StringWriter();
+		CONLLWriter09 snt2str = new is2.io.CONLLWriter09(sw);
+		try{
+			snt2str.write(this, CONLLWriter09.NO_ROOT);
+			snt2str.finishWriting();
+			return sw.toString();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		// backup
 		StringBuffer sb = new StringBuffer();
 		for(int k=0;k<forms.length;k++) sb.append(k+1).append('\t').append(forms[k]).append('\t').append(heads[k]).append('\t').append(labels[k]).append('\n');
-		return sb.toString();
+		return sw.toString();
 	}
 
   

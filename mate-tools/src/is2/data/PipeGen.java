@@ -6,8 +6,8 @@ public class PipeGen {
 	public static final String POS = "POS";
 	public static final String DIST = "DIST";
 	public static final String WORD = "WORD";
-	protected static final String PRED = "PRED";
-	protected static final String ARG = "ARG";
+	public static final String PRED = "PRED";
+	public static final String ARG = "ARG";
 	public static final String FEAT = "F";
 	public static final String REL = "REL";
 	protected static final String TYPE = "TYPE";

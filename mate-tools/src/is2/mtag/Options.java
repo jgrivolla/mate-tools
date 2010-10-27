@@ -1,15 +1,14 @@
 package is2.mtag;
 
-import java.io.File;
-import java.io.IOException;
-
 import is2.util.OptionsSuper;
+
+import java.io.File;
 
 
 public final class Options extends OptionsSuper {
 
 	
-	public Options (String[] args) throws IOException {
+	public Options (String[] args)  {
 		
 
 		
@@ -40,10 +39,13 @@ public final class Options extends OptionsSuper {
 
 		if (trainfile!=null) {
 			
-			
+			try {
 			if (tmp!=null) trainforest = File.createTempFile("train", ".tmp", new File(tmp));
 			else trainforest = File.createTempFile("train", ".tmp"); //,new File("F:\\")
 			trainforest.deleteOnExit();
+			} catch(Exception e) {
+				
+			}
 		}
 
 	

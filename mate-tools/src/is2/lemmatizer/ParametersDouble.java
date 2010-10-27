@@ -22,7 +22,6 @@ public class ParametersDouble extends Parameters {
 			parameters[i] = 0.0f;
 			total[i] = 0.0f;
 		}
-		lossType = "punc";
 	}
 	
 	

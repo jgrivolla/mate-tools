@@ -72,9 +72,18 @@ public class Instances  {
 	public static int m_unkown = 0;
 	public static int m_count = 0;
 
+
+	public static boolean m_report;
+	public static boolean m_found =false;
+
+	
 	final public void setForm(int i, int p, String x) {
 		forms[i][p] = m_encoder.getValue(PipeGen.WORD,x);
-		if (forms[i][p]==-1) m_unkown++;
+		if (forms[i][p]==-1) {
+			if (m_report) System.out.println("unkwrd "+x); 
+			m_unkown++;
+			m_found=true;
+		}
 		m_count++;
 	}
 

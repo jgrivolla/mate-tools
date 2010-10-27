@@ -41,6 +41,7 @@ final public class Decoder   {
 
 
 		int maxThreads =(pos.length>Parser.THREADS)? Parser.THREADS: pos.length;
+		//maxThreads=1; // change this change this change this!!!!!
 		ParallelDecoder[] pd = new ParallelDecoder[maxThreads];
 
 		

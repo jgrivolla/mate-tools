@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 
 /**
- * This class reads files in the CONLL-08 and CONLL-09 format.
+ * This class reads files in the CONLL-09 format.
  *
  * @author Bernd Bohnet
  */
@@ -32,7 +32,7 @@ public class CONLLReader09  {
 	public static final String EMPTY_FEAT = "<ef>";
 
 	private static final String NUMBER = "[0-9]+|[0-9]+\\.[0-9]+|[0-9]+[0-9,]+";
-	private static final String NUM = "<num>";
+	public static final String NUM = "<num>";
 
 	private BufferedReader inputReader;
 
@@ -150,7 +150,7 @@ public class CONLLReader09  {
 					it.gpos[i] = info[4];  
 
 					if (info.length<5) continue;
-					it.ppos[i] = info[5];
+					it.ppos[i] = info[5].split("\\|")[0];
 					// feat 6
 					// pfeat 7
 					
@@ -231,13 +231,15 @@ public class CONLLReader09  {
 			for(int p = 0; p < it.length(); p++) {
 
 				is.setForm(i, p, normalize(it.forms[p]));
-				is.setGPos(i, p, it.gpos[p]);			
+				is.setGPos(i, p, it.gpos[p]);	
+				
+		//		System.out.println(""+is.gpos[i][p]);
 	
 				if (it.ppos[p]==null||it.ppos[p].equals(US)) {
 					is.setPPoss(i, p, it.gpos[p]);
 				} else is.setPPoss(i, p, it.ppos[p]);
 
-
+		
 				if (it.lemmas[p]==null ||it.lemmas[p].equals(US)) {
 					is.setLemma(i, p, normalize(it.forms[p]));
 				} else is.setLemma(i, p, normalize(it.lemmas[p]));

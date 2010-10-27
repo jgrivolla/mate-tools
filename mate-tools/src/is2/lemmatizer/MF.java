@@ -838,7 +838,7 @@ public int wirteMappingEx(DataOutputStream dos, float[] p, int k, double max) th
 	public void read(DataInputStream din) throws IOException {
 		
 		int size = din.readInt();
-		System.out.println("read features "+size);
+//		System.out.println("read features "+size);
 		for(int i=0; i<size;i++) {
 			String k = din.readUTF();
 			int size2 = din.readInt();

@@ -12,7 +12,6 @@ public class ParametersFloat  {
 
 	public float[] parameters;
 	public float[] total;
-	public String lossType = "punc";
 
 	public ParametersFloat(int size) { 	
 		parameters = new float[size];
@@ -21,7 +20,6 @@ public class ParametersFloat  {
 			parameters[i] = 0.0f;
 			total[i] = 0.0f;
 		}
-		lossType = "punc";
 	}
 
 	public void averageParams(double avVal) {

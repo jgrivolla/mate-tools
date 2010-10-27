@@ -56,11 +56,8 @@ public final class Options extends OptionsSuper {
 
 	private void explain() {
 		System.out.println("Usage: ");
-		System.out.println("java -class mate.jar is2.parser.Parser [Options]");
+		System.out.println("java -class mate.jar is2.lemmatizer.Lemmatizer [Options]");
 		System.out.println();
-		System.out.println("Example: ");
-		System.out.println(" java -class mate.jar is2.parser.Parser -model eps3.model -train corpora/conll08st/train/train.closed -test corpora/conll08st/devel/devel.closed  -out b3.test -eval corpora/conll08st/devel/devel.closed  -count 2000 -i 6");
-		System.out.println("");
 		System.out.println("Options:");
 		System.out.println("");
 		System.out.println(" -train  <file>    the corpus a model is trained on; default "+this.trainfile);
@@ -70,7 +67,6 @@ public final class Options extends OptionsSuper {
 		System.out.println("                   and for parsing the model is load from this file; default "+this.modelName);
 		System.out.println(" -i      <number>  the number of training iterations; good numbers are 10 for smaller corpora and 6 for bigger; default "+this.numIters);
 		System.out.println(" -count  <number>  the n first sentences of the corpus are take for the training default "+this.count);
-		System.out.println(" -format <number>  conll format of the year 8 or 9; default "+this.formatTask);
 		
 		System.exit(0);
 	}

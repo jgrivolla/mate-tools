@@ -7,6 +7,7 @@ import is2.data.PipeGen;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
+import is2.tools.Tool;
 import is2.util.DB;
 import is2.util.OptionsSuper;
 
@@ -25,7 +26,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 
-public class Main {
+public class Main implements Tool {
 
 	public static final int THREADS = 2;
 	static Pipe pipe;
@@ -56,6 +57,16 @@ public class Main {
 	
 	
 	
+	/**
+	 * @param string
+	 * @throws IOException 
+	 */
+	public Main(String modelFileName) {
+		this(new Options(new String[] {"-model",modelFileName}));
+	}
+
+
+
 	public static void main (String[] args) throws FileNotFoundException, Exception
 	{
 
@@ -132,7 +143,7 @@ public class Main {
 		for(Entry<String,Integer> e : MFO.getFeatureSet().get(Pipe.FEAT).entrySet()) 
 			Pipe.types[e.getValue()] = e.getKey();
 		
-		System.out.println("Loading data finnished. "+Pipe.types.length);
+		DB.println("Loading data finnished. "+Pipe.types.length);
 		
 		pipe.mf.stop();
 	}
@@ -392,7 +403,7 @@ public class Main {
 	throws IOException {
 
 
-		// create an instance an intialize it
+				// create an instance an intialize it
 			Instances is = new Instances();
 			is.init(1, pipe.mf,9);
 			is.createInstance09(instance.forms.length);
@@ -402,7 +413,7 @@ public class Main {
 			
 			int length = forms.length;
 			
-		//	is.setForm(0, 0, CONLLReader09.ROOT);
+			//	is.setForm(0, 0, CONLLReader09.ROOT);
 			for(int i=0;i<length;i++) is.setForm(0, i, forms[i]);
 			
 			is.setLemma(0, 0, CONLLReader09.ROOT_LEMMA);
@@ -425,9 +436,6 @@ public class Main {
 				instance.pfeats[j]= (String)d[j][1];
 			}
 		
-     
-		
-
 			String[] res = ((String)d[0][1]).split(" ");
 
 			String[] formsNoRoot = new String[forms.length];
@@ -440,6 +448,7 @@ public class Main {
 			Arrays.toString(res);
 			for(int j = 0; j < formsNoRoot.length; j++) {
                 formsNoRoot[j] = forms[j];
+                posNoRoot[j] =
                 featsNoRoot[j] = (String)d[j][1];
               
       
@@ -454,7 +463,45 @@ public class Main {
 		return 	i09;
 	}
 
+
+	/**
+	 * Performs morphologic tagging
+	 * 
+	 * @param forms the input forms
+	 * @param lemmas the input lemmas 
+	 * @return morphologic tagged sentence
+	 */
+	public SentenceData09 perform(String[] forms, String[] lemmas)   {
+
+		SentenceData09 instance = null;
+
+		try {
+			instance = new SentenceData09();
+			instance.forms=forms;
+			instance.lemmas=lemmas;
+			outputParses ( instance,  pipe,  params);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		 return instance;
+	}
 	
+
+	/* (non-Javadoc)
+	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
+	 */
+	@Override
+	public SentenceData09 apply(SentenceData09 instance)   {
+		
+		try {
+			outputParses (instance,  pipe,  params);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		 return instance;
+	}
 	
 
 }

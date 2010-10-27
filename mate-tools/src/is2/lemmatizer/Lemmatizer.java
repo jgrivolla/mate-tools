@@ -23,9 +23,11 @@ import java.util.Map.Entry;
 
 import java.io.EOFException;
 
+import is2.tools.Tool;
 
 
-public class Lemmatizer implements LemmatizerInterface {
+
+public class Lemmatizer implements LemmatizerInterface, Tool {
 
 	public static final double MAX = 0.000000000000001; // 0.001
 
@@ -37,6 +39,26 @@ public class Lemmatizer implements LemmatizerInterface {
 		init(options);
 	}
 
+	/**
+	 * Creates a lemmatizer due to the model stored in modelFileName
+	 * @param modelFileName the path and file name to a lemmatizer model
+	 */
+	public Lemmatizer(String modelFileName)  {
+		
+		// tell the lemmatizer the location of the model
+		try {
+			m_options = new Options(new String[] {"-model", modelFileName});
+
+			// initialize the lemmatizer
+			init(m_options);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	
 	/**
 	 * 
 	 */
@@ -148,7 +170,7 @@ public class Lemmatizer implements LemmatizerInterface {
 		for(Entry<String,Integer> e : pipe.mf.getFeatureSet().get(Pipe.OPERATION).entrySet()) 
 			pipe.types[e.getValue()] = e.getKey();
 
-		System.out.println("Loading data finnished. "+pipe.types.length);
+		DB.println("Loading data finnished. "+pipe.types.length);
 
 		pipe.mf.stop();
 	}
@@ -325,7 +347,7 @@ public class Lemmatizer implements LemmatizerInterface {
 
 	}
 
-	public void lemmatize(Options options, SentenceData09 instance) {
+	public SentenceData09 lemmatize(Options options, SentenceData09 instance) {
 
 
 		int length = instance.ppos.length;
@@ -365,6 +387,7 @@ public class Lemmatizer implements LemmatizerInterface {
 
 
 		}
+		return instance;
 	}
 
 	/* (non-Javadoc)
@@ -446,6 +469,16 @@ public class Lemmatizer implements LemmatizerInterface {
 		}
 		return 	outLemmas;
 	}
+
+	/* (non-Javadoc)
+	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
+	 */
+	@Override
+	public SentenceData09 apply(SentenceData09 snt09) {
+		return lemmatize(m_options, snt09);
+	}
+
+	
 
 
 

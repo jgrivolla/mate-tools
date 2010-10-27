@@ -13,6 +13,7 @@ import is2.data.Parse;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
+import is2.tools.Tool;
 import is2.util.DB;
 import is2.util.Long2Int;
 import is2.util.OptionsSuper;
@@ -31,7 +32,7 @@ import java.util.zip.ZipOutputStream;
 
 
 
-public class Parser {
+public class Parser implements Tool {
 
 	public static final double MAX = 0.000000001; // 0.001
 
@@ -61,6 +62,14 @@ public class Parser {
 			e.printStackTrace();
 		}
 				
+	}
+
+
+	/**
+	 * @param modelFileName The file name of the parsing model
+	 */
+	public Parser(String modelFileName) {
+		this(new Options(new String[]{"-model",modelFileName}));
 	}
 
 
@@ -555,10 +564,10 @@ public class Parser {
 		Parse d=	null;
 		try {
 			d =Decoder.decode(pos,d2,options.decodeProjective); //cnt-1
-		}catch (Exception e) {
-				
+		}catch (Exception e) {		
 			e.printStackTrace();
-			}
+		}
+		
 		String[] formsNoRoot = new String[forms.length-1];
 		String[] posNoRoot = new String[formsNoRoot.length];
 		String[] lemmas = new String[formsNoRoot.length];
@@ -573,15 +582,17 @@ public class Parser {
 		String[] fillp = new String[formsNoRoot.length];
 
 		int[] heads = new int[formsNoRoot.length];
-
-		for(int j = 0; j < formsNoRoot.length; j++) {
+		int j = 0;
+		for(; j < formsNoRoot.length; j++) {
 			formsNoRoot[j] = forms[j+1];
 			posNoRoot[j] = instance.gpos[j+1];
 			pposs[j] = instance.ppos[j+1];
 
 			labels[j] = types[d.types[j+1]];
+			instance.labels[j]= types[d.types[j]];
 			//System.out.print(" "+d.types[j+1] );
 			heads[j] = d.heads[j+1];
+			instance.heads[j]= d.heads[j];
 			lemmas[j] = instance.lemmas[j+1];
 
 			if (instance.org_lemmas!=null) org_lemmas[j] = instance.org_lemmas[j+1];
@@ -591,6 +602,12 @@ public class Parser {
 			if (instance.fillp!=null) fillp[j] = instance.fillp[j+1];
 		}
 
+		// last token
+		instance.labels[j]= types[d.types[j]];
+		instance.heads[j]= d.heads[j];
+
+		
+		
 		SentenceData09 i09 = new SentenceData09(formsNoRoot, org_lemmas, lemmas,posNoRoot, pposs, labels, heads,fillp,of, pf);
 		i09.sem = instance.sem;
 		i09.semposition = instance.semposition;
@@ -615,6 +632,16 @@ public class Parser {
 
 		return i09;
 
+	}
+
+
+	/* (non-Javadoc)
+	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
+	 */
+	@Override
+	public SentenceData09 apply(SentenceData09 snt09) {
+		parse(snt09);
+		return snt09;
 	}
 
 

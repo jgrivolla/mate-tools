@@ -8,6 +8,7 @@ import is2.data.PipeGen;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
+import is2.tools.Tool;
 import is2.util.DB;
 
 import java.io.BufferedInputStream;
@@ -25,7 +26,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 
-public class Tagger {
+public class Tagger implements Tool {
 
 	public  Pipe pipe;
 	public  ParametersFloat params;
@@ -54,6 +55,13 @@ public class Tagger {
 	 */
 	public Tagger() {
 		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param modelFileName the file name of the model
+	 */
+	public Tagger(String modelFileName) {
+		this(new is2.tag3.Options(new String[]{"-model",modelFileName}));
 	}
 
 	public static void main (String[] args) throws FileNotFoundException, Exception
@@ -134,7 +142,7 @@ public class Tagger {
 		for(Entry<String,Integer> e : MFO.getFeatureSet().get(Pipe.POS).entrySet()) 
 			Pipe.types[e.getValue()] = e.getKey();
 		
-		System.out.println("Loading data finnished. ");
+		DB.println("Loading data finnished. ");
 		
 		pipe.mf.stop();
 	}
@@ -361,7 +369,6 @@ public class Tagger {
 	}
 
 	
-	// check if everything works well!!!
 	public SentenceData09 tag(SentenceData09 instance){
 		Instances is = new Instances();
 		is.init(1, pipe.mf);
@@ -370,7 +377,6 @@ public class Tagger {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	//	for (int k : is.forms[0]) System.out.println("forms "+k);
 		tag(is, instance);
 		
 		return instance;
@@ -476,6 +482,15 @@ public class Tagger {
 		return pposs;
 			
 
+	}
+
+	/* (non-Javadoc)
+	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
+	 */
+	@Override
+	public SentenceData09 apply(SentenceData09 snt09) {
+		tag(snt09);
+		return snt09;
 	}
 	
 	

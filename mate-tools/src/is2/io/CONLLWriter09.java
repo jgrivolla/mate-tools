@@ -11,18 +11,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.StringTokenizer;
 
 
 public class CONLLWriter09  {
 
 	public static final String DASH = "_";
+
+	public static final boolean NO_ROOT = true, ROOT = false;
 	
 	protected BufferedWriter writer;
 
 	public CONLLWriter09 () { }
-	
-	
 	
 	public static void main(String args[]) throws IOException {
 		
@@ -110,8 +111,7 @@ public class CONLLWriter09  {
 		}
 		
 	}
-	
-	
+		
 	
 	public CONLLWriter09 (String file) {
 		
@@ -122,16 +122,39 @@ public class CONLLWriter09  {
 		}
 	}
 	
+	public CONLLWriter09 (Writer writer) {
+		this.writer = new BufferedWriter(writer);
+	}
+	
+	
+	
 	public CONLLWriter09(String outfile, int formatTask) {
 		this(outfile);
 	}
 
 	public void write(SentenceData09 inst) throws IOException {
+		write(inst, ROOT);
+	}
+	
+	/**
+	 * 
+	 * @param inst 
+	 * @param root true: remove root node 
+	 * @throws IOException
+	 */
+	public void write(SentenceData09 inst, boolean root) throws IOException {
 
-		for (int i=0; i<inst.length(); i++) {
+		int i, mod;
+		if(root&&inst.forms[0].startsWith("<root")){
+			i=1; mod=0;
+		} else {
+			i=0; mod=1;
+		}
+		//=()?1:0;
+		
+		for (; i<inst.length(); i++) {
 			
-					
-				writer.write(Integer.toString(i+1)); writer.write('\t');	// id
+				writer.write(Integer.toString(i+mod)); writer.write('\t');	// id
 				writer.write(inst.forms[i]);     writer.write('\t'); 	// form
 				
 				if (inst.org_lemmas!=null && inst.org_lemmas[i]!=null) {
@@ -245,7 +268,6 @@ public class CONLLWriter09  {
 			writer.newLine();
 		}
 		writer.newLine();
-
 	}
 
 	public void finishWriting () throws IOException {
