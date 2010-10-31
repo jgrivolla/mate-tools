@@ -21,8 +21,8 @@ public class Sentence extends ArrayList<Word> {
 		predicates=new ArrayList<Predicate>();
 	}
 
-	private Sentence(SentenceData09 data){ //Not used.
-		this(data.forms,data.lemmas,data.ppos,data.pfeats);
+	public Sentence(SentenceData09 data){
+		this(data.forms,data.lemmas,data.ppos,data.pfeats,data.heads,data.labels);
 	}
 	
 	public Sentence(String[] words, String[] lemmas, String[] tags,	String[] morphs) {
@@ -31,6 +31,16 @@ public class Sentence extends ArrayList<Word> {
 			Word nextWord=new Word(words[i],lemmas[i],tags[i],morphs[i],this);
 			super.add(nextWord);
 		}
+	}
+
+	public Sentence(String[] forms, String[] lemmas, String[] ppos,	String[] pfeats, int[] heads, String[] labels) {
+		this(forms,lemmas,ppos,pfeats);
+		for(int i=1;i<heads.length;++i){
+			Word curWord=super.get(i);
+			curWord.setHead(super.get(heads[i]));
+			curWord.setDeprel(labels[i]);
+		}
+		this.buildDependencyTree();
 	}
 
 	private void addPredicate(Predicate pred){

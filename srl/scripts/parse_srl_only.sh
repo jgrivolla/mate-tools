@@ -11,9 +11,9 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-INPUT="/home/anders/corpora/conll09/eng/CoNLL2009-evaluation-English-SRLonly.txt" #evaluation corpus
-LANG="eng"
-MODEL="models/eng/srl-eng.model"
+INPUT="/home/anders/corpora/conll09/chi/CoNLL2009-ST-evaluation-Chinese-SRLonly.txt"
+LANG="chi"
+MODEL="models/chi/srl-chn.model"
 OUTPUT="$LANG.out"
 
 ##################################################
@@ -21,18 +21,17 @@ OUTPUT="$LANG.out"
 ##################################################
 JAVA="java" #Edit this i you want to use a specific java binary.
 MEM="2g" #Memory for the JVM, might need to be increased for large corpora.
-CP="srl.jar:lib/liblinear-1.51-with-deps.jar"
+CP="srl.jar:lib/liblinear-1.51-with-deps.jar:lib/anna.jar"
 JVM_ARGS="-cp $CP -Xmx$MEM"
 
 ##################################################
 ## (3) The following changes the behaviour of the system
 ##################################################
 #RERANKER="-reranker" #Uncomment this if you want to use a reranker too. The model is assumed to contain a reranker. While training, this has to be set appropriately.
-#NOPI="-nopi" #Uncomment this if you want to skip the predicate identification step. This setting is equivalent to the CoNLL 2009 ST.
+NOPI="-nopi" #Uncomment this if you want to skip the predicate identification step. This setting is equivalent to the CoNLL 2009 ST.
 
 
 CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Parse $LANG $INPUT $MODEL $RERANKER $NOPI $OUTPUT"
 echo "Executing: $CMD"
 
 $CMD
-

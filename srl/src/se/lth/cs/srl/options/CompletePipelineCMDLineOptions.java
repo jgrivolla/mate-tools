@@ -10,7 +10,6 @@ public class CompletePipelineCMDLineOptions extends FullPipelineOptions {
 	
 	public File output=new File("out.txt");
 	public File input;
-	public boolean skipPI=false;
 	public boolean desegment=false;
 	
 	public CompletePipelineCMDLineOptions(){

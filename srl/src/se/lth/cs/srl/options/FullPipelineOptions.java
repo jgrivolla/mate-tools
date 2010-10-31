@@ -21,6 +21,8 @@ public abstract class FullPipelineOptions {
 	public int acBeam=4;
 	public double alfa=1.0;
 	
+	public boolean skipPI=false;
+	
 	public boolean loadPreprocessorWithTokenizer=true;
 	
 //	public void verifyFiles(boolean verifyTokenizer,boolean verifyLemmatizer,boolean verifyTagger,boolean verifyMTagger,boolean verifyParser,boolean verifySRL) {
@@ -86,6 +88,7 @@ public abstract class FullPipelineOptions {
 		parseOptions.global_aiBeam=aiBeam;
 		parseOptions.global_acBeam=acBeam;
 		parseOptions.global_alfa=alfa;
+		parseOptions.skipPI=skipPI;
 		return parseOptions;
 	}
 	

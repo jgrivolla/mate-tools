@@ -11,22 +11,23 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-INPUT="/home/anders/corpora/conll09/eng/CoNLL2009-evaluation-English-SRLonly.txt" #evaluation corpus
-LANG="eng"
-TOKENIZER_MODEL="models/eng/EnglishTok.bin.gz"
-LEMMATIZER_MODEL="models/eng/lemma-eng.model"
-POS_MODEL="models/eng/tag-eng.model"
+#INPUT="/home/anders/corpora/conll09/eng/CoNLL2009-evaluation-English-SRLonly.txt" #evaluation corpus
+INPUT=/home/anders/corpora/conll09/chi/CoNLL2009-ST-evaluation-Chinese-SRLonly.txt
+LANG="chi"
+##TOKENIZER_MODEL="models/eng/EnglishTok.bin.gz" #This is not used here anyway. The input is assumed to be segmented/tokenized already. 
+##LEMMATIZER_MODEL="models/chi/lemma-eng.model"
+POS_MODEL="models/chi/tag-chn.model"
 #MORPH_MODEL="models/ger/morph-ger.model" #Morphological tagger is not applicable to English. Fix the path and uncomment if you are running german.
-PARSER_MODEL="models/eng/prs-eng.model"
-SRL_MODEL="models/eng/srl-eng.model"
+PARSER_MODEL="models/chi/prs-chn.model"
+SRL_MODEL="models/chi/srl-chn.model"
 OUTPUT="$LANG.out"
 
 ##################################################
 ## (2) These ones may need to be changed
 ##################################################
-JAVA="java" #Edit this i you want to use a specific java binary.
-MEM="3g" #Memory for the JVM, might need to be increased for large corpora.
-CP="srl.jar:lib/anna.jar:lib/liblinear-1.51-with-deps.jar:lib/opennlp-tools-1.4.3.jar:lib/maxent-2.5.2.jar:lib/trove.jar"
+JAVA="java" #Edit this i you want to use a specific JRE.
+MEM="4g" #Memory for the JVM, might need to be increased for large corpora.
+CP="srl.jar:lib/anna.jar:lib/liblinear-1.51-with-deps.jar:lib/opennlp-tools-1.4.3.jar:lib/maxent-2.5.2.jar:lib/trove.jar:lib/seg.jar"
 JVM_ARGS="-cp $CP -Xmx$MEM"
 
 ##################################################
@@ -36,8 +37,23 @@ JVM_ARGS="-cp $CP -Xmx$MEM"
 #NOPI="-nopi" #Uncomment this if you want to skip the predicate identification step.
 
 
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.CompletePipeline $TOKENIZER_MODEL $LEMMATIZER_MODEL $POS_MODEL $PARSER_MODEL $MORPH_MODEL $LANG $INPUT $SRL_MODEL $RERANKER $NOPI $OUTPUT"
+
+##################################################
+
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.CompletePipeline $LANG $NOPI $RERANKER -tagger $POS_MODEL -parser $PARSER_MODEL -srl $SRL_MODEL -test $INPUT -out $OUTPUT"
+
+if [ "$TOKENIZER_MODEL" != "" ]; then
+  CMD="$CMD -token $TOKENIZER_MODEL"
+fi
+
+if [ "$LEMMATIZER_MODEL" != "" ]; then
+  CMD="$CMD -lemma $LEMMATIZER_MODEL"
+fi
+
+if [ "$MORPH_MODEL" != "" ]; then
+  CMD="$CMD -morph $MORPH_MODEL"
+fi
+
 echo "Executing: $CMD"
 
 $CMD
-

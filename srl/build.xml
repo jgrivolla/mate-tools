@@ -52,7 +52,7 @@
 		</jar>
 		<property name="tarfile" value="${dist}/${distname}.tar"/>
 		<property name="tgzfile" value="${dist}/${distname}.tgz"/>
-		<tar destfile="${tarfile}" basedir="${distdir}"/>
+		<tar destfile="${tarfile}" basedir="${dist}"/>
 		<gzip destfile="${tgzfile}" src="${tarfile}"/>
 	</target>
 	

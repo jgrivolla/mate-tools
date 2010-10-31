@@ -12,8 +12,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import is2.data.SentenceData09;
-import is2.parser.Parser;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.io.CoNLL09Writer;
 import se.lth.cs.srl.io.SentenceWriter;
@@ -24,7 +22,6 @@ import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
 import se.lth.cs.srl.pipeline.Step;
 import se.lth.cs.srl.preprocessor.Preprocessor;
-import se.lth.cs.srl.util.BohnetHelper;
 import se.lth.cs.srl.util.ChineseDesegmenter;
 import se.lth.cs.srl.util.FileExistenceVerifier;
 import se.lth.cs.srl.util.Util;
@@ -34,17 +31,10 @@ public class CompletePipeline {
 	private static final Pattern WHITESPACE_PATTERN=Pattern.compile("\\s+");
 	
 	private Preprocessor pp;
-	private Parser dp;
 	private SemanticRoleLabeler srl;
-
-	public long dpLoadTime=0;
-	public long dpTime=0;
 	
 	public static CompletePipeline getCompletePipeline(FullPipelineOptions options) throws ZipException, IOException, ClassNotFoundException{
 		Preprocessor pp=Language.getLanguage().getPreprocessor(options);
-		long startDPLoad=System.currentTimeMillis();
-		Parser dp=BohnetHelper.getParser(options.parser);
-		long dpLoadTime=System.currentTimeMillis()-startDPLoad;
 		Parse.parseOptions=options.getParseOptions();
 		SemanticRoleLabeler srl;
 		if(options.reranker){
@@ -58,14 +48,12 @@ public class CompletePipeline {
 			}
 			zipFile.close();			
 		}
-		CompletePipeline pipeline=new CompletePipeline(pp,dp,srl);
-		pipeline.dpLoadTime=dpLoadTime;
+		CompletePipeline pipeline=new CompletePipeline(pp,srl);
 		return pipeline;
 	}
 	
-	private CompletePipeline(Preprocessor preprocessor,Parser parser,SemanticRoleLabeler srl){
+	private CompletePipeline(Preprocessor preprocessor,SemanticRoleLabeler srl){
 		this.pp=preprocessor;
-		this.dp=parser;
 		this.srl=srl;
 	}
 	
@@ -86,34 +74,13 @@ public class CompletePipeline {
 //		srl.parseSentence(ret);
 //		return ret;
 		
-		Sentence s=pp.preprocess(words.toArray(new String[0]));
-		
-		SentenceData09 sen=new SentenceData09();
-		sen.init(s.getFormArray());
-		sen.setPPos(s.getPOSArray());
-		if(pp.hasMorphTagger())
-			sen.setFeats(s.getFeats());
-		long start=System.currentTimeMillis();
-		SentenceData09 out=dp.parse(sen);
-		dpTime+=(System.currentTimeMillis()-start);
-		s.setHeadsAndDeprels(out.getParents(),out.getLabels());
-		s.buildDependencyTree();
+		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[0])));
 		srl.parseSentence(s);
 		return s;
 	}
 	
 	public Sentence parseOraclePI(List<String> words,List<Boolean> isPred) throws Exception{
-		Sentence s=pp.preprocess(words.toArray(new String[0]));
-		SentenceData09 sen=new SentenceData09();
-		sen.init(s.getFormArray());
-		sen.setPPos(s.getPOSArray());
-		if(pp.hasMorphTagger())
-			sen.setFeats(s.getFeats());
-		long start=System.currentTimeMillis();
-		SentenceData09 out=dp.parse(sen);
-		dpTime+=(System.currentTimeMillis()-start);
-		s.setHeadsAndDeprels(out.getParents(),out.getLabels());
-		s.buildDependencyTree();
+		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[0])));
 		for(int i=0;i<isPred.size();++i){
 			if(isPred.get(i)){
 				s.makePredicate(i);
@@ -122,19 +89,6 @@ public class CompletePipeline {
 		srl.parseSentence(s);
 		return s;
 	}
-	
-//	private Sentence dpParse(SentenceData09 sen){
-//		Sentence s=new Sentence(sen);
-////		SentenceData09 sen=new SentenceData09();
-////		sen.init(s.getFormArray());
-////		sen.setPPos(s.getPOSArray());
-////		sen.setFeats(s.getFeats());
-//		SentenceData09 out=dp.parse(sen);
-//		
-//		s.setHeadsAndDeprels(out.getParents(),out.getLabels());
-//		s.buildDependencyTree();
-//		return s;
-//	}
 
 	
 	public static void main(String[] args) throws Exception{
@@ -244,7 +198,7 @@ public class CompletePipeline {
 		ret.append("Time spent doing lemmatization (ms):          "+Util.insertCommas(pp.lemmatizeTime)+"\n");
 		ret.append("Time spent doing pos-tagging (ms):            "+Util.insertCommas(pp.tagTime)+"\n");
 		ret.append("Time spent doing morphological tagging (ms):  "+Util.insertCommas(pp.mtagTime)+"\n");
-		ret.append("Time spent doing dependency parsing (ms):     "+Util.insertCommas(dpTime)+"\n");
+		ret.append("Time spent doing dependency parsing (ms):     "+Util.insertCommas(pp.dpTime)+"\n");
 		ret.append("Time spent doing semantic role labeling (ms): "+Util.insertCommas(srl.parsingTime)+"\n");
 		ret.append("\n\n");
 		ret.append(srl.getStatus());

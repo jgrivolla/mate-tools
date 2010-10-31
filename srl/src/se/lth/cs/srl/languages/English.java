@@ -1,6 +1,7 @@
 package se.lth.cs.srl.languages;
 
 import is2.lemmatizer.Lemmatizer;
+import is2.parser.Parser;
 import is2.tag3.Tagger;
 
 import java.io.File;
@@ -78,7 +79,8 @@ public class English extends Language {
 		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new OpenNLPToolsTokenizerWrapper(new opennlp.tools.lang.english.Tokenizer(options.tokenizer.toString())) : null);
 		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
-		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, null);
+		Parser parser=BohnetHelper.getParser(options.parser);
+		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, null, parser);
 		return pp;
 	}
 

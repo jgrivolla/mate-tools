@@ -1,6 +1,7 @@
 package se.lth.cs.srl.languages;
 
 import is2.lemmatizer.Lemmatizer;
+import is2.parser.Parser;
 import is2.tag3.Tagger;
 
 import java.io.File;
@@ -72,7 +73,8 @@ public class German extends Language {
 		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
 		is2.mtag.Main mtagger=BohnetHelper.getMTagger(options.morph);
-		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, mtagger);
+		Parser parser=BohnetHelper.getParser(options.parser);
+		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, mtagger, parser);
 		return pp;
 	}
 

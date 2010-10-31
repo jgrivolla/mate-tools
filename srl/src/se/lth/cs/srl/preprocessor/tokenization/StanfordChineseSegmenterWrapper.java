@@ -62,12 +62,9 @@ public class StanfordChineseSegmenterWrapper implements Tokenizer {
 	public String[] tokenize(String sentence) {
 		String[] tokens=(String[]) classifier.segmentString(sentence).toArray();
 		String[] withRoot=new String[tokens.length+1];
-		withRoot[0]="<root>";
-		int i=1;
-		for(String token:tokens){
-			withRoot[i]=token;
-			++i;
-		}
+		//withRoot[0]="<root>";
+		withRoot[0]=is2.io.CONLLReader09.ROOT;
+		System.arraycopy(tokens, 0, withRoot, 1, tokens.length);
 		return withRoot;
 	}
 

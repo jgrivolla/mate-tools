@@ -33,5 +33,42 @@ Then there is also the HTTP interface. This is started by the
 run_http_server.sh script. Again, edit the file with proper paths
 before executing it.
 
+NOTE: the http server depends on the java package
+com.sun.net.httpserver (cf.
+http://download.oracle.com/javase/6/docs/jre/api/net/httpserver
+/spec/com/sun/net/httpserver/package-summary.html
+and
+http://blogs.sun.com/michaelmcm/entry/http_server_api_in_java
+), which is not part of the real Java specification, but comes with
+most (or at least some) JRE distributions. From my own experience,
+it is included in the Sun Java 6 distribution* as well as the OpenJDK 
+Java 6**.
+
+[[
+ *: 
+  On a Mac:
+  % java -version
+  java version "1.6.0_17"
+  Java(TM) SE Runtime Environment (build 1.6.0_17-b04-248-10M3025)
+  Java HotSpot(TM) 64-Bit Server VM (build 14.3-b01-101, mixed mode)
+  %
+
+ and
+  On pc, mandriva linux:
+  % /usr/lib/jvm/java-sun/bin/java -version
+  java version "1.6.0_15"
+  Java(TM) SE Runtime Environment (build 1.6.0_15-b03)
+  Java HotSpot(TM) 64-Bit Server VM (build 14.1-b02, mixed mode)
+  %
+
+ **:
+  On pc, mandriva linux:
+  % java -version
+  java version "1.6.0_18"
+  OpenJDK Runtime Environment (IcedTea6 1.8) (mandriva-2.b18.2mdv2009.1-x86_64)
+  OpenJDK 64-Bit Server VM (build 14.0-b16, mixed mode)
+  %
+]]
+
 
 Feedback and questions are appreciated: anders.bjorkelund@cs.lth.se
