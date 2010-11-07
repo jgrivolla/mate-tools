@@ -17,6 +17,7 @@ public class HttpPipeline {
 	private static HttpServer server;
 	private static ParseRequestHandler parseHandler;
 	private static ParserStatusHandler statusHandler;
+	private static ImageRequestHandler imgHandler;
 	private static DefaultHandler defaultHandler;
 	public static Date serverStart;
 	
@@ -45,10 +46,13 @@ public class HttpPipeline {
 			System.out.println("Setting up pipeline");
 			//CompletePipeline pipeline=new CompletePipeline(options);
 			CompletePipeline pipeline=CompletePipeline.getCompletePipeline(options);
-			parseHandler=new ParseRequestHandler(defaultHandler, pipeline);
+			ImageCache imageCache=new ImageCache(1000*60*60,1000*60*60,1000);
+			parseHandler=new ParseRequestHandler(defaultHandler, pipeline, imageCache);
 			server.createContext("/parse",parseHandler);
 			statusHandler=new ParserStatusHandler(pipeline);
 			server.createContext("/status",statusHandler);
+			imgHandler=new ImageRequestHandler(imageCache);
+			server.createContext("/img",imgHandler);
 			ready=true;
 			System.out.println("Server loaded successfully, ready to parse!");
 		} catch (Exception e) {

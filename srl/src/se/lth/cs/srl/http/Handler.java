@@ -47,6 +47,7 @@ public abstract class Handler implements HttpHandler {
 				  "    <table cellpadding=\"2\" cellspacing=\"2\">\n" +
 				  "      <tr><td valign=\"center\"><b>Input</b><td><textarea name=\""+sentenceDataVarName+"\" rows=\"3\" cols=\"40\"></textarea></td></tr>\n" +
 				  "      <tr><td valign=\"center\"><b>Return type</b><td><input type=\"radio\" name=\"returnType\" value=\"html\" checked=\"checked\" />&nbsp;&nbsp;HTML<br /><input type=\"radio\" name=\"returnType\" value=\"text\"/>&nbsp;&nbsp;Raw text</td></tr>\n" +
+				  "      <tr><td colspan=\"2\"><input type=\"checkbox\" name=\"doRenderDependencyGraph\" checked=\"CHECKED\"/> <font size=\"-1\">Include graphical dependency tree output</font></td></tr>" +
 				  "      <tr><td colspan=\"2\"><input type=\"checkbox\" name=\"doPerformDictionaryLookup\" /> <font size=\"-1\">Attempt to lookup and reference predicates in dictionary<sup>&dagger;</sup>.</font></td></tr>\n" +
 				  "      <tr><td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"Parse\" /><br /></td></tr>\n" +
 				  "  </table></form><br/>\n" +
@@ -61,10 +62,13 @@ public abstract class Handler implements HttpHandler {
 				  "  </font>\n" +
 				  "  <font size=\"-1\">\n" +
 				  "    <b>System composition</b>\n" +
-				  "    <ul><li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer (English and German), <a href=\"http://nlp.stanford.edu/software/segmenter.shtml\">Stanford Chinese Segmenter (Chinese)</a></li>\n"+
-				  "    <li>POS-tagging, Lemmatization and Dependency Parser - by Bernd Bohnet</li>\n" +
-				  "    <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>\n"+
-				  "    <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li></ul>\n"+
+				  "    <ul>\n" +
+				  "      <li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer (English and German), <a href=\"http://nlp.stanford.edu/software/segmenter.shtml\">Stanford Chinese Segmenter (Chinese)</a></li>\n"+
+				  "      <li>POS-tagging, Lemmatization and Dependency Parser - by Bernd Bohnet</li>\n" +
+				  "      <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>\n"+
+				  "      <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li>\n" +
+				  "      <li>Graph Visualization - using <a href=\"http://code.google.com/p/whatswrong/\">What's Wrong With My NLP?</a></li>\n" +
+				  "    </ul>\n"+
 				  "  </font>\n" +
 				  "  <font size=\"-1\">For downloads and more information see <a href=\"http://code.google.com/p/mate-tools/\">http://code.google.com/p/mate-tools/</a>.</font><br/>\n" +
 				  "  <font size=\"-1\"><sup>&dagger;</sup> This is only applicable for HTML response, and with English. Note that this takes longer, and if the online dictionary is down, it may time out and take a significant amount of time.</font>\n");

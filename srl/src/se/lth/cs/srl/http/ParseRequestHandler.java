@@ -1,5 +1,6 @@
 package se.lth.cs.srl.http;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -15,6 +16,7 @@ import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
 import se.lth.cs.srl.corpus.Yield;
+import se.lth.cs.srl.http.whatswrongglue.WhatsWrongHelper;
 import se.lth.cs.srl.languages.Language;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -24,10 +26,12 @@ public class ParseRequestHandler extends Handler {
 
 	private CompletePipeline pipeline;
 	private HttpHandler defaultHandler;
+	private ImageCache imageCache;
 	
-	public ParseRequestHandler(HttpHandler defaultHandler,CompletePipeline pipeline) throws IOException{
+	public ParseRequestHandler(HttpHandler defaultHandler,CompletePipeline pipeline,ImageCache imageCache) throws IOException{
 		this.defaultHandler=defaultHandler;
 		this.pipeline=pipeline;
+		this.imageCache=imageCache;
 	}
 	
 	@Override
@@ -65,8 +69,9 @@ public class ParseRequestHandler extends Handler {
 		//Prepare the response;
 		if(vars.containsKey("returnType") && vars.get("returnType").equals("html")){
 			boolean performURLLookup=vars.containsKey("doPerformDictionaryLookup"); //TODO: verify that this works.
-			httpResponse=getHTMLResponse(sen,parsingTime,performURLLookup);
-			content_type="text/html";
+			boolean includeDependencyGraphImage=vars.containsKey("doRenderDependencyGraph");
+			httpResponse=getHTMLResponse(sen,parsingTime,performURLLookup,includeDependencyGraphImage);
+			content_type="text/html"; //XXX should be content_type="text/html; charset=UTF-8
 		} else {
 			httpResponse=sen.toString();
 			content_type="text/plain";
@@ -93,7 +98,7 @@ public class ParseRequestHandler extends Handler {
 		styleSheetArgs.add("AM-MNR");
 	}
 	
-	private String getHTMLResponse(Sentence sen, long parsingTime, boolean performURLLookup){
+	private String getHTMLResponse(Sentence sen, long parsingTime, boolean performURLLookup,boolean includeDependencyGraphImage){
 		StringBuilder ret=new StringBuilder(HTMLHEAD);
 		//ret.append("<html><head><title>Semantic Parser</title>\n"+STYLESHEET+"</head><body>\n");
 		ret.append("<table cellpadding=10 cellspacing=1>\n<tr><td class=\"topRowCell\">&nbsp;</td>");
@@ -165,6 +170,19 @@ public class ParseRequestHandler extends Handler {
 			System.err.println(errors.toString().trim());
 		}
 		ret.append("<br/>\n<hr/>\n<br/>\n");
+		//The dependency graph image
+		if(includeDependencyGraphImage){
+			try {
+				ByteArrayOutputStream baos=WhatsWrongHelper.renderPNG(WhatsWrongHelper.getNLPInstance(sen),1);
+				String key=imageCache.addObject(baos);
+				ret.append("<img src=\"/img/"+key+".png\"/>");
+				ret.append("<br/>\n<hr/>\n<br/>\n");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 		//The raw CoNLL 2009 output as a table
 		ret.append("<table><tr><th>ID</th><th>Form</th><th>Lemma</th><th>PLemma</th><th>POS</th><th>PPOS</th><th>Feats</th><th>PFeats</th><th>Head</th><th>PHead</th><th>Deprel</th><th>PDeprel</th><th>IsPred</th><th>Pred</th>");
 		for(int i=0;i<sen.getPredicates().size();++i)

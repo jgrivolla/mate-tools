@@ -9,8 +9,8 @@ Homepage: http://code.google.com/p/mate-tools/
 License: GPL (see GPL.txt)
 
 The jar from mate-tools.
-Used for lemmatizing, pos tagging, morphological tagging and dependency
-parsing.
+Used for lemmatizing, pos tagging, morphological tagging and
+dependency parsing.
 
 ------------------------------------------------------------------------
 liblinear-1.51-with-deps.jar
@@ -49,7 +49,7 @@ Stanford Chinese Word Segmenter, version 2008-05-21
 Homepage: http://nlp.stanford.edu/software/segmenter.shtml
 License: GPL (see GPL.txt)
 
-Chinese word segementer. Used for Chinese.
+Chinese word segmenter. Used for Chinese.
 
 ------------------------------------------------------------------------
 trove.jar
@@ -62,3 +62,13 @@ High performance collections for Java.
 Used by OpenNLP Tools.
 
 ------------------------------------------------------------------------
+
+whatswrong-0.2.3.jar
+
+What's Wrong With My NLP?, version 0.2.3
+Homepage: http://code.google.com/p/whatswrong/
+License: GPL (see GPL.txt)
+
+A visualizer for Natural Language Processing problems.
+Used by the HTTP interface to generate graphical output of depency
+graphs.
