@@ -54,16 +54,16 @@ public abstract class Handler implements HttpHandler {
 				  "  <font size=\"-1\">\n" +
 				  "    <b>Note:</b> For optimal performance, please\n" +
 				  "    <ul>\n" +
-				  "      <li>Spell properly.</li>\n" +
-				  "      <li>Make sure to end the sentence with a period (or other punctuation) ((In languages where punctuation is typically used, that is.)).</li>\n" +
-				  "      <li>Start the sentence with an uppercase letter</li>\n" +
+				  "      <li>Spell properly</li>\n" +
+				  "      <li>Make sure to end the sentence with a period or other punctuation (In languages where punctuation is typically used, that is)</li>\n" +
+				  "      <li>Start the sentence with an uppercase letter (In languages where this is applicable, that is)</li>\n" +
 				  "      <li>Only feed the parser one sentence a time</li>\n" +
 				  "    </ul>\n" +
 				  "  </font>\n" +
 				  "  <font size=\"-1\">\n" +
 				  "    <b>System composition</b>\n" +
 				  "    <ul>\n" +
-				  "      <li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer (English and German), <a href=\"http://nlp.stanford.edu/software/segmenter.shtml\">Stanford Chinese Segmenter (Chinese)</a></li>\n"+
+				  "      <li>Tokenization - <a href=\"http://opennlp.sourceforge.net/\">OpenNLP tools</a> tokenizer (English and German), <a href=\"http://nlp.stanford.edu/software/segmenter.shtml\">Stanford Chinese Segmenter</a> (Chinese)</li>\n"+
 				  "      <li>POS-tagging, Lemmatization and Dependency Parser - by Bernd Bohnet</li>\n" +
 				  "      <li>Morphological tagging - by Bernd Bohnet (not applicable for all languages)</li>\n"+
 				  "      <li>Semantic Role Labeling - based on LTH's contribution to the CoNLL 2009 ST</li>\n" +

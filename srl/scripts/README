@@ -70,5 +70,14 @@ Java 6**.
   %
 ]]
 
+The graphical dependency graph output of the HTTP interface relies on 
+having Chinese fonts install properly locally. On Linux I had some issues
+with this, but resolved them according to
+http://blog.lizhao.net/2007/03/java-chinese-fonts-on-ubuntu.html
+
+The graphcical dependency graph output also seems to work less good 
+when using OpenJDK. The images get strange lines through them. The Sun
+JRE seems to work fine though. 
+
 
 Feedback and questions are appreciated: anders.bjorkelund@cs.lth.se
