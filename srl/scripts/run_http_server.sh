@@ -27,7 +27,8 @@ PORT=8081 #The port to listen on
 JAVA="java" #Edit this i you want to use a specific java binary.
 MEM="4g" #Memory for the JVM, might need to be increased for large corpora.
 CP="srl.jar:lib/anna.jar:lib/liblinear-1.51-with-deps.jar:lib/opennlp-tools-1.4.3.jar:lib/maxent-2.5.2.jar:lib/trove.jar:lib/seg.jar:lib/whatswrong-0.2.3.jar"
-JVM_ARGS="-cp $CP -Xmx$MEM"
+JVM_ARGS="-Djava.awt.headless=true -cp $CP -Xmx$MEM"
+# The java.awt.headless property is needed to render the images of dependency graphs if the server is executed remotely (and there is no GUI stuff involved anyway)
 
 ##################################################
 ## (3) The following changes the behaviour of the system

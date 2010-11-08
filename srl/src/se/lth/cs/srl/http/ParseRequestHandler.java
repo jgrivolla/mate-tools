@@ -71,7 +71,7 @@ public class ParseRequestHandler extends Handler {
 			boolean performURLLookup=vars.containsKey("doPerformDictionaryLookup"); //TODO: verify that this works.
 			boolean includeDependencyGraphImage=vars.containsKey("doRenderDependencyGraph");
 			httpResponse=getHTMLResponse(sen,parsingTime,performURLLookup,includeDependencyGraphImage);
-			content_type="text/html"; //XXX should be content_type="text/html; charset=UTF-8
+			content_type="text/html; charset=UTF-8";
 		} else {
 			httpResponse=sen.toString();
 			content_type="text/plain";
