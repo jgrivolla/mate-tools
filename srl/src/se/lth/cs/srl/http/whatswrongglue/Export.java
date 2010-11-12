@@ -43,6 +43,7 @@ public class Export {
     
     /**
      * Export to JPG. For some reason the background comes out pink, I have no idea why.
+     * Note that this method /does not/ close the outputstream after writing, this is up to the caller.
      * 
      * @param os The stream to write to
      * @param renderer The renderer to use
@@ -63,7 +64,8 @@ public class Export {
     
    /**
     * Export to PNG.
-    * 
+    * Note that this method /does not/ close the outputstream after writing, this is up to the caller.
+    *  
     * @param os The stream to write to
     * @param renderer The renderer to use
     * @param instance The instance to render
