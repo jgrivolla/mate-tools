@@ -3,6 +3,7 @@ package se.lth.cs.srl.http.whatswrongglue;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -35,7 +36,9 @@ public class Export {
     }
     
     public static void exportToJPG(File file,NLPCanvasRenderer renderer,NLPInstance instance,double scaleFactor) throws FileNotFoundException, IOException{
-    	exportToJPG(new FileOutputStream(file),renderer,instance,scaleFactor);
+    	BufferedOutputStream os=new BufferedOutputStream(new FileOutputStream(file));
+    	exportToJPG(os,renderer,instance,scaleFactor);
+    	os.close();
     }
     
     /**
@@ -53,7 +56,9 @@ public class Export {
     }
     
     public static void exportToPNG(File file,NLPCanvasRenderer renderer,NLPInstance instance,double scaleFactor) throws FileNotFoundException, IOException{
-    	exportToPNG(new FileOutputStream(file),renderer,instance,scaleFactor);
+    	BufferedOutputStream os=new BufferedOutputStream(new FileOutputStream(file));
+    	exportToPNG(os,renderer,instance,scaleFactor);
+    	os.close();
     }
     
    /**
