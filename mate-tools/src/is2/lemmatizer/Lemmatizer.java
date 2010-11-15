@@ -360,9 +360,14 @@ public class Lemmatizer implements LemmatizerInterface, Tool {
 
 			pipe.fillFeatureVectorsOne(instance.forms,params, j,fvs, probs, d);
 			instance.lemmas[j] = StringEdit.change(instance.forms[j], (String)d[j][1]);
-
+			
+			
 			if (options.upper && Character.isUpperCase(instance.forms[j].charAt(0))) {
-				instance.lemmas[j] = instance.forms[j].charAt(0)+instance.lemmas[j].substring(1);
+				
+				if (instance.lemmas[j].length()>1)
+					instance.lemmas[j] = instance.lemmas[j].charAt(0)+instance.lemmas[j].substring(1);
+				else if (instance.lemmas[j].length()>0)
+					instance.lemmas[j] = String.valueOf(instance.lemmas[j].charAt(0));
 			} 
 
 

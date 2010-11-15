@@ -47,7 +47,7 @@ public class Evaluator {
 			// NOTE: the first item is the root info added during nextInstance(), so we skip it.
 
 			for (int i = 1; i < instanceLength; i++) {
-				if (goldLemma[i].equals(predLemma[i])) corrT++;
+				if (goldLemma[i].toLowerCase().equals(predLemma[i].toLowerCase())) corrT++;
 				else System.out.println("error gold:"+goldLemma[i]+" pred:"+predLemma[i]+" form:"+goldInstance.forms[i]+" snt "+numsent+" i:"+i);
 				
 			}

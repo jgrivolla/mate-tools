@@ -259,7 +259,7 @@ final public class Pipe extends PipeGen {
 			createFeatureVector(instance);
 		
 		
-			instance.actParseTree = "";
+		//	instance.actParseTree = "";
 		
 	//		lengths.add(instance.length());
 		
@@ -527,9 +527,7 @@ final public class Pipe extends PipeGen {
 		String lower = forms[i].toLowerCase();
 		int form =mf.getValue(WORD, forms[i]);
 		
-		
 		int oper  =mf.getValue(OPERATION, operation);
-	//	System.out.println("oper "+oper+" s_oper "+s_oper);
 		
 		int c0= mf.getValue(CHAR, String.valueOf(forms[i].charAt(0)));
 		int c1= forms[i].length()>1?mf.getValue(CHAR, String.valueOf(forms[i].charAt(1))):mf.getValue(CHAR, END);

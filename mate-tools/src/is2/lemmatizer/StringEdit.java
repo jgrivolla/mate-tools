@@ -12,8 +12,6 @@ public class StringEdit {
 		
 		int d[][] = LD(s, t);
 
-		
-
 		StringBuffer opersations = new StringBuffer();
 		searchPath(s,t,d, opersations, false);
 		System.out.println("resuylt "+" "+opersations);
