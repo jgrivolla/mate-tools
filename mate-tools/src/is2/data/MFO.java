@@ -26,24 +26,7 @@ final public class MFO  implements IEncoder {
 	/** The number of bits needed to encode a feature */
 	static final HashMap<String,Integer> m_featureBits = new HashMap<String,Integer>();
 
-	/** Integer counter for long2int */
-	//private int count=0;
-
-	/** Stop growing */
-	public boolean stop=false;
-
 	final public static String NONE="<None>";
-
-	public static class Data {
-		public final String[] a = new String[8];
-		public final String[] v = new String[8];
-		final short[] s = new short[9];
-		public void clear(int i) {
-			v[i]=null;
-		}
-	}
-
-
 
 	final public static class Data4 {
 		public int shift;
@@ -57,156 +40,12 @@ final public class MFO  implements IEncoder {
 			return l;
 		}
 
-/*
-		final public long calc2() {
-
-			if (v0<0||v1<0) return -1;
-
-			long l = v0;
-			shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-
-			return l;
-		}
-
-
-
-		final public long calc3() {
-
-			if (v0<0||v1<0||v2<0) return -1;
-			//	if (v1<0||v2<0) return -1;
-
-			long l = v0;
-			shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			l |= (long)v2<<shift;
-			shift=(short) (shift + a2);
-
-			//shift=;
-			return l;
-		}
-
-
-		final public long calc4() {
-			if (v0<0||v1<0||v2<0||v3<0) return -1;
-
-			long l = v0;
-			shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			l |= (long)v2<<shift;
-			shift +=a2;
-			l |= (long)v3<<shift;
-			shift= shift +a3;
-
-			return l;
-		}
-
-
-
-		final public long calc5() {
-
-			if (v0<0||v1<0||v2<0||v3<0||v4<0) return -1;
-
-			long l = v0;
-			shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			l |= (long)v2<<shift;
-			shift +=a2;
-			l |= (long)v3<<shift;
-			shift +=a3;	
-			l |= (long)v4<<shift;
-			shift =shift+a4;
-
-			return l;
-		}
-
-
-		final public long calc6() {
-
-			if (v0<0||v1<0||v2<0||v3<0||v4<0||v5<0) return -1;
-
-			long l = v0;
-			shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			l |= (long)v2<<shift;
-			shift +=a2;
-			l |= (long)v3<<shift;
-			shift +=a3;	
-			l |= (long)v4<<shift;
-			shift +=a4;
-			l |= (long)v5<<shift;
-			shift =shift+a5;
-
-			return l;
-		}
-
-		final public long calc7() {
-
-			if (v0<0||v1<0||v2<0||v3<0||v4<0||v5<0||v6<0) return -1;
-
-			long l = v0;
-			 shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			l |= (long)v2<<shift;
-			shift +=a2;
-			l |= (long)v3<<shift;
-			shift +=a3;	
-			l |= (long)v4<<shift;
-			shift +=a4;
-			l |= (long)v5<<shift;
-			shift +=a5;
-			l |= (long)v6<<shift;
-			shift =shift+a6;
-
-			return l;
-		}
-
-
-		final public long calc8() {
-
-			if (v0<0||v1<0||v2<0||v3<0||v4<0||v5<0||v6<0||v7<0) return -1;
-
-			long l = v0;
-			 shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			l |= (long)v2<<shift;
-			shift +=a2;
-			l |= (long)v3<<shift;
-			shift +=a3;	
-			l |= (long)v4<<shift;
-			shift +=a4;
-			l |= (long)v5<<shift;
-			shift +=a5;
-			l |= (long)v6<<shift;
-			shift +=a6;
-			l |= (long)v7<<shift;
-			shift =shift+a7;
-
-			return l;
-		}
-*/
 	}
 
 	public MFO () {}
 
 
-	//	public  int size() {return count;}
 
-
-	final public void stop() {
-		stop=true;
-	}
-
-	final public void start() {
-		stop=false;		
-	}
 
 
 	/**
@@ -214,7 +53,7 @@ final public class MFO  implements IEncoder {
 	 * @param type
 	 * @param type2
 	 */
-	static final public int register(String a, String v) {
+	 final public int register(String a, String v) {
 
 		HashMap<String,Integer> fs = getFeatureSet().get(a);
 		if (fs==null) {
@@ -237,7 +76,7 @@ final public class MFO  implements IEncoder {
 	/**
 	 * Calculates the number of bits needed to encode a feature
 	 */
-	static public void calculateBits() {
+	 public void calculateBits() {
 
 		int total=0;
 		for(Entry<String,Integer> e : getFeatureCounter().entrySet() ){
@@ -484,7 +323,7 @@ final public class MFO  implements IEncoder {
 	 * @param dos
 	 * @throws IOException
 	 */
-	static public void writeData(DataOutputStream dos) throws IOException {
+	 public void writeData(DataOutputStream dos) throws IOException {
 		dos.writeInt(getFeatureSet().size());
 		for(Entry<String, HashMap<String,Integer>> e : getFeatureSet().entrySet()) {
 			dos.writeUTF(e.getKey());
@@ -500,7 +339,7 @@ final public class MFO  implements IEncoder {
 
 		}
 	}
-	static public void read(DataInputStream din) throws IOException {
+	 public void read(DataInputStream din) throws IOException {
 
 		int size = din.readInt();
 		for(int i=0; i<size;i++) {
@@ -528,7 +367,7 @@ final public class MFO  implements IEncoder {
 		getFeatureSet().clear();
 	}
 
-	static public HashMap<String,Integer> getFeatureCounter() {
+	public HashMap<String,Integer> getFeatureCounter() {
 		return m_featureCounters;
 	}
 

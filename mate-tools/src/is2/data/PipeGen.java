@@ -1,23 +1,9 @@
 package is2.data;
 
-public class PipeGen {
 
-	public static final String SENSE = "SENSE";	
-	public static final String POS = "POS";
-	public static final String DIST = "DIST";
-	public static final String WORD = "WORD";
-	public static final String PRED = "PRED";
-	public static final String ARG = "ARG";
-	public static final String FEAT = "F";
-	public static final String REL = "REL";
-	protected static final String TYPE = "TYPE";
+public  class PipeGen {
 
-	
- //   public static String[] types;
-//    public static String[] pos;
-//    public static String[] senses;
-
-	
+	public static final String SENSE = "SENSE",POS = "POS",DIST = "DIST",WORD = "WORD",PRED = "PRED",ARG = "ARG",FEAT = "F", REL = "REL",TYPE = "TYPE" ,CHAR = "C";
 	static public int outValue(int num1, int del) {
 		String out = ""+num1;
 		StringBuffer delS=new StringBuffer();
@@ -67,4 +53,25 @@ public class PipeGen {
 		System.out.print(delS+out);
 		return del;
 	}
+	
+	
+	/**
+	 * @param cnt
+	 * @param l
+	 * @return
+	 */
+	public static String getSecondsPerInstnace(int cnt, long l) {
+		return " "+((float)l/(cnt*1000f))+" seconds/sentnece ";
+	}
+
+	/**
+	 * @param l
+	 * @return
+	 */
+	public static String getUsedTime(long l) {
+		return "Used time " + (((float)l)/1000f)+" seconds ";
+	}
+	
+	
+
 }

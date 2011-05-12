@@ -11,51 +11,24 @@ import java.io.StringWriter;
 
 public class SentenceData09 {
 
-	public FV fv;
-	public FV m_fvs[];
-	public String actParseTree;
-
+	
+	public String[] id;
 	public String[] forms;
 
-	// predicted lemma
 	public String[] lemmas;
-
-	public String[] org_lemmas;
+	public String[] plemmas;
 
 	public int[] heads;
-	public int[] phead;
+	public int[] pheads;
 
 	public String[] labels;
+	public String[] plabels;	
 
-	// predicted edge name
-	public String[] pedge;
-
+	public String[] gpos;   // gold pos
 	public String[] ppos;
 
 	public String feats[][];
-	
-
-	public void setPPos(String[] pos) {
-		ppos=pos;
-	}
-	
-	public void setLemmas(String[] lemmas) {
-		this.lemmas=lemmas;
-	}
-
-	public void setFeats(String[] fts) {
-		feats = new String[fts.length][];
-		for(int i=0;i<fts.length;i++) {
-			feats[i] = fts[i].split("\\|");
-		}
-		pfeats =fts;
-		
-	}
-	
-	// gold part of speech
-	public String[] gpos;
-	
-	public String[] split_lemma;
+//	public String[] split_lemma;
 
 	public String[] sem;
 	public int[] semposition;
@@ -85,7 +58,7 @@ public class SentenceData09 {
 
 		labels = labs;
 		this.heads = heads;
-		this.lemmas = lemmas;
+		this.plemmas = lemmas;
 	}
 	public SentenceData09(String[] forms, String[] lemmas, String[] gpos, String[] ppos, String[] labs, int[] heads) {
 		this.forms = forms;
@@ -94,7 +67,7 @@ public class SentenceData09 {
 
 		labels = labs;
 		this.heads = heads;
-		this.lemmas = lemmas;
+		this.plemmas = lemmas;
 		
 	
 	}
@@ -105,7 +78,7 @@ public class SentenceData09 {
 
 		labels = labs;
 		this.heads = heads;
-		this.lemmas = lemmas;
+		this.plemmas = lemmas;
 		
 		fillp =fillpred;
 	}
@@ -117,8 +90,8 @@ public class SentenceData09 {
 
 		labels = labs;
 		this.heads = heads;
-		this.lemmas = lemmas;
-		this.org_lemmas =olemmas;
+		this.plemmas = lemmas;
+		this.lemmas =olemmas;
 		fillp =fillpred;
 	}
 
@@ -130,11 +103,10 @@ public class SentenceData09 {
 
 		labels = labs;
 		this.heads = heads;
-	//	this.pheads = heads;
-		this.phead =heads;
-		this.pedge=labs;
-		this.lemmas = lemmas;
-		this.org_lemmas =olemmas;
+		this.pheads =heads;
+		this.plabels=labs;
+		this.plemmas = lemmas;
+		this.lemmas =olemmas;
 		
 		this.ofeats =of;
 		this.pfeats =pf;
@@ -144,11 +116,66 @@ public class SentenceData09 {
 	
 	
 	
-	public void setFeatureVector (FV fv, int w) {
-		if (m_fvs==null) m_fvs = new FV[length()];
-		m_fvs[w]= fv;
+	/**
+	 * Create an instance without root of the input instance
+	 * @param instance
+	 */
+	public SentenceData09(SentenceData09 i) {
+		
+		int length = i.length()-1;
+		
+		forms = new String[length];
+		gpos = new String[length];
+		ppos = new String[length];
+		plemmas = new String[length];
+		plabels = new String[length];
+		lemmas = new String[length];
+		heads = new int[length];
+		pheads = new int[length];
+		ofeats = new String[length];
+		pfeats = new String[length];
+		labels = new String[length];
+		fillp = new String[length];
+		id = new String[length];
+		
+		
+		for(int j = 0; j < length; j++) {
+			forms[j] = i.forms[j+1];
+			ppos[j] = i.ppos[j+1];
+			gpos[j] = i.gpos[j+1];
+
+			labels[j] = i.labels[j+1];
+			heads[j] = i.heads[j+1];
+			if (i.pheads!=null) pheads[j] = i.pheads[j+1];
+			if (i.lemmas!=null) lemmas[j] = i.lemmas[j+1];
+
+			plemmas[j] = i.plemmas[j+1];
+			
+
+			if (i.ofeats!=null)  ofeats[j] = i.ofeats[j+1];
+			if (i.pfeats!=null)	pfeats[j] = i.pfeats[j+1];
+
+			if (i.fillp!=null) fillp[j] = i.fillp[j+1];
+			if (i.id!=null) id[j] = i.id[j+1];
+		}
+		
+		
+	}
+	public void setPPos(String[] pos) {
+		ppos=pos;
+	}
+	
+	public void setLemmas(String[] lemmas) {
+		this.plemmas=lemmas;
 	}
 
+	public void setFeats(String[] fts) {
+		feats = new String[fts.length][];
+		for(int i=0;i<fts.length;i++) {
+			feats[i] = fts[i].split("\\|");
+		}
+		pfeats =fts;
+	}
 
 	public int length () {
 		return forms.length;
@@ -183,8 +210,8 @@ public class SentenceData09 {
 			out.writeUTF(gpos[k]);
 			out.writeInt(heads[k]);
 			out.writeUTF(labels[k]);
-			out.writeUTF(org_lemmas[k]);
 			out.writeUTF(lemmas[k]);
+			out.writeUTF(plemmas[k]);
 			out.writeUTF(ofeats[k]);  // needed for mtag
 			out.writeUTF(fillp[k]);
 		}
@@ -198,8 +225,8 @@ public class SentenceData09 {
 		int l = dis.readInt();
 		
 		forms = new String[l];
-		org_lemmas = new String[l];
 		lemmas = new String[l];
+		plemmas = new String[l];
 		ppos = new String[l];
 		gpos = new String[l];
 		labels = new String[l];
@@ -213,8 +240,8 @@ public class SentenceData09 {
 			gpos[k]=dis.readUTF();
 			heads[k]=dis.readInt();
 			labels[k]=dis.readUTF();
-			org_lemmas[k]=dis.readUTF();
 			lemmas[k]=dis.readUTF();
+			plemmas[k]=dis.readUTF();
 			ofeats[k]=dis.readUTF();
 			fillp[k]=dis.readUTF();
 					
@@ -224,7 +251,7 @@ public class SentenceData09 {
 
 	private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
 		forms = (String[])in.readObject();
-		lemmas = (String[])in.readObject();
+		plemmas = (String[])in.readObject();
 		ppos = (String[])in.readObject();
 		heads = (int[])in.readObject();
 		labels = (String[])in.readObject();
@@ -342,11 +369,54 @@ public class SentenceData09 {
 		heads = new int[forms.length];
 		gpos = new String[forms.length];
 		ppos = new String[forms.length];
-		lemmas = new String[forms.length];
+		plemmas = new String[forms.length];
 		feats = new String[forms.length][0];
 		labels = new String[forms.length];
+	}
+
+	/**
+	 * @param instance
+	 * @param fillp2
+	 * @param i09
+	 */
+	public void createSemantic(SentenceData09 instance) {
+			
+			this.sem = instance.sem;
+			this.semposition = instance.semposition;
+
+			if (instance.semposition!=null)
+				for (int k= 0;k< instance.semposition.length;k++) {
+					this.semposition[k]=instance.semposition[k]-1;
+				}
+
+			this.arg = instance.arg;
+
+
+			this.argposition = instance.argposition;
+
+			if (this.argposition!=null)
+				for (int p= 0;p< instance.argposition.length;p++) {
+					if (this.argposition[p]!=null)
+						for(int a=0;a<instance.argposition[p].length;a++)
+							this.argposition[p][a]=instance.argposition[p][a]-1;
+				}
 		
 		
+	}
+
+	/**
+	 * 
+	 */
+	public String oneLine() {
+		
+		
+		StringBuffer o = new StringBuffer();
+		for(int i=1;i<this.length();i++) {
+		
+			if (i!=1)o.append(" ");
+			o.append(this.forms[i]);
+		}
+		return o.toString();
 	}
 
 	

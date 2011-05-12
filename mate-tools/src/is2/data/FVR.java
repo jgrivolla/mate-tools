@@ -2,6 +2,7 @@ package is2.data;
 
 
 
+import gnu.trove.TIntDoubleHashMap;
 import is2.parser.Extractor;
 import is2.transition990.ParametersFloat;
 
@@ -9,34 +10,36 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public final class FV extends IFV { 
+public final class FVR extends IFV { 
 	
-	private FV subfv1;
-	private FV subfv2;
+	private FVR subfv1;
+	private FVR subfv2;
 	private boolean negateSecondSubFV = false;
 	
     private int size;
    
 	// content of the nodes NxC
 	private int m_index[];
+	private float m_value[];
 	
 	// type of the nodes NxT
 	
-	public FV() {
+	public FVR() {
 		this(10);
 	}
 
-	public FV(int initialCapacity) {
+	public FVR(int initialCapacity) {
 		m_index = new int[initialCapacity];
+		m_value = new float[initialCapacity];
 	}
 
-
-	public FV (FV fv1, FV fv2) {
+/*
+	public FVR (FVR fv1, FVR fv2) {
 		subfv1 = fv1;
 		subfv2 = fv2;
 	}
-
-	public FV (FV fv1, FV fv2, boolean negSecond) {
+*/
+	public FVR (FVR fv1, FVR fv2, boolean negSecond) {
 		this(0);
 		subfv1 = fv1;
 		subfv2 = fv2;
@@ -48,7 +51,7 @@ public final class FV extends IFV {
 	 * @param index
 	 * @param value
 	 */
-	public FV(DataInputStream dos, int capacity) throws IOException {
+	public FVR(DataInputStream dos, int capacity) throws IOException {
 		this(capacity);
 		size= m_index.length;
 		
@@ -61,7 +64,7 @@ public final class FV extends IFV {
 	 * @param index
 	 * @param value
 	 */
-	public FV(DataInputStream dos) throws IOException {
+	public FVR(DataInputStream dos) throws IOException {
 		this(dos.readInt());
 		size= m_index.length;
 		
@@ -83,14 +86,18 @@ public final class FV extends IFV {
     	if (minCapacity > m_index.length) {
     		
     		int oldIndex[] = m_index;
-    	
+     		float oldValue[] = m_value;
+     	    	
     		int newCapacity = ( m_index.length * 3)/2 + 1;
     
     		
     		if (newCapacity < minCapacity) newCapacity = minCapacity;
 
     		m_index = new int[newCapacity];
-    		System.arraycopy(oldIndex, 0, m_index, 0, oldIndex.length);
+     		m_value = new float[newCapacity];
+     	    
+     		System.arraycopy(oldIndex, 0, m_index, 0, oldIndex.length);
+     		System.arraycopy(oldValue, 0, m_value, 0, oldValue.length);
     		
     	}
     }
@@ -110,14 +117,15 @@ public final class FV extends IFV {
     }
     
     
-    final public int createFeature(int i, double v) {
+    final public int createFeature(int i, float v) {
     	
     	ensureCapacity(size+1); 
     	m_index[size] =i;
+    	m_value[size] =v;
     	size++;
     	return size-1;
     }
-    
+   /* 
     final public int createFeature(int i) {
     	
     	ensureCapacity(size+1); 
@@ -125,7 +133,7 @@ public final class FV extends IFV {
     	size++;
     	return size-1;
     }
-   
+   */
     
 	final public int getIndex(int i) {
 		return m_index[i];
@@ -159,23 +167,23 @@ public final class FV extends IFV {
 	
 	
     
-    @Override
-	final public void add(int i) {
+ 	final public void add(int i) {
         if (i>=0) {
 			ensureCapacity(size+1); 
 			m_index[size] =i;
+			m_value[size] =1.0f;
 			size++;
 		}
     }
 
-    final public void put(int i, double f) {
+    final public void add(int i, float f) {
         if (i>=0) createFeature(i,f);
     }
    
 	
 	// fv1 - fv2
-	public FV getDistVector(FV fl2) {
-		return new FV(this, fl2, true);
+	public FVR getDistVector(FVR fl2) {
+		return new FVR(this, fl2, true);
 	}
 
 	
@@ -213,10 +221,10 @@ public final class FV extends IFV {
 			}
 		}
 		
-		// warning changed the the value 
+		// warning changed the  value 
 		
-		if (negate) for(int i=0;i<size;i++)	score -= parameters[m_index[i]];//*m_value[i];
-		else for(int i=0;i<size;i++) score += parameters[m_index[i]];//*m_value[i];
+		if (negate) for(int i=0;i<size;i++)	score -= parameters[m_index[i]]*m_value[i];
+		else for(int i=0;i<size;i++) score += parameters[m_index[i]]*m_value[i];
 			
 		return score;
 	}
@@ -236,69 +244,15 @@ public final class FV extends IFV {
 		
 		// warning changed the value 
 		
-		if (negate) for(int i=0;i<size;i++)	score -= parameters[m_index[i]];//*m_value[i];
-		else for(int i=0;i<size;i++) score += parameters[m_index[i]];//*m_value[i];
+		if (negate) for(int i=0;i<size;i++)	score -= parameters[m_index[i]]*m_value[i];
+		else for(int i=0;i<size;i++) score += parameters[m_index[i]]*m_value[i];
 			
 		return score;
 	}
 
 	
 	
-	public void update(double[] parameters, double[] total, double alpha_k, double upd) {
-		update(parameters, total, alpha_k, upd, false);
-	}
 
-	public final void update(double[] parameters, double[] total, double alpha_k, double upd, boolean negate) {
-
-		if (null != subfv1) {
-			subfv1.update(parameters, total, alpha_k, upd, negate);
-
-			if (null != subfv2) {
-				if (negate) subfv2.update(parameters, total, alpha_k, upd, !negateSecondSubFV);
-				else subfv2.update(parameters, total, alpha_k, upd, negateSecondSubFV);
-			}
-		}
-
-		if (negate) {
-			for(int i=0;i<size;i++) { 
-				parameters[m_index[i]] -= alpha_k;//*getValue(i);
-				total[m_index[i]] -= upd*alpha_k;//*getValue(i);
-			}
-		} else {
-			for(int i=0;i<size;i++){ 	
-				parameters[m_index[i]] += alpha_k;//*getValue(i);
-				total[m_index[i]] += upd*alpha_k;//*getValue(i); 
-			}
-		}
-
-
-	}
-	
-	public final void update(short[] parameters, short[] total, double alpha_k, double upd, boolean negate) {
-
-		if (null != subfv1) {
-			subfv1.update(parameters, total, alpha_k, upd, negate);
-
-			if (null != subfv2) {
-				if (negate) subfv2.update(parameters, total, alpha_k, upd, !negateSecondSubFV);
-				else subfv2.update(parameters, total, alpha_k, upd, negateSecondSubFV);
-			}
-		}
-
-		if (negate) {
-			for(int i=0;i<size;i++) { 
-				parameters[m_index[i]] -= alpha_k;//*getValue(i);
-				total[m_index[i]] -= upd*alpha_k;//*getValue(i);
-			}
-		} else {
-			for(int i=0;i<size;i++){ 	
-				parameters[m_index[i]] += alpha_k;//*getValue(i);
-				total[m_index[i]] += upd*alpha_k;//*getValue(i); 
-			}
-		}
-
-
-	}
 	
 	
 	public final void update(float[] parameters, float[] total, double alpha_k, double upd, boolean negate) {
@@ -316,13 +270,13 @@ public final class FV extends IFV {
 	
 		if (negate) {
 			for(int i=0;i<size;i++){ 
-				parameters[getIndex(i)] -= alpha_k;
-				total[getIndex(i)] -= upd*alpha_k;  
+				parameters[getIndex(i)] -= alpha_k*m_value[i];
+				total[getIndex(i)] -= upd*alpha_k*m_value[i];  
 			}
 		} else {
 			for(int i=0;i<size;i++){ 
-				parameters[getIndex(i)] += alpha_k;
-				total[getIndex(i)] += upd*alpha_k; //
+				parameters[getIndex(i)] += alpha_k*m_value[i];
+				total[getIndex(i)] += upd*alpha_k*m_value[i]; //
 			}
 		}
 
@@ -330,67 +284,37 @@ public final class FV extends IFV {
 	}
 	
 	
-	public final void update(float[] parameters, float[] total, double alpha_k, 
-			double upd, boolean negate, float[] totalp, Long2IntInterface li) {
 
-		if (null != subfv1) {
-			subfv1.update(parameters, total, alpha_k, upd, negate,totalp,li);
-
-			if (null != subfv2 && negate) {
-					subfv2.update(parameters, total, alpha_k, upd, !negateSecondSubFV,totalp,li);
-				} else {
-					subfv2.update(parameters, total, alpha_k, upd, negateSecondSubFV,totalp,li);
-				}
-		}
+//	private static IntIntHash hm1;
+//	private static IntIntHash hm2;
 	
-		if (negate) {
-			for(int i=0;i<size;i++){ 
-				parameters[getIndex(i)] -= alpha_k;
-				total[getIndex(i)] -= upd*alpha_k;
-				
-				totalp[li.l2i(getIndex(i))] -=upd*alpha_k;
-			//	totalp[getIndex(i)] -=upd*alpha_k;
-			}
-		} else {
-			for(int i=0;i<size;i++){ 
-				parameters[getIndex(i)] += alpha_k;
-				total[getIndex(i)] += upd*alpha_k; //
-
-				totalp[li.l2i(getIndex(i))] +=upd*alpha_k;
-			//	totalp[getIndex(i)] +=upd*alpha_k;
-			}
-		}
-	}
+	private static TIntDoubleHashMap hd1;
+	private static TIntDoubleHashMap hd2;
 	
-
-
-
-	private static IntIntHash hm1;
-	private static IntIntHash hm2;
 	
-	public int dotProduct(FV fl2) {
+	public int dotProduct(FVR fl2) {
 
-		if (hm1==null) hm1 = new IntIntHash(size(),0.4F);
-		else hm1.clear();
+		if (hd1==null) hd1 = new TIntDoubleHashMap(size(),0.4F);
+		else hd1.clear();
 		
-		addFeaturesToMap(hm1);
+		addFeaturesToMap(hd1);
 		
-		if (hm2==null)hm2 = new IntIntHash(fl2.size,0.4F);
-		else hm2.clear();
+		if (hd2==null)hd2 = new TIntDoubleHashMap(fl2.size,0.4F);
+		else hd2.clear();
 		
-		fl2.addFeaturesToMap(hm2);
+		fl2.addFeaturesToMap(hd2);
 
-		int[] keys = hm1.keys();
+		int[] keys = hd1.keys();
 
 		int result = 0;
-		for(int i = 0; i < keys.length; i++) result += hm1.get(keys[i])*hm2.get(keys[i]);
+		for(int i = 0; i < keys.length; i++) result += hd1.get(keys[i])*hd2.get(keys[i]);
 
 		return result;
 
 	}
 
 	
-	private void addFeaturesToMap(IntIntHash map) {
+	private void addFeaturesToMap(TIntDoubleHashMap map) {
 		
 		if (null != subfv1) {
 			subfv1.addFeaturesToMap(map);
@@ -402,7 +326,7 @@ public final class FV extends IFV {
 		}
 
 	
-		for(int i=0;i<size;i++) if (!map.adjustValue(getIndex(i), 1)) map.put(getIndex(i), 1);
+		for(int i=0;i<size;i++) if (!map.adjustValue(getIndex(i), m_value[i])) map.put(getIndex(i), m_value[i]);
 	
 		
 	
@@ -431,6 +355,28 @@ public final class FV extends IFV {
 	
 	}
 
+	private void addFeaturesToMap(TIntDoubleHashMap map, boolean negate) {
+		
+		if (null != subfv1) {
+			subfv1.addFeaturesToMap(map, negate);
+
+			if (null != subfv2) {
+				if (negate)  subfv2.addFeaturesToMap(map, !negateSecondSubFV);
+				else  subfv2.addFeaturesToMap(map, negateSecondSubFV);
+				
+			}
+		}
+
+		if (negate) { 
+			for(int i=0;i<size;i++) if (!map  . adjustValue(getIndex(i), -m_value[i])) map.put(getIndex(i), -m_value[i]);
+		} else {
+			for(int i=0;i<size;i++) if (!map.adjustValue(getIndex(i), m_value[i])) map.put(getIndex(i), m_value[i]);
+		}
+		
+	
+	}
+	
+	
 	
 	@Override
 	public final String toString() {
@@ -447,7 +393,7 @@ public final class FV extends IFV {
 				subfv2.toString(sb);
 		}
 		for(int i=0;i<size;i++)
-			sb.append(getIndex(i)).append(' ');
+			sb.append(getIndex(i)).append('=').append(m_value[i]).append(' ');
 	}
 
 	public void writeKeys(DataOutputStream dos) throws IOException {
@@ -467,32 +413,27 @@ public final class FV extends IFV {
 	
 	}
 
-	public void readKeys(DataInputStream dos) throws IOException {
-		
-		int keys = dos.readInt();
-		for (int i=0; i<keys; i++) createFeature(dos.readInt(), 1.0);
-	
-		
-	}
+	/*
 
-	final public static FV cat(FV f1,FV f2) {
+	final public static FVR cat(FVR f1,FVR f2) {
 		if (f1==null) return f2;
 		if (f2==null) return f1;
-		return new FV(f1, f2);
+		return new FVR(f1, f2);
 	}
 
-	final public static FV cat(FV f1,FV f2, FV f3) {
-		return FV.cat(f1, FV.cat(f2, f3));
+	final public static FVR cat(FVR f1,FVR f2, FVR f3) {
+		return FVR.cat(f1, FVR.cat(f2, f3));
 	}
-	final public static FV cat(FV f1,FV f2, FV f3, FV f4) {
-		return FV.cat(f1, FV.cat(f2, FV.cat(f3, f4)));
+	final public static FVR cat(FVR f1,FVR f2, FVR f3, FVR f4) {
+		return FVR.cat(f1, FVR.cat(f2, FVR.cat(f3, f4)));
 	}
+	*/
 
 	
-	final public static FV read(DataInputStream dis) throws IOException {
+	final public static FVR read(DataInputStream dis) throws IOException {
 		int cap = dis.readInt();
 		if (cap == 0) return null; 
-		return new FV(dis,cap);
+		return new FVR(dis,cap);
 
 	}
 
@@ -511,9 +452,10 @@ public final class FV extends IFV {
 	 */
 	@Override
 	public IFV clone() {
-		FV f= new FV(this.size);
+		FVR f= new FVR(this.size);
 		for(int i=0;i<this.size;i++) {
 			f.m_index[i]=m_index[i];
+			f.m_value[i]=m_value[i];
 		}
 		f.size=this.size;
 		return f;

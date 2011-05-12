@@ -10,17 +10,15 @@ import java.util.HashMap;
  * 
  * 
  */
-public interface IEncoder {
-	public int getValue(String a, String v);
-
+public interface IEncoderPlus extends IEncoder {
 	/**
 	 * @param spath
 	 * @param substring
 	 */
-//	public int register(String spath, String substring);
+	public int register(String spath, String substring);
 
 	/**
 	 * @return
 	 */
-//	public HashMap<String,Integer> getFeatureCounter();
+	public HashMap<String,Integer> getFeatureCounter();
 }

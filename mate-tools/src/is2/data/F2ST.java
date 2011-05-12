@@ -1,15 +1,15 @@
 package is2.data;
 
 
-final public class F2SF extends IFV {
+final public class F2ST extends IFV {
 
-	final private float[] parameters;
+	final private short[] parameters;
 	
 
 	
-	public float score =0;
+	public int score =0;
 	
-	public F2SF(float[] p) {
+	public F2ST(short[] p) {
 		parameters =p;
 	}
 	
@@ -17,17 +17,6 @@ final public class F2SF extends IFV {
 	final  public void add(int i) {
 		if (i>0) score += parameters[i];
 	}
-
-	
-	final  public void sub(float[] px,int i, Long2IntInterface li) {
-		
-		if (i>0) {
-			score -= px[li.l2i(i)];
-//			score -= px[i];
-			//else score -=px[];
-		}
-	}
-
 	
 	@Override
 	public void clear() {
@@ -52,15 +41,7 @@ final public class F2SF extends IFV {
 	 */
 	@Override
 	public IFV clone() {
-		return new F2SF(this.parameters);
-	}
-
-	/**
-	 * @param l2i
-	 */
-	public void addRel(int i, float f) {
-		if (i>0) score += parameters[i]*f;
-		
+		return new F2ST(this.parameters);
 	}
 	
 }

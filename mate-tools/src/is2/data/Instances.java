@@ -15,29 +15,21 @@ public class Instances  {
 	protected int size=0;
 	
 	protected int capacity;
-
+	
 	public int[][] forms;
 
-	public int[][] lemmas;
+	public int[][] plemmas;
 	public int[][] glemmas;
 
-	public short[][] ppos;
 
 	public short[][] heads;
-
-	public short[][] deprels;
-
-
-	public short[][] pposs;
-
-
-	public short[][] prels;
-
-
 	public short[][] pheads;
 
+	public short[][] labels;
+	public short[][] plabels;
 
 	public short[][] gpos;
+	public short[][] pposs;
 
 
 	public short[][][] feats;
@@ -83,13 +75,13 @@ public class Instances  {
 			if (m_report) System.out.println("unkwrd "+x); 
 			m_unkown++;
 			m_found=true;
-		}
+		} 
 		m_count++;
 	}
 
 
 	final public void setRel(int i, int p, String x) {
-		deprels[i][p] = (short)m_encoder.getValue(PipeGen.REL,x);
+		labels[i][p] = (short)m_encoder.getValue(PipeGen.REL,x);
 		
 	}
 	
@@ -109,7 +101,7 @@ public class Instances  {
 
 
 	public void init(int ic, IEncoder mf) {
-		init(ic, mf, CONLLReader09.TASK09);
+		init(ic, mf, -1);
 	}
 
 
@@ -118,14 +110,14 @@ public class Instances  {
 		m_encoder = mf;
 		
 		forms = new int[capacity][];
-		lemmas = new int[capacity][];
+		plemmas = new int[capacity][];
 		glemmas = new int[capacity][];
 		pposs= new short[capacity][];
 	
 		gpos= new short[capacity][];
-		deprels= new short[capacity][];
+		labels= new short[capacity][];
 		heads= new short[capacity][];
-		prels= new short[capacity][];
+		plabels= new short[capacity][];
 		pheads= new short[capacity][];
 		feats = new short[capacity][][];
 		gfeats = new int[capacity][];
@@ -148,21 +140,21 @@ public class Instances  {
 	public int createInstance09(int length) {
 		
 		forms[size] = new int[length];
-		lemmas[size] = new int[length];
+		plemmas[size] = new int[length];
 		glemmas[size] = new int[length];
 	
 		pposs[size] = new short[length];
 		
 		gpos[size] = new short[length];
 	
-		deprels[size] = new short[length];
+		labels[size] = new short[length];
 		heads[size] = new short[length];
 		
 		this.pfill[size] = new BitSet(length);
 		
 		feats[size] = new short[length][];
 		gfeats[size] = new int[length];
-		prels[size] = new short[length];
+		plabels[size] = new short[length];
 		pheads[size] = new short[length];
 		
 		size++;
@@ -171,12 +163,12 @@ public class Instances  {
 		
 	}
 
-
+/*
 	public final void setPPos(int i, int p, String x) {
 		ppos[i][p] = (short)m_encoder.getValue(PipeGen.POS,x);
 		
 	}
-
+*/
 
 	public final void setPPoss(int i, int p, String x) {
 		pposs[i][p] = (short)m_encoder.getValue(PipeGen.POS,x);
@@ -190,7 +182,7 @@ public class Instances  {
 
 
 	public void setLemma(int i, int p, String x) {
-		lemmas[i][p] = m_encoder.getValue(PipeGen.WORD,x);	
+		plemmas[i][p] = m_encoder.getValue(PipeGen.WORD,x);	
 	}
 
 
@@ -227,7 +219,7 @@ public class Instances  {
 
 
 	public final void setPRel(int i, int p, String x) {
-		prels[i][p] = (short)m_encoder.getValue(PipeGen.REL,x);	
+		plabels[i][p] = (short)m_encoder.getValue(PipeGen.REL,x);	
 	}
 
 
@@ -235,7 +227,7 @@ public class Instances  {
 		pheads[i][c] =(short)p;
 	}
 
-
+/*
 	public String toString(int c) {
 		StringBuffer s = new StringBuffer();
 		for(int i=0;i<length(c);i++) {
@@ -245,13 +237,14 @@ public class Instances  {
 		
 		return s.toString();
 	}
+*/
 
-
+	/*
 	public void setPos(int i, int p, String x) {
 		ppos[i][p] = (short)m_encoder.getValue(PipeGen.POS,x);
 		
 	}
-
+*/
 
 	/**
 	 * Create the semantic representation
