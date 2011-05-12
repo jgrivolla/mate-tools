@@ -154,16 +154,18 @@ public class CONLLWriter09  {
 		
 		for (; i<inst.length(); i++) {
 			
-				writer.write(Integer.toString(i+mod)); writer.write('\t');	// id
+				if (inst.id==null|| inst.id[i]==null) {writer.write(Integer.toString(i+mod)); writer.write('\t');}	// id
+				else { writer.write(inst.id[i]); writer.write('\t');}
+				
 				writer.write(inst.forms[i]);     writer.write('\t'); 	// form
 				
-				if (inst.org_lemmas!=null && inst.org_lemmas[i]!=null) {
-					writer.write(inst.org_lemmas[i]);   
+				if (inst.lemmas!=null && inst.lemmas[i]!=null) {
+					writer.write(inst.lemmas[i]);   
 				}
 				else writer.write(DASH);									// lemma
 				writer.write('\t');
 				
-				if (inst.lemmas!=null && inst.lemmas[i]!=null) writer.write(inst.lemmas[i]);   
+				if (inst.plemmas!=null && inst.plemmas[i]!=null) writer.write(inst.plemmas[i]);   
 				else writer.write(DASH);									// plemma
 				writer.write('\t');
 				
@@ -187,11 +189,10 @@ public class CONLLWriter09  {
 				else writer.write(DASH);
 				writer.write('\t');
 				
-				//writer.write(DASH); writer.write('\t'); 					// pfeat
 				
 				writer.write(Integer.toString(inst.heads[i]));  writer.write('\t');  // head
 				
-				if (inst.phead!=null && inst.phead[i]>=0) writer.write(Integer.toString(inst.phead[i])); 
+				if (inst.pheads!=null ) writer.write(Integer.toString(inst.pheads[i])); 
 				else writer.write(DASH); 
 				writer.write('\t'); 					// phead
 				
@@ -199,7 +200,7 @@ public class CONLLWriter09  {
 				else writer.write(DASH); 
 				writer.write('\t');
 				
-				if (inst.pedge!=null &&inst.pedge[i]!=null) writer.write(inst.pedge[i]); 	// rel                  
+				if (inst.plabels!=null &&inst.plabels[i]!=null) writer.write(inst.plabels[i]); 	// rel                  
 				else writer.write(DASH); 
 				writer.write('\t');
 				

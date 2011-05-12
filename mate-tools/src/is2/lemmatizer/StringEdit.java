@@ -1,5 +1,9 @@
 package is2.lemmatizer;
 
+import is2.util.DB;
+
+import java.util.ArrayList;
+
 public class StringEdit {
 
 
@@ -11,6 +15,8 @@ public class StringEdit {
 		String t = new StringBuffer(args[1]).reverse().toString();
 		
 		int d[][] = LD(s, t);
+
+		
 
 		StringBuffer opersations = new StringBuffer();
 		searchPath(s,t,d, opersations, false);
@@ -118,7 +124,7 @@ public class StringEdit {
 			if (y>0&&x>0&& d[x-1][y-1]<d[x][y]) {
 				if (debug) System.out.println("min d[x-1][y-1] "+d[x-1][y-1]+" d[x][y] "+d[x][y]+" rep "+s.charAt(x-1)+" with "+t.charAt(y-1)+" at "+(x-1)); 
 				
-				operations.append('R').append(Character.toString((char)(x-1))).append(s.charAt(x-1)).append(t.charAt(y-1));
+				operations.append('R').append(Character.toString((char)((int)x-1))).append(s.charAt(x-1)).append(t.charAt(y-1));
 				if (debug) result.setCharAt(x-1, t.charAt(y-1));
 				y--;
 				x--;
@@ -127,7 +133,7 @@ public class StringEdit {
 			}
 			if (y>0&& d[x][y-1]<d[x][y]) {
 				if (debug) System.out.println("min d[x][y-1] "+d[x][y-1]+"  d[x][y] "+d[x][y]+" ins "+t.charAt(y-1)+" at "+(x)); 
-				operations.append('I').append(Character.toString((char)(x))).append(t.charAt(y-1));
+				operations.append('I').append(Character.toString((char)((int)x))).append(t.charAt(y-1));
 				if (debug)result.insert(x, t.charAt(y-1));
 				y--;
 				changed =true;
@@ -135,7 +141,7 @@ public class StringEdit {
 			}
 			if (x>0&& d[x-1][y]<d[x][y]) {
 				if (debug)System.out.println("min d[x-1][y] "+d[x-1][y]+" d[x][y] "+d[x][y]+" del "+s.charAt(x-1)+" at "+(x-1)); 
-				operations.append('D').append(Character.toString((char)(x-1))).append(s.charAt(x-1));
+				operations.append('D').append(Character.toString((char)((int)x-1))).append(s.charAt(x-1));
 				if (debug)result.deleteCharAt(x-1);
 				x--;
 				changed =true;
@@ -171,7 +177,7 @@ public class StringEdit {
 			pc++;
 			if (nextOperation == 'R') {
 				//pc++;
-				int xm1 = operations.charAt(pc);
+				int xm1 = (char)operations.charAt(pc);
 				pc++;
 				char replace = operations.charAt(pc);
 				pc++;
@@ -220,6 +226,93 @@ public class StringEdit {
 		}
 		return result.reverse().toString();
 		//else return null;
+	}
+
+
+
+
+
+	
+
+
+
+	
+
+
+
+
+
+
+
+	/**
+	 * @param opers
+	 * @param postion
+	 * @return
+	 */
+	public static String get(ArrayList<String> opers, int position) {
+		for(String s : opers) {
+			int p = (int)s.charAt(1);
+			if (p==position) {
+				return s;
+			}
+		}
+		return "0";
+	}
+
+
+
+
+
+	/**
+	 * @param form
+	 * @param string
+	 * @param c
+	 * @return
+	 */
+	public static String changeSimple(String form, String operation, int c) {
+		
+		if (operation.equals("0")) return form;
+		
+		if (operation.charAt(0)=='I') {
+			StringBuffer f = new StringBuffer(form);
+			if (f.length()<=c) {
+			//	DB.println("fail insert ");
+				return form;
+			}
+			f.insert(c+1, operation.charAt(1));
+			return f.toString();
+		}
+		if (operation.charAt(0)=='R') {
+			StringBuffer f = new StringBuffer(form);
+	//		if (f.length()<=c) f.append(' ');
+			if (f.length()<=c) {
+			//	DB.println("fail replace ");
+				return form;
+			}
+			f.setCharAt(c, operation.charAt(2));
+			return f.toString();
+		}
+		
+		if (operation.charAt(0)=='D') {
+			StringBuffer f = new StringBuffer(form);
+			f.delete(c, c+1);//.append(' ');
+			return f.toString();
+		}
+		return form;
+	}
+
+
+
+
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	public static String simple(String o) {
+		StringBuffer s = new StringBuffer(o);
+		s.delete(1, 2);
+		return s.toString();
 	}
 
 }

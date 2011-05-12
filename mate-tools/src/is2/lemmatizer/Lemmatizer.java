@@ -1,14 +1,22 @@
 package is2.lemmatizer;
 
 
+import is2.data.Cluster;
+import is2.data.F2SF;
 import is2.data.FV;
+import is2.data.Instances;
+import is2.data.InstancesTagger;
+import is2.data.Long2Int;
+import is2.data.ParametersFloat;
 import is2.data.PipeGen;
 import is2.data.SentenceData09;
-import is2.data.Instances;
-
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
+import is2.tools.IPipe;
+import is2.tools.Tool;
+import is2.tools.Train;
 import is2.util.DB;
+import is2.util.OptionsSuper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -18,25 +26,28 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map.Entry;
-
-import java.io.EOFException;
-
-import is2.tools.Tool;
-
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 
-public class Lemmatizer implements LemmatizerInterface, Tool {
 
-	public static final double MAX = 0.000000000000001; // 0.001
+public class Lemmatizer implements Tool, Train {
 
-	private Pipe pipe;
-	private ParametersDouble params;
-	private Options m_options;
+	public Pipe pipe;
+	public ParametersFloat params;
+	private Long2Int li;
 
-	public Lemmatizer(Options options) throws FileNotFoundException, IOException {
-		init(options);
+	private long[] vs= new long[40];
+
+
+	public Lemmatizer(Options options)  {
+		this.readModel(options);
 	}
 
 	/**
@@ -44,88 +55,56 @@ public class Lemmatizer implements LemmatizerInterface, Tool {
 	 * @param modelFileName the path and file name to a lemmatizer model
 	 */
 	public Lemmatizer(String modelFileName)  {
-		
+
 		// tell the lemmatizer the location of the model
 		try {
-			m_options = new Options(new String[] {"-model", modelFileName});
+			Options m_options = new Options(new String[] {"-model", modelFileName});
+			li = new Long2Int(m_options.hsize);
 
 			// initialize the lemmatizer
-			init(m_options);
+			readModel(m_options);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	
-	
-	/**
-	 * 
-	 */
-	public Lemmatizer() {
-	}
+
+
+	public Lemmatizer() { }
+
+
 
 	public static void main (String[] args) throws FileNotFoundException, Exception
 	{
 
+		Lemmatizer lemmatizer = new Lemmatizer();
+
 		long start = System.currentTimeMillis();
 		Options options = new Options(args);
 
-		Lemmatizer lemmatizer = new Lemmatizer();
-
-
 		if (options.train) {
 
-			lemmatizer.pipe =  new Pipe (options);
+			
+			lemmatizer.li = new Long2Int(options.hsize);
+			lemmatizer.pipe =  new Pipe (options,lemmatizer.li);
 
-			Instances is = new Instances();
-			lemmatizer.pipe.createInstances(options.trainfile,options.trainforest,is);
+			InstancesTagger is = lemmatizer.pipe.createInstances(options.trainfile);
 
-			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(options.modelName)));
-			System.out.println("Features: " + lemmatizer.pipe.mf.size()+" Relations "+lemmatizer.pipe.mf.getFeatureCounter().get(Pipe.REL));   
+			DB.println("Features: " + lemmatizer.pipe.mf.size()+" Operations "+lemmatizer.pipe.mf.getFeatureCounter().get(Pipe.OPERATION));   
 
-			lemmatizer.pipe.mf.writeData(dos);
+			ParametersFloat params = new ParametersFloat(lemmatizer.li.size());
 
-			ParametersDouble params = new ParametersDouble(lemmatizer.pipe.mf.size());
-			train(options, lemmatizer.pipe,params,is);
+			lemmatizer.train(options,lemmatizer.pipe,params,is);
 
-			lemmatizer.pipe.mf.clearData();
-
-			System.out.println("Data cleared ");
-
-			int k=0, c=0;
-
-			boolean first=true;
-			for(double d : params.parameters) {
-				if (d>MAX || d<-MAX || first){
-					k++;
-
-				}  
-				first=false;
-			}
-
-			System.out.println("Writting "+k+" values of "+c+" (rest is 0.0)");
-
-			k =lemmatizer.pipe.mf.wirteMapping(dos,params.parameters,k,MAX); 
-			DB.println("number of parameters "+params.parameters.length);
-			dos.flush();
-			params.write(dos,k,MAX);
-
-			try {
-				dos.writeBoolean(options.upper);
-			} catch(EOFException e) {DB.println("Warning: models contains no uppercase information: use default (lowercase) ");}		
-			dos.flush();
-			dos.close();
-
-
-			System.out.print("done.");
+			lemmatizer.writeModel(options, lemmatizer.pipe, params);
 		}
 
 		if (options.test) {
 
-			lemmatizer.init(options);
+			lemmatizer.readModel(options);
 
-			lemmatizer.lemmatize(options);
+			lemmatizer.out(options,lemmatizer.pipe, lemmatizer.params);
 		}
 
 		System.out.println();
@@ -138,41 +117,73 @@ public class Lemmatizer implements LemmatizerInterface, Tool {
 		System.out.println("used time "+((float)((end-start)/100)/10));
 	}
 
-
 	/* (non-Javadoc)
-	 * @see is2.lemmatizer.LemmatizerInterface#init(is2.lemmatizer.Options)
+	 * @see is2.tools.Train#writeModel(is2.util.OptionsSuper, is2.tools.IPipe, is2.data.ParametersFloat)
 	 */
-	public void init(Options options) throws IOException,FileNotFoundException {
-		
-		// store the options since they contains some information about the uppercase usage
-		m_options=options;
-		
-		pipe = new Pipe(options);
-		//Parameters params = new ParametersFloat(pipe.mf.size());
-		params = new ParametersDouble(pipe.mf.size());
+	@Override
+	public void writeModel(OptionsSuper options, IPipe pipe,
+			ParametersFloat params) {
+		try {
+			// store the model
+			ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(options.modelName)));
+			zos.putNextEntry(new ZipEntry("data")); 
+			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(zos));
 
+			this.pipe.mf.writeData(dos);
 
-		// load the model
-		DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(options.modelName)));
-		pipe.mf.read(dis);
-		pipe.initValues();
-		pipe.initFeatures();
+			dos.flush();
+			params.write(dos);
 
-		params.read(dis);
-		try {options.upper = dis.readBoolean();} catch(Exception ex) {
-			DB.println("Warning: models contains no uppercase information: use default (lowercase) ");
+			pipe.write(dos);
+			
+			dos.flush();
+			dos.close(); 
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
-		dis.close();
+	}
 
-		DB.println("num params "+params.parameters.length);
 
-		pipe.types = new String[pipe.mf.getFeatureCounter().get(Pipe.OPERATION)];
-		for(Entry<String,Integer> e : pipe.mf.getFeatureSet().get(Pipe.OPERATION).entrySet()) 
-			pipe.types[e.getValue()] = e.getKey();
+	public void readModel(OptionsSuper options) {
 
-		DB.println("Loading data finnished. "+pipe.types.length);
+		try {
 
-		pipe.mf.stop();
+			// load the model
+			ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(options.modelName)));
+			zis.getNextEntry();
+			DataInputStream dis = new DataInputStream(new BufferedInputStream(zis));
+
+			MFO mf = new MFO();
+			mf.read(dis);
+			params = new ParametersFloat(0);
+			params.read(dis);
+			li =new Long2Int(params.size());
+			pipe = new Pipe(options, li);
+			pipe.mf =mf;
+
+			pipe.initFeatures();
+			pipe.initValues();
+
+			pipe.readMap(dis);
+
+			for(Entry<String,Integer> e : mf.getFeatureSet().get(Pipe.OPERATION).entrySet()) {
+				this.pipe.types[e.getValue()] = e.getKey();
+				//	System.out.println("set pos "+e.getKey());
+			}
+
+			
+			pipe.cl = new Cluster(dis);
+
+			dis.close();
+			DB.println("Loading data finished. ");
+
+			DB.println("number of params  "+params.parameters.length);
+			DB.println("number of classes "+pipe.types.length);
+
+		} catch (Exception e ) {
+			e.printStackTrace();
+		}
+
 	}
 
 
@@ -183,309 +194,312 @@ public class Lemmatizer implements LemmatizerInterface, Tool {
 	 * @param options
 	 * @param pipe
 	 * @param params
+	 * @param li 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
 	 */
-	static public void train(Options options, Pipe pipe, ParametersDouble params, Instances is) 
-	throws IOException, InterruptedException, ClassNotFoundException {
+	public void train(OptionsSuper options, IPipe p, ParametersFloat params, Instances ist) {
 
+		InstancesTagger is = (InstancesTagger)ist;
+		
+		int i = 0,del=0; 
+		FV g = new FV(), f = new FV();
+		
+		int LC = this.pipe.types.length+1, UC = LC+1;
 
-		int i = 0;
-		int del=0; 
+		String wds[] = MFO.reverse(pipe.mf.getFeatureSet().get(Pipe.WORD));
+		
+		F2SF fs = params.getFV();
+		double upd=0;
+
 		for(i = 0; i < options.numIters; i++) {
 
 			System.out.print("Iteration "+i+": ");
 
 			long start = System.currentTimeMillis();
-
-			BufferedInputStream bos = new BufferedInputStream(new FileInputStream(options.trainforest));
-			DataInputStream dos = new DataInputStream(bos);
-
 			int numInstances = is.size();
+			int correct =0,count=0;
 
 			long last= System.currentTimeMillis();
+			int wrongOp=0,correctOp=0, correctUC=0, wrongUC=0;
+
+			HashMap<String,Integer> map = new HashMap<String,Integer>(); 
+
 			for(int n = 0; n < numInstances; n++) {
-				if((n+1) % 500 == 0) del= PipeGen.outValue(n+1,del, last);
 
-				Object[][] d = pipe.readInstance(dos, is.length(n),params,options,null);
+				if((n+1) % 500 == 0) del= Pipe.outValueErr(n+1, (float)(count-correct),(float)correct/(float)count,del,last,upd);
 
-				SentenceData09 instance = pipe.getInstance();
+				upd = (double)(options.numIters*numInstances - (numInstances*i+(n+1))+ 1);
 
-				double upd = (options.numIters*numInstances - (numInstances*i+(n+1))+ 1);
+				for(int k = 0; k < is.length(n); k++) {
 
-				params.updateParamsMIRA(instance,d,upd, pipe);
+					double best = -1000;
+					String bestOp="";
+
+
+
+					count++;
+					pipe.addCoreFeatures(is, n, k, 0,wds[is.forms[n][k]], vs);
+
+					String lemma = pipe.opse.get(wds[is.forms[n][k]].toLowerCase());
+
+
+					// predict
+					if (lemma==null)
+						for(int t = 0; t < pipe.types.length; t++) {
+
+							fs.clear();
+							for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) fs.add(li.l2i(vs[l]+(t*Pipe.s_type)));
+
+							float score = (float) fs.getScore();
+							if (score >best) {
+								bestOp = pipe.types[t];
+								best =score;
+							}
+						}
+
+					if (options.upper) {
+						fs.clear();
+						for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) fs.add(li.l2i(vs[l]+(LC*Pipe.s_type)));
+
+						int correctOP =-1, selectedOP =-1;	
+						if (wds[is.glemmas[n][k]].length()>0 &&
+								Character.isUpperCase(wds[is.glemmas[n][k]].charAt(0)) &&
+								fs.score > 0) {
+
+							correctOP = UC;
+							selectedOP =LC;
+						}  else if (wds[is.glemmas[n][k]].length()>0 
+								&&Character.isLowerCase(wds[is.glemmas[n][k]].charAt(0)) &&
+								fs.score <= 0) {
+
+
+							correctOP = LC;
+							selectedOP =UC;
+						}
+
+						if (correctOP!=-1 && wds[is.glemmas[n][k]].length()>0) {
+
+							wrongUC++;
+							f.clear();
+							for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) f.add(li.l2i(vs[l]+(selectedOP*Pipe.s_type)));
+
+							g.clear();							
+							for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) g.add(li.l2i(vs[l]+(correctOP*Pipe.s_type)));
+
+							double lam_dist = params.getScore(g) - params.getScore(f);//f
+							double loss = 1 - lam_dist;
+
+							FV dist = g.getDistVector(f);						
+							dist.update(params.parameters, params.total, params.update(dist,loss), upd,false); 
+
+						} else {
+							correctUC++;
+						}
+					}
+					if (lemma!=null) {
+						correct++;
+						correctOp++;
+						continue;
+					}
+
+
+					String op = Pipe.getOperation(is,n, k,wds);
+					if (op.equals(bestOp) ) {
+						correct++;
+						correctOp++;
+						continue;
+					}
+					wrongOp++;
+
+					f.clear();
+					int bop =pipe.mf.getValue(Pipe.OPERATION, bestOp);
+					for(int r=vs.length-1;r>=0;r--) if (vs[r]>0)f.add(li.l2i(vs[r]+(bop*Pipe.s_type)));
+
+					g.clear();
+					int gop =pipe.mf.getValue(Pipe.OPERATION, op);
+					for(int r=vs.length-1;r>=0;r--) if (vs[r]>0)g.add(li.l2i(vs[r]+(gop*Pipe.s_type)));
+					double lam_dist = params.getScore(g) - params.getScore(f);//f
+
+					double loss = 1 - lam_dist;
+
+					FV dist = g.getDistVector(f);
+
+					dist.update(params.parameters, params.total, params.update(dist,loss), upd,false); //0.05
+
+				}
 
 			}
+			ArrayList<Entry<String, Integer>> opsl = new ArrayList<Entry<String, Integer>>();
+			for(Entry<String, Integer> e : map.entrySet()) {
+				if(e.getValue()>1) {
+					opsl.add(e);
+				}
+			}
 
+			Collections.sort(opsl, new Comparator<Entry<String, Integer>>(){
+				@Override
+				public int compare(Entry<String, Integer> o1,
+						Entry<String, Integer> o2) {
 
-			System.out.print(numInstances);
+					return o1.getValue()==o2.getValue()?0:o1.getValue()>o2.getValue()?1:-1;
+				}
+			});
 
+			if (opsl.size()>0) System.out.println();	
+			for(Entry<String, Integer> e : opsl) {
+				System.out.println(e.getKey()+"  "+e.getValue());		
+			}
+			map.clear();
 
-
-			long end = System.currentTimeMillis();
-			//System.out.println("Training iter took: " + (end-start));
-			System.out.println("|Time:"+(end-start)+"]");			
+			del= Pipe.outValueErr(numInstances, (float)(count-correct), (float)correct/(float)count,del,last,upd, 
+					"time "+(System.currentTimeMillis()-start)+
+					" corr/wrong "+correctOp+" "+wrongOp+" uppercase corr/wrong  "+correctUC+" "+wrongUC);
+			del=0;
+			System.out.println();			
 		}
 
-		params.averageParams(i*is.size());
+		params.average(i*is.size());
 
 	}
 
 
-
-
 	/**
-	 * Lemmatize the input forms of a file in CoNLL-2009 format 
-	 * @param options the options form the command line define the input file and output file
-	 * @param pipe 
+	 * Do the work
+	 * @param options
+	 * @param pipe
 	 * @param params
 	 * @throws IOException
 	 */
-	public void lemmatize (Options options) 
-	throws Exception {
-
+	public void out (OptionsSuper options, IPipe pipe, ParametersFloat params)  {
 
 		long start = System.currentTimeMillis();
 
-		CONLLReader09 depReader = new CONLLReader09(options.testfile, options.formatTask);
-		CONLLWriter09 depWriter = new CONLLWriter09(options.outfile, options.formatTask);
-
+		CONLLReader09 depReader = new CONLLReader09(options.testfile, CONLLReader09.NO_NORMALIZE);
+		CONLLWriter09 depWriter = new CONLLWriter09(options.outfile);
 
 		System.out.print("Processing Sentence: ");
-		pipe.initValues();
 
 		int cnt = 0;
 		int del=0;
-		while(true) {
 
-			SentenceData09 instance = pipe.nextInstance(null, depReader);
+		try {
 
-			if (instance==null) break;
+			while(true) {
 
-			cnt++;
+				InstancesTagger is = new InstancesTagger();
 
+				is.init(1, new MFO());
+				SentenceData09 instance = depReader.getNext(is);//pipe.nextInstance(null, depReader);
 
+				if (instance==null) break;
+				is.fillChars(instance, 0, Pipe._CEND);
+				cnt++;
+				SentenceData09 i09 =lemmatize(is, instance, this.li);
+				 depWriter.write(i09);
 
-			this.lemmatize(options, instance);
+				 if (cnt%100 ==0) del=Pipe.outValue(cnt, del);
 
-			//			Arrays.toString(forms);
-
-			String[] formsNoRoot = new String[instance.forms.length-1];
-			String[] posNoRoot = new String[formsNoRoot.length];
-			String[] lemmas = new String[formsNoRoot.length];
-
-			String[] org_lemmas = new String[formsNoRoot.length];
-
-			String[] plabels = new String[formsNoRoot.length];
-
-			String[] of = new String[formsNoRoot.length];
-			String[] pf = new String[formsNoRoot.length];
-
-			String[] pposs = new String[formsNoRoot.length];
-			String[] labels = new String[formsNoRoot.length];
-			String[] fillp = new String[formsNoRoot.length];
-
-			int[] heads = new int[formsNoRoot.length];
-
-			for(int j = 0; j < formsNoRoot.length; j++) {
-				formsNoRoot[j] = instance.forms[j+1];
-				posNoRoot[j] = instance.gpos[j+1];
-
-				pposs[j] = instance.ppos[j+1];
-
-				labels[j] = instance.labels[j+1];// Pipe.types[is.deprels[cnt-1][j+1]];
-				plabels[j]= instance.pedge[j+1];
-				heads[j] = instance.heads[j+1];
-				org_lemmas[j] = instance.org_lemmas[j+1];
-
-				lemmas[j] = instance.lemmas[j+1];
-
-				if (instance.org_lemmas!=null) org_lemmas[j] = instance.org_lemmas[j+1];
-				if (instance.ofeats!=null)  of[j] = instance.ofeats[j+1];
-				if (instance.pfeats!=null)	pf[j] = instance.pfeats[j+1];//(String)d[j+1][1];
-
-				if (instance.fillp!=null) fillp[j] = instance.fillp[j+1];
 			}
+			depWriter.finishWriting();
+			del=Pipe.outValue(cnt, del);
+			long end = System.currentTimeMillis();
 
-			SentenceData09 i09 = new SentenceData09(formsNoRoot, org_lemmas, lemmas,posNoRoot, pposs, labels, heads,fillp,of, pf);
-			i09.pedge=plabels;
-
-			i09.fillp = fillp;
-			i09.sem = instance.sem;
-			i09.semposition = instance.semposition;
-
-			if (instance.semposition!=null)
-				for (int k= 0;k< instance.semposition.length;k++) {
-					i09.semposition[k]=instance.semposition[k]-1;
-				}
-
-
-			i09.arg = instance.arg;
-
-
-			i09.argposition = instance.argposition;
-
-			if (i09.argposition!=null)
-				for (int p= 0;p< instance.argposition.length;p++) {
-					if (i09.argposition[p]!=null)
-						for(int a=0;a<instance.argposition[p].length;a++)
-							i09.argposition[p][a]=instance.argposition[p][a]-1;
-				}
-
-
-			depWriter.write(i09);
-
-			del=PipeGen.outValue(cnt, del);
-
+			System.out.println(PipeGen.getSecondsPerInstnace(cnt,(end-start)));
+			System.out.println(PipeGen.getUsedTime(end-start));
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
-		pipe.close();
-		depWriter.finishWriting();
-
-		long end = System.currentTimeMillis();
-		System.out.println("Used time " + (end-start));
-
 	}
 
-	public SentenceData09 lemmatize(Options options, SentenceData09 instance) {
+
+	private SentenceData09 lemmatize(InstancesTagger is, SentenceData09 instance, Long2Int li) {
+
+		int LC = pipe.types.length+1;
+
+		is.feats[0] = new short[instance.length()][11];
+
+		is.fillChars(instance, 0, Pipe._CEND);
+
+		int length = instance.length();
+
+		F2SF fs = new F2SF(params.parameters);						
 
 
-		int length = instance.ppos.length;
+		for(int w1 = 0; w1 < length; w1++) {
+			instance.plemmas[w1]="_";
+			pipe.addCoreFeatures(is, 0, w1, 0,instance.forms[w1], vs);
 
-
-		FV[][] fvs = new FV[length][pipe.types.length];
-		double[][] probs = new double[length][pipe.types.length];
-		Object[][] d = new Object[length][2];
-		for(int j = 0; j < length; j++) {
-
-			pipe.fillFeatureVectorsOne(instance.forms,params, j,fvs, probs, d);
-			instance.lemmas[j] = StringEdit.change(instance.forms[j], (String)d[j][1]);
-			
-			
-			if (options.upper && Character.isUpperCase(instance.forms[j].charAt(0))) {
-				
-				if (instance.lemmas[j].length()>1)
-					instance.lemmas[j] = instance.lemmas[j].charAt(0)+instance.lemmas[j].substring(1);
-				else if (instance.lemmas[j].length()>0)
-					instance.lemmas[j] = String.valueOf(instance.lemmas[j].charAt(0));
+			String f =null;
+			if (is.forms[0][w1]!=-1) {
+				f = pipe.opse.get(instance.forms[w1].toLowerCase());
+				if (f!=null) {
+					instance.plemmas[w1]=f;
+				}
 			} 
+			double best = -1000.0;
+			int bestOp=0;
 
+			for(int t = 0; t < pipe.types.length; t++) {
 
-			if (options.upper ) {
+				fs.clear();
+				for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) fs.add(li.l2i(vs[l]+(t*Pipe.s_type)));
 
-				boolean allUpperCase =true;
-				for(int index =0;index<instance.forms[j].length();index++ ) {
-					char c= instance.forms[j].charAt(index);
-					if (Character.isLowerCase(c)) {
-						allUpperCase = false;
-						break;
-					}
-				}
-				if (allUpperCase)
-					instance.lemmas[j] = instance.lemmas[j].toUpperCase();
+				if (fs.score >=best) {
+					best =fs.score;
+					bestOp=t;
+				}		
 			}
+			//instance.ppos[w1]=""+bestOp;
+			if (f==null) instance.plemmas[w1] = StringEdit.change(instance.forms[w1],pipe.types[bestOp]);
 
-			if (!options.upper) {
-				instance.lemmas[j] = instance.lemmas[j].toLowerCase(); 
-			}
-
-
-
-		}
-		return instance;
-	}
-
-	/* (non-Javadoc)
-	 * @see is2.lemmatizer.LemmatizerInterface#getLemmas(java.lang.String[])
-	 */
-	public String[] getLemmas (String[] forms)  {
-		
-		int length = forms.length;
-		String [] lemmas = new String[length];
-
-
-		FV[][] fvs = new FV[length][pipe.types.length];
-		double[][] probs = new double[length][pipe.types.length];
-		Object[][] d = new Object[length][2];
-		for(int j = 0; j < length; j++) {
-
-			pipe.fillFeatureVectorsOne(forms,params, j,fvs, probs, d);
-			lemmas[j] = StringEdit.change(forms[j], (String)d[j][1]);
-
-			if (m_options.upper && Character.isUpperCase(forms[j].charAt(0))) {
-				lemmas[j] = forms[j].charAt(0)+lemmas[j].substring(1);
-			} 
-
-
-			if (m_options.upper ) {
-
-				boolean allUpperCase =true;
-				for(int index =0;index<forms[j].length();index++ ) {
-					char c= forms[j].charAt(index);
-					if (Character.isLowerCase(c)) {
-						allUpperCase = false;
-						break;
-					}
-				}
-				if (allUpperCase)
-					lemmas[j] = lemmas[j].toUpperCase();
-			}
-
-			if (!m_options.upper) lemmas[j] = lemmas[j].toLowerCase(); 
+			// check for empty string
+			if(instance.plemmas[w1].length()==0) instance.plemmas[w1] = "_";
 			
-		}
-		
-		return lemmas;
+			fs.clear();
+			for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) fs.add(li.l2i(vs[l]+(LC*Pipe.s_type)));
 
+			try {
+
+				if (fs.score<=0 && instance.plemmas[w1].length()>1) {
+					instance.plemmas[w1] = Character.toUpperCase(instance.plemmas[w1].charAt(0))+instance.plemmas[w1].substring(1);
+				} else if (fs.score<=0 && instance.plemmas[w1].length()>0) {
+					instance.plemmas[w1] = String.valueOf(Character.toUpperCase(instance.plemmas[w1].charAt(0)));
+				} else if (fs.score>0) {
+					instance.plemmas[w1] = instance.plemmas[w1].toLowerCase();
+				}
+
+			} catch(Exception e){
+				e.printStackTrace();
+				//	System.out.println("error "+pipe.types[bestOp]+" "+instance.forms[w1]);
+			}
+
+		}
+
+
+		SentenceData09 i09 = new SentenceData09(instance);
+		i09.createSemantic(instance);
+		return i09;
 	}
 
-
-
-	/**
-	 * Computes the lemmata for a list of input forms
-	 * @param inForms the input forms
-	 * @param lower all forms in lower case?
-	 * @return the lemmata
-	 */
-	public String[] lemma (String[] inForms, boolean lower)  {
-
-		String[] forms = new String[inForms.length+1];
-		System.arraycopy(inForms, 0, forms, 1, inForms.length);
-		forms[0] = is2.io.CONLLReader09.ROOT;
-
-
-		int length = forms.length;
-		FV[][] fvs = new FV[length][pipe.types.length];
-		double[][] probs = new double[length][pipe.types.length];
-
-		String lemmas[] = new String[length];
-
-		Object[][] d = new Object[length][2];
-		for(int j = 1; j < length; j++) {
-
-			pipe.fillFeatureVectorsOne(forms,params, j,fvs, probs, d);
-			lemmas[j] = StringEdit.change(forms[j], (String)d[j][1]);
-		}
-
-		String[] outLemmas = new String[inForms.length];
-
-		for(int j = 0; j < inForms.length; j++) {
-			outLemmas[j] = lower?lemmas[j+1].toLowerCase():lemmas[j+1];
-		}
-		return 	outLemmas;
-	}
 
 	/* (non-Javadoc)
 	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
 	 */
 	@Override
 	public SentenceData09 apply(SentenceData09 snt09) {
-		return lemmatize(m_options, snt09);
-	}
+		InstancesTagger is = new InstancesTagger();
 
+		is.init(1, new MFO());
+		is.createInstance09(snt09.length());
+		is.fillChars(snt09, 0, Pipe._CEND);
+
+		for(int j = 0; j < snt09.length(); j++) is.setForm(0, j, snt09.forms[j]);
+
+		return lemmatize(is, snt09,li);
+	}
 	
 
-
-
-
+	
 }

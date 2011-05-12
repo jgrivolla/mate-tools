@@ -2,25 +2,16 @@ package is2.mtag;
 
 import is2.util.OptionsSuper;
 
-import java.io.File;
-
-
 public final class Options extends OptionsSuper {
 
 	
 	public Options (String[] args)  {
 		
-
-		
 		for(int i = 0; i < args.length; i++) {
 
 			if (args[i].equals("--help")) explain();
 			
-			if (args[i].equals("-decode")) {
-				decodeProjective = args[i+1].equals("proj"); i++;
-			} else if (args[i].equals("-decodeTH")) {		
-				decodeTH = Double.parseDouble(args[i+1]); i++;
-			} else if (args[i].equals("-nonormalize")) {
+			if (args[i].equals("-nonormalize")) {
 				normalize=false;
 			} else if (args[i].equals("-features")) {
 				features= args[i+1]; i++;			
@@ -28,37 +19,16 @@ public final class Options extends OptionsSuper {
 				hsize= Integer.parseInt(args[i+1]); i++;			
 			} else if (args[i].equals("-len")) {
 				maxLen= Integer.parseInt(args[i+1]); i++;			
-			} else if (args[i].equals("-cores")) {
-				cores= Integer.parseInt(args[i+1]); i++;
-			} else	if (args[i].equals("-tmp")) {
-				tmp = args[i+1]; i++;
-
-			} else super.addOption(args, i);
-					
+			} else super.addOption(args, i);					
 		}
-
-		if (trainfile!=null) {
-			
-			try {
-			if (tmp!=null) trainforest = File.createTempFile("train", ".tmp", new File(tmp));
-			else trainforest = File.createTempFile("train", ".tmp"); //,new File("F:\\")
-			trainforest.deleteOnExit();
-			} catch(Exception e) {
-				
-			}
-		}
-
-	
-
-		
 	}
 
 	private void explain() {
 		System.out.println("Usage: ");
-		System.out.println("java -class mate.jar is2.parser.Parser [Options]");
+		System.out.println("java -cp anna.jar is2.mtag.Tagger [Options]");
 		System.out.println();
 		System.out.println("Example: ");
-		System.out.println(" java -class mate.jar is2.parser.Parser -model eps3.model -train corpora/conll08st/train/train.closed -test corpora/conll08st/devel/devel.closed  -out b3.test -eval corpora/conll08st/devel/devel.closed  -count 2000 -i 6");
+		System.out.println(" java -cp mate.jar is2.mtag.Tagger -model eps3.model -train corpora/conll08st/train/train.closed -test corpora/conll08st/devel/devel.closed  -out b3.test -eval corpora/conll08st/devel/devel.closed  -count 2000 -i 6");
 		System.out.println("");
 		System.out.println("Options:");
 		System.out.println("");
@@ -69,7 +39,6 @@ public final class Options extends OptionsSuper {
 		System.out.println("                   and for parsing the model is load from this file; default "+this.modelName);
 		System.out.println(" -i      <number>  the number of training iterations; good numbers are 10 for smaller corpora and 6 for bigger; default "+this.numIters);
 		System.out.println(" -count  <number>  the n first sentences of the corpus are take for the training default "+this.count);
-		System.out.println(" -format <number>  conll format of the year 8 or 9; default "+this.formatTask);
 		
 		System.exit(0);
 	}

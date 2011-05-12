@@ -113,7 +113,7 @@ public class CONLLWriter06  {
 	}
 	
 	
-	public int version = CONLLReader09.TASK08;
+//	public int version = CONLLReader09.TASK08;
 	
 	public CONLLWriter06 (String file) {
 		
@@ -126,7 +126,7 @@ public class CONLLWriter06  {
 	
 	public CONLLWriter06(String outfile, int formatTask) {
 		this(outfile);
-		version = formatTask;
+	//	version = formatTask;
 	}
 
 	public void write(SentenceData09 inst) throws IOException {
@@ -137,8 +137,8 @@ public class CONLLWriter06  {
 				writer.write(Integer.toString(i+1)); writer.write('\t');	// id
 				writer.write(inst.forms[i]);     writer.write('\t'); 	// form
 				
-				if (inst.org_lemmas!=null && inst.org_lemmas[i]!=null) {
-					writer.write(inst.org_lemmas[i]);   
+				if (inst.lemmas!=null && inst.lemmas[i]!=null) {
+					writer.write(inst.lemmas[i]);   
 				}
 				else writer.write(DASH);									// lemma
 				writer.write('\t');

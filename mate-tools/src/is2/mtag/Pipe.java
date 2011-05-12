@@ -1,169 +1,109 @@
 package is2.mtag;
 
 
+import is2.data.Cluster;
 import is2.data.F2SF;
-import is2.data.FV;
-import is2.data.IFV;
 import is2.data.Instances;
+import is2.data.InstancesTagger;
+import is2.data.Long2Int;
 import is2.data.Long2IntInterface;
+import is2.data.ParametersFloat;
 import is2.data.PipeGen;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
-import is2.io.CONLLWriter09;
+import is2.tools.IPipe;
+import is2.util.OptionsSuper;
 
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 
-final public class Pipe extends PipeGen  {
+final public class Pipe extends PipeGen implements IPipe {
 
-	private static final String _F0 = "F0";
-	private static final String _F1 = "F1",_F2 = "F2",_F3 = "F3",_F4 = "F4",_F5 = "F5",_F6= "F6",_F7= "F7",_F8= "F8",_F9="F9",_F10 = "F10";
-	private static final String _F11="F11",_F12="F12",_F13= "F13",_F14="F14",_F15="F15",_F16="F16",_F17="F17",_F18="F18",_F19="F19",_F20="F20";
-	private static final String _F21="F21",_F22="F22",_F23= "F23",_F24="F24",_F25="F25",_F26="F26",_F27="F27",_F28="F28",_F29="F29",_F30="F30";
-	private static final String _F31="F31",_F32="F32",_F33= "F33",_F34="F34",_F35="F35",_F36="F36",_F37="F37",_F38="F38",_F39="F39",_F40="F40";
-	private static final String _F41="F41", _F42="F42",_F43= "F43",_F44="F44",_F45="F45",_F46="F46",_F47="F37",_F48="F38",_F49="F49",_F50="F50";
-
-	private static int _f0,_f1,_f2,_f3,_f4,_f5,_f6,_f7,_f8,_f9,_f10,_f11,_f12,_f13,_f14,_f15,_f16,_f17,_f18,_f19,_f20;
-	private static int _f21,_f22,_f23,_f24,_f25,_f26,_f27,_f28,_f29,_f30,_f31,_f32,_f33,_f34,_f35,_f36,_f37,_f38,_f39,_f40,_f41;
-	private static int _f42,_f43,_f44,_f45,_f46,_f47,_f48,_f49,_f50;
-	private static int  _CEND;
+	public  static int _CEND;
 
 
-	private static final String E2 = "E2";
-	private static final String E3 = "E3";
-	private static final String C0 = "C0";
-	private static final String E0 = "E0";
-	private static final String C1 = "C1";
-	private static final String E1 = "E1";
-	private static final String C2 = "C2";
-	private static final String C3 = "C3";
-	private static final String C4 = "C4";
-	private static final String E4 = "E4";
-	private static final String C5 = "C5";
-	private static final String E5 = "E5";
-//	private static final String APOS_TRIP = "APOS_TRIP";
-//	private static final String POS_TRIP = "POS_TRIP";
-	private static final String STWRD = "STWRD";
-	private static final String STPOS = "STPOS";
-	private static final String _0 = "0";
-	private static final String L0 = "L0";
-	private static final String R0 = "R0";
-	private static final String L4 = "L4";
-	private static final String L1 = "L1";
-	private static final String L2 = "L2";
-	private static final String L3 = "L3";
-	private static final String L5 = "L5";
-	private static final String L10 = "L10";
-	private static final String R1 = "R1";
-	private static final String R2 = "R2";
-	private static final String R3 = "R3";
-	private static final String R4 = "R4";
-	private static final String R5 = "R5";
-	private static final String R7 = "R7";
-	private static final String L7 = "R7";
-	private static final String R10 = "R10";
-	private static final String _4 = "4";
-	private static final String _3 = "3";
-	private static final String _2 = "2";
-	private static final String _1 = "1";
-	protected static final String POS = "POS";
-	protected static final String FEAT = "F";
-	protected static final String GPOS = "GPOS";
-	protected static final String DIST = "DIST";
-	private static final String MID = "MID";
-	protected static final String WORD = "WORD";
+	private static final String STWRD = "STWRD",STPOS = "STPOS",END = "END",STR = "STR";
 
-	public static final String REL = "REL";
-	private static final String END = "END";
-	private static final String STR = "STR";
-	private static final String LA = "LA";
-	private static final String RA = "RA";
-	protected static final String TYPE = "TYPE";
-	private static final String CHAR = "C";
-	private static final String _5 = "5";
-	private static final String _10 = "10";
-	private static final String DIR = "D";
+	public String[] types;
 
-	private CONLLReader09 depReader;
-	public CONLLWriter09 depWriter;
+	Cluster cl;
 
-	static public String[] types;
-
-
-	public MFO mf =new MFO();
-	static public Long2IntInterface li = new Long2Int();
+	final public MFO mf =new MFO();
+	public Long2IntInterface li;
 
 
 
-	final MFO.Data4 d1 = new MFO.Data4();
-	final MFO.Data4 d2 = new MFO.Data4();
-	final MFO.Data4 d3 = new MFO.Data4();
-	final MFO.Data4 dw = new MFO.Data4();
-	final MFO.Data4 dwp = new MFO.Data4();
+	final MFO.Data4 d1 = new MFO.Data4(),d2 = new MFO.Data4(),d3 = new MFO.Data4(),dw = new MFO.Data4();
+	final MFO.Data4 dwp = new MFO.Data4(),dp = new MFO.Data4();
 
 
-	private Options options;
+	private OptionsSuper options;
+	private int _ewrd;
 	static private int _mid, _strp,_endp;
 
 	public Pipe (Options options, Long2Int long2Int) throws IOException {
 		this.options = options;
 
-		depReader = new CONLLReader09();
 		li =long2Int;
 	}
 
-
-
-	/**
-	 * @param f
-	 */
-	public Pipe(F2SF f) {
-		m_f =f;
-		
-		d1.a0 = s_type; d1.a1 = s_pos; d1.a2= s_word;
-		d2.a0 = s_type; d2.a1 = s_pos; d2.a2= s_pos; d2.a3= s_pos; d2.a4= s_pos; d2.a5= s_pos; d2.a6= s_pos;
-		d3.a0 = s_type; d3.a1 = s_pos; d3.a2=  s_char; d3.a3= s_char; d3.a4= s_char; d3.a5=  s_char; d3.a6=  s_char; d3.a7= s_char;d3.a8= s_char;
-		dw.a0 = s_type; dw.a1 = s_pos;dw.a2=  s_word; dw.a3= s_word; dw.a4= s_word; dw.a5=  s_word; dw.a6=  s_word; dw.a7= s_word;
-		dwp.a0 = s_type; dwp.a1 = s_pos;dwp.a2= s_word ; dwp.a3= s_pos; dwp.a4= s_word; 
+	public Pipe (OptionsSuper options) {
+		this.options = options;
 	}
 
-	public int[] createInstances(String file,File featFileName, Instances is) throws Exception {
 
+	public HashMap<Integer,Integer> form2morph = new HashMap<Integer, Integer> ();
+
+	
+	public Instances createInstances(String file) {
+
+		CONLLReader09 depReader = new CONLLReader09(CONLLReader09.NO_NORMALIZE);
+		
 		depReader.startReading(file);
-		mf.register(REL,"<root-type>");
 		mf.register(POS,"<root-POS>");
 
-		MFO.register(FEAT, CONLLReader09.NO_TYPE);
+		mf.register(FEAT, CONLLReader09.NO_TYPE);
 		mf.register(FEAT, "");
 		
+		InstancesTagger is = new InstancesTagger();
 
 		System.out.println("Registering feature parts ");
 
+		HashMap<String,HashSet<String>> op2form = new HashMap<String, HashSet<String>> ();
+		HashMap<String,Integer> freq = new HashMap<String, Integer> ();
+		
+		
 		int ic=0;
 		while(true) {
 			SentenceData09 instance1 = depReader.getNext();
 			if (instance1== null) break;
 			ic++;
 
-			String[] labs1 = instance1.labels;
-			for(int i1 = 0; i1 < labs1.length; i1++) {
-				//typeAlphabet.lookupIndex(labs1[i1]);
-				mf.register(REL, labs1[i1]);
-			}
 
 			String[] w = instance1.forms;
 			for(int i1 = 0; i1 < w.length; i1++) mf.register(WORD,  w[i1]);
 			for(int i1 = 0; i1 < w.length; i1++) registerChars(CHAR,  w[i1]);
-			for(int i1 = 0; i1 < w.length; i1++) mf.register(WORD,  w[i1].toLowerCase());
+			for(int i1 = 0; i1 < w.length; i1++) {
+				mf.register(WORD,  w[i1].toLowerCase());
+				Integer f = freq.get(w[i1].toLowerCase());
+				if (f==null) freq.put(w[i1].toLowerCase(), 1);
+				else freq.put(w[i1].toLowerCase(), f+1);
+
+				HashSet<String> forms = op2form.get(w[i1].toLowerCase());
+				if (forms==null) {
+					forms = new HashSet<String>();
+					op2form.put(w[i1].toLowerCase(), forms);
+				}
+				forms.add(instance1.ofeats[i1]==null?"_":instance1.ofeats[i1]);
+			}
 			for(int i1 = 0; i1 < w.length; i1++) registerChars(CHAR,  w[i1].toLowerCase());
 
-			w = instance1.lemmas;
+			w = instance1.plemmas;
 			for(int i1 = 0; i1 < w.length; i1++) mf.register(WORD,  w[i1]);			
 			for(int i1 = 0; i1 < w.length; i1++) registerChars(CHAR,  w[i1]);
 
@@ -175,22 +115,31 @@ final public class Pipe extends PipeGen  {
 
 			w = instance1.ofeats;
 			for(int i1 = 0; i1 < w.length; i1++) if (w[i1]!=null) mf.register(FEAT,  w[i1]);
-
-			w = instance1.pfeats;
-			for(int i1 = 0; i1 < w.length; i1++) if (w[i1]!=null) mf.register(FEAT,  w[i1]);
-
+ 
+		//	w = instance1.pfeats;
+			//for(int i1 = 0; i1 < w.length; i1++) if (w[i1]!=null) mf.register(FEAT,  w[i1]);
 		}
 
+		
+		for(Entry<String,HashSet<String>> e : op2form.entrySet()) {
+				if (e.getValue().size()==1 &&freq.get(e.getKey())>10) {
+				//	System.out.println("found map "+e.getKey()+" "+e.getValue()+" "+freq.get(e.getKey()));
+					form2morph.put(mf.getValue(Pipe.WORD, e.getKey()), mf.getValue(FEAT, (String)e.getValue().toArray()[0]));
+				}
+ 		}
+		
 		initFeatures();
 
-		MFO.calculateBits();
+		mf.calculateBits();
 		initValues();
+
+		System.out.println(""+mf.toString());
 
 		depReader.startReading(file);
 
 		int num1 = 0;
 		long start1 = System.currentTimeMillis();
-
+		
 		System.out.print("Creating Features: ");
 		is.init(ic, mf) ;
 		int del=0;
@@ -209,92 +158,69 @@ final public class Pipe extends PipeGen  {
 		long mem2 = Runtime.getRuntime().totalMemory() -  Runtime.getRuntime().freeMemory();
 		System.out.print("  time "+(end1-start1)+" mem "+(mem2/1024)+" kb");
 
-		types = new String[MFO.getFeatureCounter().get(FEAT)];
+		types = new String[mf.getFeatureCounter().get(FEAT)];
 
-		for(Entry<String,Integer> e : MFO.getFeatureSet().get(FEAT).entrySet()) {
+		for(Entry<String,Integer> e : mf.getFeatureSet().get(FEAT).entrySet()) {
 			types[e.getValue()] = e.getKey();
 		}
+
+		
+		if (options.clusterFile==null)cl = new Cluster();
+		else cl=  new Cluster(options.clusterFile, mf,6);
 
 
 		System.out.println("Num Features: " + types.length);
 
 
-		long start11;
-		long end11;
 
 		depReader.startReading(file);
 
-		int[] lengths = new int[num1+1];
 
-		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(featFileName),32768);
-		DataOutputStream dos = new DataOutputStream(bos);
-		num1=0;
 
 		int num11=0;
 
-		start11 = System.currentTimeMillis();
-		System.out.println("Creating Feature Vectors: ");
-		long last = System.currentTimeMillis();
 		while(true) {
 
 			SentenceData09 instance = depReader.getNext();
 			if (instance==null) break;
-			if (num11 % 100 ==0) del = outValue(num11, del,last);
-
-
-			createFeatureVector(instance,is,num11);
-
-
-			lengths[num11]=instance.length();
-
-			writeInstance(instance,dos);
+	
+			is.fillChars(instance, num11, _CEND);
 
 
 			if (num11>options.count) break;
 
 			num11++;
 		}
-		end11 = System.currentTimeMillis();
-		System.out.println("\nUsed time "+(end11-start11));
 
-
-		dos.close();
-
-		return lengths;//.toNativeArray();
+		return is;//.toNativeArray();
 
 	}
 
 	private void registerChars(String type, String word) {
-		for(int i=0;i<word.length();i++) 	MFO.register(type, Character.toString(word.charAt(i)));      
+		for(int i=0;i<word.length();i++) 	mf.register(type, Character.toString(word.charAt(i)));      
 	}
 
 
 
 	public void initValues() {
-		s_pos = mf.getFeatureBits(POS);
+		s_feat = mf.getFeatureBits(FEAT);
 		s_word = mf.getFeatureBits(WORD);
 		s_type = mf.getFeatureBits(TYPE);
-		s_dir = mf.getFeatureBits(DIR);
-		s_dist = mf.getFeatureBits(DIST);
 		s_char = mf.getFeatureBits(CHAR);
-
+		s_pos =mf.getFeatureBits(POS);
 	//	dl1.a[0] = s_type; dl1.a[1] = s_pos;
 	//	for (int k = 2; k < 7; k++) dl1.a[k] = s_pos;
 
-		d1.a0 = s_type; d1.a1 = s_pos; d1.a2= s_word;
-		d2.a0 = s_type; d2.a1 = s_pos; d2.a2= s_pos; d2.a3= s_pos; d2.a4= s_pos; d2.a5= s_pos; d2.a6= s_pos;
-		d3.a0 = s_type; d3.a1 = s_pos; d3.a2=  s_char; d3.a3= s_char; d3.a4= s_char; d3.a5=  s_char; d3.a6=  s_char; d3.a7= s_char;
-		dw.a0 = s_type; dw.a1 = s_pos;dw.a2=  s_word; dw.a3= s_word; dw.a4= s_word; dw.a5=  s_word; dw.a6=  s_word; dw.a7= s_word;
-		dwp.a0 = s_type; dwp.a1 = s_pos;dwp.a2= s_word ; dwp.a3= s_pos; dwp.a4= s_word; 
+		d1.a0 = s_type; d1.a1 = s_feat; d1.a2= s_word;
+		d2.a0 = s_type; d2.a1 = s_feat; d2.a2= s_feat; d2.a3= s_feat; d2.a4= s_feat; d2.a5= s_feat; d2.a6= s_feat;
+		d3.a0 = s_type; d3.a1 = s_feat; d3.a2=  s_char; d3.a3= s_char; d3.a4= s_char; d3.a5=  s_char; d3.a6=  s_char; d3.a7= s_char;
+		dp.a0 = s_type; dp.a1 = s_feat; dp.a2=  s_pos; dp.a3= s_pos; dp.a4= s_feat;// dp.a5=  s_char; dp.a6=  s_char; dp.a7= s_char;
+		dw.a0 = s_type; dw.a1 = s_feat;dw.a2=  s_word; dw.a3= s_word; dw.a4= s_word; dw.a5=  s_word; dw.a6=  s_word; dw.a7= s_word;
+		dwp.a0 = s_type; dwp.a1 = s_feat;dwp.a2= s_word ; dwp.a3= s_feat; dwp.a4= s_word; 
 
 	}
 
-	public static short s_pos;
-	public static short s_word;
-	public static short s_type;
-	public static short s_dir;
-	public static short s_dist;
-	public static short s_char;
+	public static short s_feat,s_word,s_type,s_dir,s_dist,s_char,s_pos;
 
 
 
@@ -303,511 +229,280 @@ final public class Pipe extends PipeGen  {
 	 */
 	public void initFeatures() {
 
-		_f0 = MFO.register(TYPE, _F0);
-		_f1 = MFO.register(TYPE, _F1);
-		_f2 = MFO.register(TYPE, _F2);
-		_f3 = MFO.register(TYPE, _F3);
-		_f4 = MFO.register(TYPE, _F4);
-		_f5 = MFO.register(TYPE, _F5);
-		_f6 = MFO.register(TYPE, _F6);
-		_f7 = MFO.register(TYPE, _F7);
-		_f8 = MFO.register(TYPE, _F8);
-		_f9 = MFO.register(TYPE, _F9);
-		_f10 = MFO.register(TYPE, _F10);
-		_f11 = MFO.register(TYPE, _F11);
-		_f12 = MFO.register(TYPE, _F12);
-		_f13 = MFO.register(TYPE, _F13);
-		_f14 = MFO.register(TYPE, _F14);
-		_f15 = MFO.register(TYPE, _F15);
-		_f16 = MFO.register(TYPE, _F16);
-		_f17 = MFO.register(TYPE, _F17);
-		_f18 = MFO.register(TYPE, _F18);
-		_f19 = MFO.register(TYPE, _F19);
-		_f20 = MFO.register(TYPE, _F20);
-		_f21 = MFO.register(TYPE, _F21);
-		_f22 = MFO.register(TYPE, _F22);
-		_f23 = MFO.register(TYPE, _F23);
-		_f24 = MFO.register(TYPE, _F24);
-		_f25 = MFO.register(TYPE, _F25);
-		_f26 = MFO.register(TYPE, _F26);
-		_f27 = MFO.register(TYPE, _F27);
-		_f28 = MFO.register(TYPE, _F28);
-		_f29 = MFO.register(TYPE, _F29);
-		_f30 = MFO.register(TYPE, _F30);
+		for(int t=0;t<62;t++) {
+			mf.register(TYPE,"F"+t);			
+		}
+		
 
-		_f31 = MFO.register(TYPE, _F31);
-		_f32 = MFO.register(TYPE, _F32);
-		_f33 = MFO.register(TYPE, _F33);
-		_f34 = MFO.register(TYPE, _F34);
+//		_mid = mf.register(POS, MID);
+		_strp = mf.register(POS, STR);
+		_endp= mf.register(POS, END);
 
-		_f35 = MFO.register(TYPE, _F35);
-		_f36 = MFO.register(TYPE, _F36);
-		_f37 = MFO.register(TYPE, _F37);
-		_f38 = MFO.register(TYPE, _F38);
-
-		_f39 = MFO.register(TYPE, _F39);
-
-		_f40 = MFO.register(TYPE, _F40);
-		_f41 = MFO.register(TYPE, _F41);
-
-		_f42 = MFO.register(TYPE, _F42);
-		_f43 = MFO.register(TYPE, _F43);
-		_f44 = MFO.register(TYPE, _F44);
-		_f45 = MFO.register(TYPE, _F45);
-		_f46 = MFO.register(TYPE, _F46);
-		_f47 = MFO.register(TYPE, _F47);
-		_f48 = MFO.register(TYPE, _F48);
-		_f49 = MFO.register(TYPE, _F49);
+		mf.register(WORD, STR);
+		 _ewrd = mf.register(WORD, END);
 
 
-		_mid = MFO.register(POS, MID);
-		_strp = MFO.register(POS, STR);
-		_endp= MFO.register(POS, END);
-		MFO.register(TYPE, CHAR);
+		_CEND = mf.register(CHAR, END);
 
-		MFO.register(WORD, STR);
-		MFO.register(WORD, END);
-
-
-		_CEND = MFO.register(CHAR, END);
-
-
-
-
-		MFO.register(DIR, LA);
-		MFO.register(DIR, RA);
-
-
-
-		MFO.register(DIST, L0);
-		MFO.register(DIST, L5);
-		MFO.register(DIST, L7);
-		MFO.register(DIST, L10);
-		MFO.register(DIST, L1);
-		MFO.register(DIST, L2);
-		MFO.register(DIST, L3);
-		MFO.register(DIST, L4);
-		MFO.register(DIST, L5);
-
-		MFO.register(DIST, R0);
-		MFO.register(DIST, R5);
-		MFO.register(DIST, R7);
-		MFO.register(DIST, R10);
-		MFO.register(DIST, R1);
-		MFO.register(DIST, R2);
-		MFO.register(DIST, R3);
-		MFO.register(DIST, R4);
-		MFO.register(DIST, R5);
-
-
-		MFO.register(TYPE, C0);
-		MFO.register(TYPE, C1);
-		MFO.register(TYPE, C2);
-		MFO.register(TYPE, C3);
-		MFO.register(TYPE, C4);
-		MFO.register(TYPE, C5);
-		MFO.register(TYPE, "C6");
-
-		MFO.register(TYPE, E0);
-		MFO.register(TYPE, E1);
-		MFO.register(TYPE, E2);
-		MFO.register(TYPE, E3);
-		MFO.register(TYPE, E4);
-		MFO.register(TYPE, E5);
-		MFO.register(TYPE, "E6");
 
 
 
 		// optional features
-		MFO.register(DIST, "RA");
-		MFO.register(DIST, "LA");
-		MFO.register(WORD,STWRD);
-		MFO.register(POS,STPOS);
-		MFO.register(DIST, _0);
-		MFO.register(DIST, _1);
-		MFO.register(DIST, _2);
-		MFO.register(DIST, _3);
-		MFO.register(DIST, _4);
-		MFO.register(DIST, _5);
-		MFO.register(DIST, _10);
+		mf.register(WORD,STWRD);
+		mf.register(POS,STPOS);
 
 
 	}
 
 
+	final public void addCF(InstancesTagger is, int ic, String fs,int i, int pfeat[],short ppos[], int[] forms, int[] lemmas, long[] vs) {
 
+		int c0= is.chars[ic][i][0], c1=is.chars[ic][i][1], c2=is.chars[ic][i][2], c3=is.chars[ic][i][3], c4=is.chars[ic][i][4],c5=is.chars[ic][i][5];
+		int e0 =is.chars[ic][i][6], e1 =is.chars[ic][i][7],e2 =is.chars[ic][i][8],e3 =is.chars[ic][i][9],e4 =is.chars[ic][i][10];
 
-
-	public String getType (int typeIndex) {
-		return types[typeIndex];
-	}
-
-
-
-
-	public void createFeatureVector(SentenceData09 instance, Instances is, int n) {
-
-		final int instanceLength = instance.length();
-
-		for(int i = 0; i < instanceLength; i++) {
-
-			FV f = new FV();
-			addCoreFeatures(instance,i,instance.ofeats[i],is.gfeats[n],is.forms[n],is.lemmas[n],f);
-		}
-
-	}
-
-
-	public void addCoreFeatures(SentenceData09 instance,int i, String feature, int features[], int[] forms, int[] lemmas, IFV fv) {
-
-		int len = forms.length;
-		String lower = instance.forms[i].toLowerCase();
-		int form = forms[i];
-		String formStr = instance.forms[i];
-		int p =mf.getValue(FEAT, feature);
-
-		int c0= mf.getValue(CHAR, String.valueOf(instance.forms[i].charAt(0)));
-		int c1= formStr.length()>1?mf.getValue(CHAR, String.valueOf(formStr.charAt(1))):_CEND;//mf.getValue(CHAR, END);
-		int c2= formStr.length()>2?mf.getValue(CHAR, String.valueOf(formStr.charAt(2))):_CEND;
-		int c3= formStr.length()>3?mf.getValue(CHAR, String.valueOf(formStr.charAt(3))):_CEND;
-		int c4= formStr.length()>4?mf.getValue(CHAR, String.valueOf(formStr.charAt(4))):_CEND;
-
-		int e0 = mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-1)));
-		int e1 = formStr.length()>1?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-2))):_CEND;//mf.getValue(CHAR, END);
-		int e2 = formStr.length()>2?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-3))):_CEND;
-		int e3 = formStr.length()>3?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-4))):_CEND;
-		int e4 = formStr.length()>4?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-5))):_CEND;
-
-		d1.v0 = _f0; d1.v1=p; d1.v2=form;
-		fv.add(li.l2i(mf.calc3(d1)));
-
-		d1.v0 = _f1; d1.v1 = p; d1.v2=mf.getValue(WORD, lower);
-		fv.add(li.l2i(mf.calc3(d1)));
-
-
-
-		d2.v0 =_f2; d2.v1=p; d2.v2= (float)instance.length()/(i+1)<0.333?_strp:(float)instance.length()/(i+1)<0.666?_mid:_endp;
-		fv.add(li.l2i(mf.calc3(d2)));
-
-
-		d3.v0 = _f4; d3.v1 =p; d3.v2=c0;
-		fv.add(li.l2i(mf.calc3(d3)) );
-
-		d3.v0 = _f5; d3.v1 =p; d3.v2=e0;
-		fv.add(li.l2i(mf.calc3(d3)) );
-
-
-		d3.v2=c0; d3.v3=c1; d3.v4=c2; d3.v5=c3; d3.v6=c4;
-
-		d3.v0=_f6; fv.add(li.l2i(mf.calc4(d3)));
-		d3.v0=_f7; fv.add(li.l2i(mf.calc5(d3)));
-		d3.v0=_f8; fv.add(li.l2i(mf.calc6(d3)));
-		d3.v0=_f9; fv.add(li.l2i(mf.calc7(d3)));
-
-		d3.v2=e0; d3.v3=e1; d3.v4=e2; d3.v5=e3; d3.v6=e4;
-		d3.v0 =_f10; fv.add(li.l2i(mf.calc4(d3)));
-		d3.v0 =_f11; fv.add(li.l2i(mf.calc5(d3)));
-		d3.v0 =_f12; fv.add(li.l2i(mf.calc6(d3)));
-		d3.v0 =_f13; fv.add(li.l2i(mf.calc7(d3)));
-
-		if (len>i+1) {
-			
-			
-
-			 formStr = instance.forms[i+1]; 
-			
-			int e0p1 = mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-1)));
-			int e1p1 = formStr.length()>1?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-2))):_CEND;//mf.getValue(CHAR, END);
-			int e2p1 = formStr.length()>2?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-3))):_CEND;
-			int e3p1 = formStr.length()>3?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-4))):_CEND;
-			int e4p1 = formStr.length()>4?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-5))):_CEND;
-
-	
-			d3.v2=e0p1; d3.v3=e1p1; d3.v4=e2p1; d3.v5=e3p1; d3.v6=e4p1;
-			d3.v0 =_f41; fv.add(li.l2i(mf.calc4(d3)));
-			d3.v0 =_f42; fv.add(li.l2i(mf.calc5(d3)));
-			d3.v0 =_f43; fv.add(li.l2i(mf.calc6(d3)));
-			//d3.v0 =_f44; fv.add(li.l2i(mf.calc7(d3)));
-
-			d3.v2=e0p1; d3.v3=e1p1; d3.v4=e0; d3.v5=e1; 
-			d3.v0 =_f44; fv.add(li.l2i(mf.calc6(d3)));
-
-			
-		
-			
-			
-			d3.v0 =_f14; d3.v2 =mf.getValue(CHAR, String.valueOf(instance.forms[i+1].charAt(0)));
-			fv.add(li.l2i(mf.calc3(d3)));
-
-			d3.v0 =_f15; d3.v2 =mf.getValue(CHAR, String.valueOf(instance.forms[i+1].charAt(instance.forms[i+1].length()-1)));
-			fv.add(li.l2i(mf.calc3(d3)));
-
-
-
-			if (instance.forms[i+1].length()>1 ) {
-				d3.v0=_f16; d3.v2 = mf.getValue(CHAR, String.valueOf(instance.forms[i+1].charAt(0)));
-				d3.v3 =mf.getValue(CHAR, String.valueOf(instance.forms[i+1].charAt(1)));
-				fv.add(li.l2i(mf.calc4(d3)));
-
-				d3.v0=_f17;d3.v2= mf.getValue(CHAR, String.valueOf(instance.forms[i+1].charAt(instance.forms[i+1].length()-1)));
-				d3.v3=mf.getValue(CHAR, String.valueOf(instance.forms[i+1].charAt(instance.forms[i+1].length()-2)));
-				fv.add(li.l2i(mf.calc4(d3)));
-
-			}
-
-			dw.v0=_f18; dw.v1=p;dw.v2= forms[i+1];
-			fv.add(li.l2i(mf.calc3(dw)));
-
-			if (len>i+2) {
-				dw.v0=_f32; dw.v2= forms[i+2]; dw.v3 = forms[i+1];
-				fv.add(li.l2i(mf.calc4(dw)));
-
-				fv.add(li.l2i(mf.calc3(dw)));
-
-				d2.v0= _f40; d2.v1=p; d2.v2=features[i+1]; d2.v3=  features[i+2]; 
-				fv.add(li.l2i(mf.calc4(d2)));
-				
-				
-				 formStr = instance.forms[i+2]; 
-				
-				 int e0p2 = mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-1)));
-				 int e1p2 = formStr.length()>1?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-2))):_CEND;//mf.getValue(CHAR, END);
-				 
-				 d3.v2=e0p1; d3.v3=e1p1; d3.v4=e0; d3.v5=e1; d3.v6=e0p2;d3.v7=e1p2; 	
-				 d3.v0 =_f45; fv.add(li.l2i(mf.calc8(d3)));
-
-			}
-
-			if (len>i+3) {
-
-				dw.v0=_f33; dw.v2= forms[i+3]; dw.v3 = forms[i+2];
-				fv.add(li.l2i(mf.calc4(dw)));
-
-				fv.add(li.l2i(mf.calc3(dw)));
-
-
-			}
-
-
-
-		}
-
-		// length
-		d2.v0= _f19;	d2.v1=p; d2.v2=instance.forms[i].length();
-		fv.add(li.l2i(mf.calc3(d2)));
-
-		// contains upper case
-
-		short upper =0;
-		short number = 1;
-		for(int k1=0;k1<instance.forms[i].length();k1++){
-			char c =instance.forms[i].charAt(k1);
+		int f=1,n=0;
+		short upper =0, number = 1;
+		for(int k1=0;k1<fs.length();k1++){
+			char c = fs.charAt(k1);
 			if (Character.isUpperCase(c)) {
 				if (k1==0) upper=1;
 				else {
 					// first char + another
-					if (upper==1)upper=3;
+					if (upper==1) upper=3;
 					// another uppercase in the word
 					else if (upper==0) upper=2;
 				}
 			}
 
 			if (Character.isDigit(c) && k1==0) number =2 ;
-			else if (Character.isDigit(c) && number==1) number = 3 ;
-
+			else if (Character.isDigit(c) && number==1) number = 3;
 		}
 
-		d2.v0= _f20;	d2.v1=p; d2.v2=upper; //dl1.v[3]=i==0?1:2;
-		fv.add(li.l2i(mf.calc3(d2)));
+		int form = forms[i];
+
+		int len = forms.length;		
+		long l;
+		d1.v0 = f++; d1.v2=form; l=mf.calc3(d1); vs[n++]=mf.calc3(d1);
+
+		d1.v0 = f++; d1.v2=is.formlc[ic][i]; vs[n++]=mf.calc3(d1);
+
+		d3.v2=c0; d3.v3=c1; d3.v4=c2; d3.v5=c3; d3.v6=c4;
+		d3.v0=f++; vs[n++]=mf.calc3(d3);
+		d3.v0=f++; vs[n++]=mf.calc4(d3); 
+		d3.v0=f++; vs[n++]=mf.calc5(d3); 
+		d3.v0=f++; vs[n++]=mf.calc6(d3);
+		d3.v0=f++; vs[n++]=mf.calc7(d3);
+
+		if (form!=-1) {
+			d3.v2=c2; d3.v3=c3; d3.v4=c4; d3.v5=c5; d3.v6=cl.getLP(form);
+			d3.v0=f; vs[n++]=mf.calc6(d3); d3.v0=f+1; vs[n++]=mf.calc7(d3);
+		} 
+		f+=2;
+
+		if (form>0) {
+			d3.v0=f; d3.v5=cl.getLP(form); vs[n++]=mf.calc6(d3);
+			d3.v0=f+1; d3.v4=cl.getLP(form); vs[n++]=mf.calc5(d3);
+			d3.v0=f+2; d3.v3=cl.getLP(form); vs[n++]=mf.calc4(d3);
+		}
+		f+=3;
+
+		d3.v2=e0; d3.v3=e1; d3.v4=e2; d3.v5=e3; d3.v6=e4;
+		d3.v0 =f++; vs[n++]=mf.calc3(d3);	
+		d3.v0 =f++; vs[n++]=l=mf.calc4(d3); vs[n++]=d3.calcs(3, upper, l); 
+		d3.v0 =f++; vs[n++]=l=mf.calc5(d3); vs[n++]=d3.calcs(3, upper, l); 
+		d3.v0 =f++; vs[n++]=l=mf.calc6(d3); vs[n++]=d3.calcs(3, upper, l); 		
+		d3.v0 =f++; vs[n++]=l=mf.calc7(d3); vs[n++]=d3.calcs(3, upper, l); 
+
+		if (form>0) {
+			d3.v0=f; d3.v5=cl.getLP(form); vs[n++]=mf.calc6(d3);
+			d3.v0=f+1; d3.v4=cl.getLP(form); vs[n++]=mf.calc5(d3);
+			d3.v0=f+2; d3.v3=cl.getLP(form); vs[n++]=mf.calc4(d3);
+		}
+		f+=3;
+
+
+		dw.v0=f++; dw.v2=i+1<len?forms[i+1]:_ewrd;dw.v3= forms[i];vs[n++]=mf.calc4(dw);
+		
+		if (len>i+1) {
+
+			dw.v0=f; dw.v2= forms[i+1]; vs[n++]=mf.calc3(dw);
+			d3.v0=f+1; d3.v2 =is.chars[ic][i+1][0];vs[n++]=mf.calc3(d3);
+			d3.v0=f+2; d3.v2 =is.chars[ic][i+1][6];vs[n++]=mf.calc3(d3);
+
+			d3.v2=e0; d3.v3=e1;  
+
+			d3.v0 =f+3; d3.v4 =is.chars[ic][i+1][0];vs[n++]=mf.calc5(d3);
+			d3.v0 =f+4; d3.v4 =is.chars[ic][i+1][6];vs[n++]=mf.calc5(d3);
+
+			
+			
+			if (is.chars[ic][i+1][11]>1 ) { //  instance.forms[i+1].length()
+
+				d3.v0=f+5; d3.v2=is.chars[ic][i+1][0]; d3.v3=is.chars[ic][i+1][1]; vs[n++]=mf.calc4(d3);
+				d3.v0=f+6; d3.v2=is.chars[ic][i+1][6];	d3.v3=is.chars[ic][i+1][7]; vs[n++]=mf.calc4(d3);
+
+				d3.v2=e0; d3.v3=e1;  
+
+				d3.v0=f+7; d3.v4 = is.chars[ic][i+1][0]; d3.v5 =is.chars[ic][i+1][1]; vs[n++]=mf.calc6(d3);
+				d3.v0=f+8; d3.v4 = is.chars[ic][i+1][6]; d3.v5=is.chars[ic][i+1][7]; vs[n++]=mf.calc6(d3);				
+
+				if (forms[i+1]>0) {
+					d3.v0=f+9; d3.v2=is.chars[ic][i+1][0]; d3.v3=is.chars[ic][i+1][1]; d3.v4 =cl.getLP(forms[i+1]); vs[n++]=mf.calc5(d3);
+					d3.v0=f+10; d3.v2=is.chars[ic][i+1][6];	d3.v3=is.chars[ic][i+1][7]; d3.v4 =cl.getLP(forms[i+1]); vs[n++]=mf.calc5(d3);
+				} 
+			} 
+			
+			if (forms[i+1]>0) {
+				dw.v0=f+11; dw.v2= cl.getLP(forms[i+1]); dw.v3= forms[i];vs[n++]=mf.calc4(dw);
+			} 
+			
+			if (len>i+2) {
+				dw.v0=f+12; dw.v2= forms[i+2]; dw.v3 = forms[i+1];vs[n++]=mf.calc4(dw);vs[n++]=mf.calc3(dw);
+//				d2.v0=f+13; d2.v2=pfeat[i+1]; d2.v3=  pfeat[i+2];	vs[n++]=mf.calc4(d2);
+			//	dp.v0= f+14; dp.v2=ppos[i+1]; dp.v3=ppos[i+2]; vs[n++]=mf.calc4(dp);
+
+			} 
+
+			if (len>i+3) {
+				dw.v0=f+14; dw.v2= forms[i+3]; dw.v3 = forms[i+2]; vs[n++]=mf.calc4(dw); vs[n++]=mf.calc3(dw);
+	
+			} 
+		} 
+		f+=16;
+
+		// length
+		d2.v0=f++; d2.v2=is.chars[ic][i][11];vs[n++]=mf.calc3(d2);
+
 
 		// contains a number
-		d2.v0= _f21;	d2.v1=p; d2.v2=number;
-		fv.add(li.l2i(mf.calc3(d2)));
-
-
-		// from 0.9729681 to 0.9731779		
-		d1.v0=_f36; d1.v1=p; d1.v2=lemmas[i];
-		fv.add(li.l2i(mf.calc3(d1)));
-
+		d2.v0=f++; d2.v2=number;	vs[n++]=mf.calc3(d2);
+		d1.v0=f++;  d1.v2=lemmas[i];	vs[n++]=mf.calc3(d1);
 
 		if (i!=0 &&len>i+1) {
+			dw.v0=f; dw.v2=lemmas[i-1];dw.v3=lemmas[i+1];vs[n++]=mf.calc4(dw);                      
+			d2.v0=f+1; d2.v2=pfeat[i-1]; d2.v3=pfeat[i+1];vs[n++]=mf.calc4(d2);                      
+		} 
+		f+=2;
 
-			dw.v0=_f38;dw.v1=p;dw.v2=lemmas[i-1];dw.v3=lemmas[i+1];
-			fv.add(li.l2i(mf.calc4(dw)));                      
+		d2.v0= f++; d2.v2=i>=1? pfeat[i-1]:_strp; vs[n++]=mf.calc3(d2);
+		dp.v0= f++; dp.v2=ppos[i]; vs[n++]=mf.calc3(dp);
 
-			d2.v0=_f39;d2.v1=p;d2.v2=features[i-1];d2.v3=features[i+1];
-			fv.add(li.l2i(mf.calc4(d2)));                      
+		if (i>0) {
+			dw.v0 = f++; dw.v2 =i>=1?  forms[i-1]:_strp; vs[n++]=mf.calc3(dw);
+			dw.v0 = f++; dw.v2 = i>=1? lemmas[i-1]:_strp; vs[n++]=mf.calc3(dw);			
+					
+			if (len>i+1) {
+//				d2.v0=f;	d2.v2= pfeat[i-1];d2.v3= pfeat[i+1]; vs[n++]=mf.calc4(d2);
+		//		dp.v0= f+1; dp.v2=ppos[i-1]; dp.v3=ppos[i+1]; vs[n++]=mf.calc4(dp);
 
+			}
+			f++;
+			dp.v0= f++; dp.v2=ppos[i]; dp.v3=ppos[i-1]; vs[n++]=mf.calc4(dp);
+					
+			if (i>1) {
+				d2.v0=f++;	d2.v2=i<2?_strp:  pfeat[i-2]; vs[n++]=mf.calc3(d2);
+				d2.v0=f++;	d2.v2= pfeat[i-1]; d2.v3= pfeat[i-2]; vs[n++]=mf.calc4(d2);
+				
+				dw.v0=f++;	dw.v2= forms[i-2]; vs[n++]=mf.calc3(dw);		
+				dwp.v0=f++;   dwp.v2 = forms[i-1]; dwp.v3 =  pfeat[i-2];vs[n++]=mf.calc4(dwp);
+				dwp.v0=f++;   dwp.v2 = forms[i-2]; dwp.v3 =  pfeat[i-1];vs[n++]=mf.calc4(dwp);
 
+				if (i>2) {
+					d2.v0=f++;	d2.v2=pfeat[i-3]; vs[n++]=mf.calc3(d2);
+					d2.v0=f++;	d2.v2=pfeat[i-2]; d2.v3= pfeat[i-3]; vs[n++]=mf.calc4(d2);
+					dw.v0=f++;   dw.v2 = forms[i-3]; dw.v3 = forms[i-2]; vs[n++]=mf.calc4(dw);
+		//			dp.v0= f++; dp.v2=ppos[i-3]; dp.v3=ppos[i-2]; vs[n++]=mf.calc4(dp);
+				}
+			}
 		}
-
-		d2.v0= _f22; d2.v1=p;	d2.v2=i>=1? features[i-1]:_strp; 
-		fv.add(li.l2i(mf.calc3(d2)));
-
-
-		if (i<1) return ;
-
-		dw.v0 = _f27; dw.v1=p; dw.v2 =  forms[i-1];
-		fv.add(li.l2i(mf.calc3(dw)) );
-
-
-		// 0.9731779 to 0.9732079
-		dw.v0 = _f37; dw.v1=p; dw.v2 =  lemmas[i-1];
-		fv.add(li.l2i(mf.calc3(dw)) );
-
-		 formStr = instance.forms[i-1]; 
-			
-		 int e0m1 = mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-1)));
-		 int e1m1 = formStr.length()>1?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-2))):_CEND;//mf.getValue(CHAR, END);
-
-		
-		d3.v2=e0m1; d3.v3=e1m1; d3.v4=e0; d3.v5=e1; 
-		d3.v0 =_f46; fv.add(li.l2i(mf.calc6(d3)));
-
-		
-		
-		if (i<2) return ;
-
-		d2.v0= _f23;	d2.v2=i<2?_strp:  features[i-2]; 
-		fv.add(li.l2i(mf.calc3(d2)));
-
-
-		d2.v0= _f24;	d2.v2= features[i-1]; d2.v3= features[i-2]; 
-		fv.add(li.l2i(mf.calc4(d2)));
-
-		dw.v0= _f28;	dw.v2= forms[i-2];  
-		fv.add(li.l2i(mf.calc3(dw)));
-
-		dwp.v0= _f34;dwp.v1= p; dwp.v2 = forms[i-1]; dwp.v3 =  features[i-2];
-		fv.add(li.l2i(mf.calc4(dwp)));
-
-
-		dwp.v0= _f35;dwp.v1= p; dwp.v2 = forms[i-2]; dwp.v3 =  features[i-1];
-		fv.add(li.l2i(mf.calc4(dwp)));
-
-		 formStr = instance.forms[i-2]; 
-
-		
-		 int e0m2 = mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-1)));
-		 int e1m2 = formStr.length()>1?mf.getValue(CHAR,String.valueOf(formStr.charAt(formStr.length()-2))):_CEND;//mf.getValue(CHAR, END);
-
-		
-		 d3.v2=e0m1; d3.v3=e1m1; d3.v4=e0; d3.v5=e1; d3.v6=e0m2; d3.v7=e1m2; 
-		 d3.v0 =_f47; fv.add(li.l2i(mf.calc8(d3)));
-
-		 d3.v2=e0; d3.v3=e1; d3.v4=e0m2; d3.v5=e1m2; 
-		 d3.v0 =_f48; fv.add(li.l2i(mf.calc6(d3)));
-
-		 d3.v2=e0m1; d3.v3=e1m1; d3.v4=e0m2; d3.v5=e1m2; 
-		 d3.v0 =_f49; fv.add(li.l2i(mf.calc6(d3)));
-		
-		
-		if (i<3) return ;
-
-		d2.v0= _f25;	d2.v2=  features[i-3]; 
-		fv.add(li.l2i(mf.calc3(d2)));
-
-		d2.v0= _f26;	d2.v2= features[i-2]; d2.v3= features[i-3]; 
-		fv.add(li.l2i(mf.calc4(d2)));
-
-		dw.v0 = _f31; dw.v1=p; dw.v2 = forms[i-3]; dw.v3 = forms[i-2];
-		fv.add(li.l2i(mf.calc4(dw)));
+		vs[n] = Integer.MIN_VALUE;
 	}
-
-
-	public SentenceData09 m_instance;
-
-	public SentenceData09 getInstance() {
-
-		return m_instance;
-	}
-
 
 
 	
 
+	
 
-	public int fillFeatureVectorsOne(SentenceData09 instance,	ParametersDouble params, 
-			int w1, Object[][] o, Instances is, int n,  int[] features) {
+
+	public int fillFeatureVectorsOne(ParametersFloat params, int w1, String form, Instances is, int n, int[] features, long[] vs) {
 		double best = -1;
 		int bestType=-1;
 
 		F2SF f = new F2SF(params.parameters);
+			//is.gfeats[n]
+		addCF((InstancesTagger)is, n, form, w1, features,is.pposs[n], is.forms[n], is.plemmas[n], vs); 
+		
 		for(int t = 0; t < types.length; t++) {
 
 			f.clear();
-			addCoreFeatures(instance,w1,types[t], features, is.forms[n], is.lemmas[n],f);
+			int p = t<<Pipe.s_type;
+			for(int k=vs.length-1;k>=0;k--) if (vs[k]>=0) f.add(li.l2i(vs[k]+p));
 			if (f.score >best) {
 				bestType=t;
 				best =f.score;
 			}
 
 		}	
-		o[w1][1] = types[bestType];
 		return bestType;
 
 	}
 
 	
 	
-	protected void writeInstance (SentenceData09 instance,  DataOutputStream dos) throws IOException {
-
-		final int instanceLength = instance.length();
-
-		//for(int k=0;k<instanceLength;k++) {
-		//	instance.m_fvs[k].writeKeys(dos);
-		//}
-
-		instance.write(dos);
-
-
-	}
-
-
-	public void  readInstance(DataInputStream dis, int length,
-			ParametersDouble params, Options options, Object decoder) throws IOException, ClassNotFoundException {
-
-		m_instance = new SentenceData09();
-		m_instance.read(dis);
-
-	}
-
-	//static ArrayList<T> todo = new ArrayList<T>();
+		//static ArrayList<T> todo = new ArrayList<T>();
 	static SentenceData09 instance;
-	private F2SF m_f;
-	static int[] forms, lemmas;
-	static short[] posx;
 	
 	
-	static boolean stop =false;
+	public static int _FC =200;
 	
-	int bestType;
-	float best= Float.MIN_NORMAL;
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
 	
-	@Override
-	public void run() {
-
-		while(true) {
-			
-			T t = getNext();
-			if (t==null) {
-				if (stop) break;
-				Thread.yield();
-				continue;
-			}
-		
-			m_f.clear();
-			addCoreFeatures(instance,t.w1,types[t.t], posx, forms,lemmas,m_f);
-			t.score=m_f.score;
-			done.add(t);
-
-		}
-		
-		
-	}
+	/**
+	 * Write the lemma that are not mapped by operations
+	 * @param dos
 	 */
+	public void writeMap(DataOutputStream dos) {
+
+		try {
+			dos.writeInt(this.form2morph.size());
+			for(Entry<Integer, Integer> e : form2morph.entrySet()) {
+				dos.writeInt(e.getKey());
+				dos.writeInt(e.getValue());
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+
+
+	/**
+	 * Read the form-lemma mapping not read by operations
+	 * @param dis
+	 */
+	public void readMap(DataInputStream dis) {
+		try {
+			int size = dis.readInt();
+			for(int i =0; i<size;i++) {
+				form2morph.put(dis.readInt(), dis.readInt());
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
 	
+	/* (non-Javadoc)
+	 * @see is2.tools.IPipe#write(java.io.DataOutputStream)
+	 */
+	@Override
+	public void write(DataOutputStream dos) {
+		try {
+			cl.write(dos);
+			writeMap(dos);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 }

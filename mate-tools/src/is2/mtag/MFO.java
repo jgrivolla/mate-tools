@@ -1,7 +1,7 @@
 package is2.mtag;
 
 
-import is2.data.IEncoder;
+import is2.data.IEncoderPlus;
 import is2.util.DB;
 
 import java.io.DataInputStream;
@@ -16,7 +16,7 @@ import java.util.Map.Entry;
  * @author Bernd Bohnet, 20.09.2009
  */
 
-final public class MFO  implements IEncoder {
+final public class MFO  implements IEncoderPlus {
 
 	/** The features and its values */
 	static private final HashMap<String,HashMap<String,Integer>> m_featureSets = new HashMap<String,HashMap<String,Integer>>();
@@ -201,21 +201,14 @@ final public class MFO  implements IEncoder {
 	//	public  int size() {return count;}
 
 
-	final public void stop() {
-		stop=true;
-	}
-
-	final public void start() {
-		stop=false;		
-	}
-
+	
 
 	/**
 	 * Register an attribute class, if it not exists and add a possible value
 	 * @param type
 	 * @param type2
 	 */
-	static final public int register(String a, String v) {
+	 final public int register(String a, String v) {
 
 		HashMap<String,Integer> fs = getFeatureSet().get(a);
 		if (fs==null) {
@@ -238,7 +231,7 @@ final public class MFO  implements IEncoder {
 	/**
 	 * Calculates the number of bits needed to encode a feature
 	 */
-	static public void calculateBits() {
+	 public void calculateBits() {
 
 		int total=0;
 		for(Entry<String,Integer> e : getFeatureCounter().entrySet() ){
@@ -500,7 +493,7 @@ final public class MFO  implements IEncoder {
 			}          
 		}
 	}
-	static public void read(DataInputStream din) throws IOException {
+	 public void read(DataInputStream din) throws IOException {
 
 		int size = din.readInt();
 		for(int i=0; i<size;i++) {
@@ -528,7 +521,7 @@ final public class MFO  implements IEncoder {
 		getFeatureSet().clear();
 	}
 
-	static public HashMap<String,Integer> getFeatureCounter() {
+	 public HashMap<String,Integer> getFeatureCounter() {
 		return m_featureCounters;
 	}
 

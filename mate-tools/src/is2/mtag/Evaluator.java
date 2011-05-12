@@ -1,5 +1,11 @@
 package is2.mtag;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.Map.Entry;
+
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 
@@ -19,11 +25,15 @@ public class Evaluator {
 
 
 		int total = 0, totalP=0,corr = 0, corrL = 0, corrT=0,totalX=0;
-		int totalD=0, corrD=0;
+		int totalD=0, corrD=0,err=0;
 		int numsent = 0, corrsent = 0, corrsentL = 0;
 		SentenceData09 goldInstance = goldReader.getNext();
 		SentenceData09 predInstance = predictedReader.getNext();
 
+		Hashtable<String,Integer> errors = new Hashtable<String,Integer>();
+		Hashtable<String,StringBuffer> words = new Hashtable<String,StringBuffer>();
+
+		
 		while(goldInstance != null) {
 
 			int instanceLength = goldInstance.length();
@@ -31,15 +41,9 @@ public class Evaluator {
 			if (instanceLength != predInstance.length())
 				System.out.println("Lengths do not match on sentence "+numsent);
 
-			int[] goldHeads = goldInstance.heads;
-			String[] goldLabels = goldInstance.labels;
-			int[] predHeads = predInstance.heads;
-			String[] predLabels = predInstance.labels;
-			String goldPos[] = goldInstance.gpos;
-			String predPos[] = predInstance.ppos;
-
-			String goldFeats[] = goldInstance.ofeats;
-			String predFeats[] = predInstance.pfeats;
+		
+			String gold[] = goldInstance.ofeats;
+			String pred[] = predInstance.pfeats;
 
 			boolean whole = true;
 			boolean wholeL = true;
@@ -47,9 +51,9 @@ public class Evaluator {
 			// NOTE: the first item is the root info added during nextInstance(), so we skip it.
 
 			for (int i = 1; i < instanceLength; i++) {
-				if (goldFeats[i].equals(predFeats[i])||(goldFeats[i].equals("_")&&predFeats[i]==null)) corrT++;
+				if (gold[i].equals(pred[i])||(gold[i].equals("_")&&pred[i]==null)) corrT++;
 				else {
-					System.out.println("gold:"+goldFeats[i]+" pred:"+predFeats[i]+" "+goldInstance.forms[i]+" snt "+numsent+" i:"+i);
+			//		System.out.println("gold:"+goldFeats[i]+" pred:"+predFeats[i]+" "+goldInstance.forms[i]+" snt "+numsent+" i:"+i);
 					//for (int k = 1; k < instanceLength; k++) {
 						
 				//		System.out.print(goldInstance.forms[k]+":"+goldInstance.gpos[k]);
@@ -58,12 +62,25 @@ public class Evaluator {
 						
 				//	}
 					//System.out.println();
+					String key = "gold: '"+gold[i]+"' pred: '"+pred[i]+"'";
+					Integer cnt = errors.get(key);
+					StringBuffer errWrd = words.get(key);
+					if (cnt==null) {
+						errors.put(key,1);
+						words.put(key, new StringBuffer().append(goldInstance.forms[i]));
+					}
+					else {
+						errors.put(key,cnt+1);		
+						errWrd.append(" "+goldInstance.forms[i]);
+					}
+					err++;
+
 				}
-				String[] gf = goldFeats[i].split("|");
+				String[] gf = gold[i].split("|");
 				int eq=0;
 					
-				if (predFeats[i]!=null) {
-					String[] pf = predFeats[i].split("|");
+				if (pred[i]!=null) {
+					String[] pf = pred[i].split("|");
 					totalP +=pf.length;
 
 					if (pf.length>gf.length) totalX +=pf.length;
@@ -88,8 +105,34 @@ public class Evaluator {
 			predInstance = predictedReader.getNext();
 		}
 
-		System.out.println("Tokens: " + total+" Correct: " + corrT+" "+(float)corrT/total+" Details: "+((float)corrD/totalD)+" tP "+totalP+" tG "+totalD+" "+(float)corrD/totalP+" tx "+((float)corrD/totalX));
-//		System.out.println("Unlabeled Accuracy: " + ((double)corr/total));
+		ArrayList<Entry<String, Integer>> opsl = new ArrayList<Entry<String, Integer>>();
+		for(Entry<String, Integer> e : errors.entrySet()) {
+			opsl.add(e);
+		}
+		
+		Collections.sort(opsl, new Comparator<Entry<String, Integer>>(){
+
+			@Override
+			public int compare(Entry<String, Integer> o1,
+					Entry<String, Integer> o2) {
+				
+				return o1.getValue()==o2.getValue()?0:o1.getValue()>o2.getValue()?-1:1;
+			}
+			
+			
+		});
+			
+		
+		int cnt=0;
+		System.out.println("10 top most errors:");
+		for(Entry<String, Integer> e : opsl) {
+			cnt++;
+		//	System.out.println(e.getKey()+"  "+e.getValue()+" context: "+words.get(e.getKey()));
+		}
+
+		
+		System.out.println("Tokens: " + total+" Correct: " + corrT+" "+(float)corrT/total+" R "+((float)corrD/totalD)+" tP "+totalP+" tG "+totalD+" P "+(float)corrD/totalP);
+		System.out.println("err: " + err+" total "+total+" corr "+corrT);
 //		System.out.println("Unlabeled Complete Correct: " + ((double)corrsent/numsent));
 
 	}

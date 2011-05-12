@@ -49,7 +49,7 @@ public class CONLLReader06  {
 	public CONLLReader06(String file){
 		lineNumber=0;
 		try {
-			inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1"),32768); //,"UTF-8"
+			inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"),32768); //,"UTF-8"
  		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -64,7 +64,7 @@ public class CONLLReader06  {
 	public void startReading(String file ){
 		lineNumber=0;
 		try {
-			inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1"),32768);
+			inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"),32768);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -119,15 +119,15 @@ public class CONLLReader06  {
 
 			it.forms = new String[length+1];
 
-			it.lemmas = new String[length+1];
+			it.plemmas = new String[length+1];
 			it.gpos = new String[length+1];
 			it.labels = new String[length+1];
 			it.heads = new int[length+1];
-			it.phead = new int[length+1];
-			it.pedge = new String[length+1];
+			it.pheads = new int[length+1];
+			it.plabels = new String[length+1];
 
 			it.ppos = new String[length+1];
-			it.org_lemmas = new String[length+1];
+			it.lemmas = new String[length+1];
 			it.fillp = new String[length+1];
 			it.feats = new String[length+1][];
 			it.ofeats = new String[length+1];
@@ -135,16 +135,16 @@ public class CONLLReader06  {
 
 
 			it.forms[0] = ROOT;
-			it.lemmas[0] = ROOT_LEMMA;
+			it.plemmas[0] = ROOT_LEMMA;
 			it.fillp[0] = "N";
-			it.org_lemmas[0] = ROOT_LEMMA;
+			it.lemmas[0] = ROOT_LEMMA;
 
 			it.gpos[0] = ROOT_POS;
 			it.ppos[0] = ROOT_POS;
 			it.labels[0] = NO_TYPE;
 			it.heads[0] = -1;
-			it.pedge[0] = NO_TYPE;
-			it.phead[0] = -1;
+			it.plabels[0] = NO_TYPE;
+			it.pheads[0] = -1;
 			it.ofeats[0] = NO_TYPE;
 
 			// root is 0 therefore start with 1
@@ -155,13 +155,13 @@ public class CONLLReader06  {
 
 				it.forms[i] = info[1]; //normalize(
 
-				it.org_lemmas[i] = info[2];
-				it.lemmas[i] =info[2]; 
+				it.lemmas[i] = info[2];
+				it.plemmas[i] =info[2]; 
 				
 				// 3 cpos
 					
 				it.gpos[i] = info[3];  
-				it.ppos[i] = info[3];
+				it.ppos[i] = info[4];
 				
 				it.ofeats[i]=info[5].equals(CONLLWriter09.DASH)? "": info[5];
 
@@ -235,9 +235,9 @@ public class CONLLReader06  {
 				} else is.setPPoss(i, p, it.ppos[p]);
 
 
-				if (it.lemmas[p]==null ||it.lemmas[p].equals(US)) {
+				if (it.plemmas[p]==null ||it.plemmas[p].equals(US)) {
 					is.setLemma(i, p, normalize(it.forms[p]));
-				} else is.setLemma(i, p, normalize(it.lemmas[p]));
+				} else is.setLemma(i, p, normalize(it.plemmas[p]));
 
 
 				is.setFeats(i,p,it.feats[p]);
@@ -247,9 +247,9 @@ public class CONLLReader06  {
 
 
 				is.setRel(i,p,it.labels[p]);
-				if (it.pedge!=null) is.setPRel(i,p,it.pedge[p]);
+				if (it.plabels!=null) is.setPRel(i,p,it.plabels[p]);
 				is.setHead(i,p,it.heads[p]);
-				if (it.phead!=null) is.setPHead(i,p,it.phead[p]);
+				if (it.pheads!=null) is.setPHead(i,p,it.pheads[p]);
 
 				if (it.fillp!=null && it.fillp[p]!=null && it.fillp[p].startsWith("Y")) is.pfill[i].set(p);
 				else is.pfill[i].clear(p);

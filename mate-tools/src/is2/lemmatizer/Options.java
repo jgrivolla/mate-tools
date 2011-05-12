@@ -29,8 +29,6 @@ public final class Options extends OptionsSuper {
 				hsize= Integer.parseInt(args[i+1]); i++;			
 			} else if (args[i].equals("-len")) {
 				maxLen= Integer.parseInt(args[i+1]); i++;			
-			} else if (args[i].equals("-cores")) {
-				cores= Integer.parseInt(args[i+1]); i++;
 			} else	if (args[i].equals("-tmp")) {
 				tmp = args[i+1]; i++;
 			} else	if (args[i].equals("-uc")) {
