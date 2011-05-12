@@ -1,15 +1,12 @@
 package examples;
 
+import is2.data.SentenceData09;
+import is2.lemmatizer.Lemmatizer;
+import is2.lemmatizer.Options;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
-import is2.data.SentenceData09;
-import is2.lemmatizer.Lemmatizer;
-import is2.mtag.Long2Int;
-import is2.parser.Options;
-import is2.parser.Parser;
-import is2.tag3.Tagger;
 
 /**
  * @author Bernd Bohnet, 13.09.2010
@@ -46,32 +43,29 @@ public class MorphTagger {
 		for (String l : i.forms) System.out.println("forms : "+l);
 
 		// tell the lemmatizer the location of the model
-		is2.lemmatizer.Options optsLemmatizer = new is2.lemmatizer.Options(new String[] {"-model","models/lemma-ger.model"});
+		is2.lemmatizer.Options optsLemmatizer = new Options(new String[] {"-model","models/lemma-ger.model"});
 
 		// create a lemmatizer
 		Lemmatizer lemmatizer = new Lemmatizer(optsLemmatizer);
 
 		// lemmatize a sentence; the result is stored in the stenenceData09 i 
-		lemmatizer.lemmatize(optsLemmatizer,i);
+		lemmatizer.apply(i);
 
 		
 		// output the lemmata
-		for (String l : i.lemmas) System.out.println("lemma : "+l);
-		
-		System.out.println("A variant to call the lemmatizer");
-		
-		String[] lemmata = lemmatizer.getLemmas(i.forms);
-		for (String l : lemmata) System.out.println("lemma : "+l);
-		
+		for (String l : i.plemmas) System.out.println("lemma : "+l);
+			
 		
 		is2.mtag.Options morphologicTaggerOptions = new  is2.mtag.Options(new String[] {"-model","models/mtag-ger.model"});
 		
-		is2.mtag.Main.init(morphologicTaggerOptions,  new is2.mtag.Long2Int());
+		is2.mtag.Tagger mt = new is2.mtag.Tagger(morphologicTaggerOptions);
 		
 		try {
 		
-			SentenceData09 snt = is2.mtag.Main.out(i.forms, lemmata);
 			
+	//		SentenceData09 snt = is2.mtag.Main.out(i.forms, lemmata);
+			
+			SentenceData09 snt = mt.apply(i);
 			for(String f : snt.pfeats) System.out.println("feats "+f);
 			
 		} catch(Exception e){

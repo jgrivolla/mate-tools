@@ -8,7 +8,7 @@ import is2.data.SentenceData09;
 import is2.lemmatizer.Lemmatizer;
 import is2.parser.Options;
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
 
 /**
  * @author Bernd Bohnet, 13.09.2010
@@ -49,14 +49,14 @@ public class Pipeline {
 		Lemmatizer lemmatizer = new Lemmatizer(optsLemmatizer);
 
 		// lemmatize a sentence; the result is stored in the stenenceData09 i 
-		lemmatizer.lemmatize(optsLemmatizer,i);
+		i = lemmatizer.apply(i);
 
 		
 		// output the lemmata
-		for (String l : i.lemmas) System.out.println("lemma : "+l);
+		for (String l : i.plemmas) System.out.println("lemma : "+l);
 
 		// tell the tagger the location of the model
-		is2.tag3.Options optsTagger = new is2.tag3.Options(new String[]{"-model","models/tag-eng.model"});
+		is2.tag.Options optsTagger = new is2.tag.Options(new String[]{"-model","models/tag-eng.model"});
 		Tagger tagger = new Tagger(optsTagger);
 
 

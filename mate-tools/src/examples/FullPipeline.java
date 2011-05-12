@@ -3,21 +3,18 @@ package examples;
 import is2.data.SentenceData09;
 import is2.io.CONLLWriter09;
 import is2.lemmatizer.Lemmatizer;
-import is2.mtag.Main;
-import is2.parser.Options;
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
 import is2.tools.Tool;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
  * @author Bernd Bohnet, 13.09.2010
  * 
- * Illustrates the application of some components: lemmatizer, tagger, and parser
+ * Illustrates the application the full pipeline: lemmatizer, morphologic, tagger, and parser
  */
 public class FullPipeline {
 
@@ -39,25 +36,35 @@ public class FullPipeline {
 			
 		} else {
 			// provide a default sentence: Haus has a mutated vowel
-			i.init(new String[] {"<root>","Häuser","hat","ein","Umlaut","."});
+		//	i.init(new String[] {"<root>","Häuser","hat","ein","Umlaut","."});
+			i.init(new String[] {"<root>","Nach", "1600", "wurde", "Münstereifel", "zu", "einer", "einer", "Stadt", "der", "Gegenreformation",
+                    "umgebaut", ".", "1618", "1618", "kamen", "kamen", "die", "die", "Kapuziner", "Kapuziner",
+                    "nach", "nach", "Münstereifel", "Münstereifel", ",", ",", "die", "die", "auf", "auf", "ihrem",
+                    "ihrem", "Klosterbezirk" , "Klosterbezirk", "auch", "auch", "eine", "eine", "Tuchmanufaktur",
+                    "Tuchmanufaktur", "errichteten", "errichteten", "und", "und", "damit", "damit","neue","neue","Arbeitsplätze",
+                    "Arbeitsplätze", "für", "für", "die", "die", "in", "in", "Schwierigkeiten", "Schwierigkeiten",
+                    "geratenen", "geratenen", "Wollweber", "Wollweber", "schufen", "schufen", ".", ".", "1625",
+                    "1625", "nahmen", "nahmen", "die", "die" , "Jesuiten" , "Jesuiten", "den", "den", "Unterricht",
+                    "Unterricht", "des", "des", "St", "St", ".", "."});
+			//i.init(new String[] {"<root>","des", "des", "St", "St", ".", "."});
 
 		}
 
 		// lemmatizing
 		
 		System.out.println("\nReading the model of the lemmatizer");
-		Tool lemmatizer = new Lemmatizer("models/lemma-ger.model");  // create a lemmatizer
+		Tool lemmatizer = new Lemmatizer("models/lemmatizer.model");  // create a lemmatizer
 			
 		System.out.println("Applying the lemmatizer");
 		lemmatizer.apply(i);
 
 		System.out.print(i.toString());
-		System.out.print("Lemmata: "); for (String l : i.lemmas) System.out.print(l+" "); System.out.println();
+		System.out.print("Lemmata: "); for (String l : i.plemmas) System.out.print(l+" "); System.out.println();
 		
 		// morphologic tagging
 		
 		System.out.println("\nReading the model of the morphologic tagger");
-		Main morphTagger = new is2.mtag.Main("models/mtag-ger.model");
+		is2.mtag.Tagger morphTagger = new is2.mtag.Tagger("models/mtag-ger.model");
 		
 		System.out.println("\nApplying the morpholoigc tagger");
 		morphTagger.apply(i);
@@ -68,7 +75,7 @@ public class FullPipeline {
 		// part-of-speech tagging
 		
 		System.out.println("\nReading the model of the part-of-speech tagger");
-		Tool tagger = new Tagger("models/tag-ger.model");
+		Tool tagger = new Tagger("models/tagger-ct.model");
 
 		System.out.println("\nApplying the part-of-speech tagger");
 		tagger.apply(i);

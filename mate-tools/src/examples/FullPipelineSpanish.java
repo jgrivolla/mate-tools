@@ -3,9 +3,9 @@ package examples;
 import is2.data.SentenceData09;
 import is2.io.CONLLWriter09;
 import is2.lemmatizer.Lemmatizer;
-import is2.mtag.Main;
+
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
 import is2.tools.Tool;
 
 import java.io.IOException;
@@ -51,12 +51,12 @@ public class FullPipelineSpanish {
 		lemmatizer.apply(i);
 
 		System.out.print(i.toString());
-		System.out.print("Lemmata: "); for (String l : i.lemmas) System.out.print(l+" "); System.out.println();
+		System.out.print("Lemmata: "); for (String l : i.plemmas) System.out.print(l+" "); System.out.println();
 		
 		// morphologic tagging
 		
 		System.out.println("\nReading the model of the morphologic tagger");
-		Main morphTagger = new is2.mtag.Main("models/mtag-spa.model");
+		is2.mtag.Tagger morphTagger = new is2.mtag.Tagger("models/mtag-spa.model");
 		
 		System.out.println("\nApplying the morpholoigc tagger");
 		morphTagger.apply(i);
