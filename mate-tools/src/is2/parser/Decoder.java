@@ -107,13 +107,13 @@ final public class Decoder   {
 		bestSpan.create(out);
 
 		out.heads[0]=-1;
-		out.types[0]=0;
+		out.labels[0]=0;
 
 		timeDecotder += (System.nanoTime()-ts);
 		 
 		ts = System.nanoTime();
 		
-		if (!projective) rearrange(pos, out.heads, out.types,x);
+		if (!projective) rearrange(pos, out.heads, out.labels,x);
 		
 		timeRearrange += (System.nanoTime()-ts);		
 

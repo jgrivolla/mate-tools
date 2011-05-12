@@ -46,7 +46,7 @@ final public class ParallelExtract extends Thread
 
 		short[] pos=is.pposs[i];
 		int[] forms=is.forms[i];
-		int[] lemmas=is.lemmas[i];
+		int[] lemmas=is.plemmas[i];
 		short[][] feats=is.feats[i];
 		int length = pos.length;
 

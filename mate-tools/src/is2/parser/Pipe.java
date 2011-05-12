@@ -17,7 +17,7 @@ final public class Pipe extends PipeGen {
 
 	public Extractor[] extractor;
 	//public CopyOfExtractor[] extractor;
-//	final public MFO mf = new MFO();
+	final public MFO mf = new MFO();
 
 	private OptionsSuper options;
 	public static long timeExtract;
@@ -31,7 +31,7 @@ final public class Pipe extends PipeGen {
 
 		CONLLReader09 depReader = new CONLLReader09(file);
 
-		MFO.register(REL,"<root-type>");
+		mf.register(REL,"<root-type>");
 
 
 		// register at least one predicate since the parsing data might not contain predicates as in 
@@ -54,27 +54,27 @@ final public class Pipe extends PipeGen {
 			}
 
 			String[] labs1 = instance.labels;
-			for (int i1 = 0; i1 < labs1.length; i1++) MFO.register(REL, labs1[i1]);
+			for (int i1 = 0; i1 < labs1.length; i1++) mf.register(REL, labs1[i1]);
 
 			String[] w = instance.forms;
-			for (int i1 = 0; i1 < w.length; i1++) MFO.register(WORD, is2.io.CONLLReader09.normalize(w[i1]));
+			for (int i1 = 0; i1 < w.length; i1++) mf.register(WORD, depReader.normalize(w[i1]));
 
-			w = instance.lemmas;
-			for (int i1 = 0; i1 < w.length; i1++) MFO.register(WORD, is2.io.CONLLReader09.normalize(w[i1]));
+			w = instance.plemmas;
+			for (int i1 = 0; i1 < w.length; i1++) mf.register(WORD, depReader.normalize(w[i1]));
 
 
 			w = instance.ppos;
-			for (int i1 = 0; i1 < w.length; i1++) MFO.register(POS, w[i1]);
+			for (int i1 = 0; i1 < w.length; i1++) mf.register(POS, w[i1]);
 
 			w = instance.gpos;
-			for (int i1 = 0; i1 < w.length; i1++) MFO.register(POS, w[i1]);
+			for (int i1 = 0; i1 < w.length; i1++) mf.register(POS, w[i1]);
 
 			if (instance.feats !=null) {
 				String fs[][] = instance.feats;
 				for (int i1 = 0; i1 < fs.length; i1++){	
 					w =fs[i1];
 					if (w==null) continue;
-					for (int i2 = 0; i2 < w.length; i2++) MFO.register(FEAT, w[i2]);
+					for (int i2 = 0; i2 < w.length; i2++) mf.register(FEAT, w[i2]);
 				}
 			}
 
@@ -86,7 +86,7 @@ final public class Pipe extends PipeGen {
 		Extractor.initFeatures();
 
 
-		MFO.calculateBits();
+		mf.calculateBits();
 		Extractor.initStat();
 		
 		
@@ -98,7 +98,7 @@ final public class Pipe extends PipeGen {
 
 		is.init(ic, new MFO());
 
-		Edges.init(MFO.getFeatureCounter().get(POS));
+		Edges.init(mf.getFeatureCounter().get(POS));
 
 		
 		
@@ -118,7 +118,7 @@ final public class Pipe extends PipeGen {
 
 			for (int k = 0; k < is.length(last); k++) {
 				if (is.heads[last][k] < 0)	continue;
-				Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.deprels[last][k]);
+				Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.labels[last][k]);
 			}
 
 			pos = is.gpos[last];
@@ -163,7 +163,7 @@ final public class Pipe extends PipeGen {
 		long ts = System.nanoTime();
 
 		final int length = is.length(inst);
-		if (d ==null || d.len<length)d = new DataF(length,MFO.getFeatureCounter().get(PipeGen.REL).shortValue());
+		if (d ==null || d.len<length)d = new DataF(length,mf.getFeatureCounter().get(PipeGen.REL).shortValue());
 
 		int threads=is.length(inst)>Parser.THREADS? Parser.THREADS:length;
 
@@ -184,6 +184,8 @@ final public class Pipe extends PipeGen {
 		for(int i=0;i<threads;i++) efp[i].start();					
 		for(int i=0;i<threads;i++) efp[i].join();
 
+		
+		
 		timeExtract += (System.nanoTime()-ts);
 
 		return d;
@@ -197,7 +199,7 @@ final public class Pipe extends PipeGen {
 		for(int i = 1; i < act.length; i++)  	 {
 
 			//		if (is.ppos[ic] ==null ) System.out.println("mf null"+is.ppos[ic][i]);
-			if (p.heads[i]==act[i] && p.types[i]==is.deprels[ic][i] ) correct++;
+			if (p.heads[i]==act[i] && p.labels[i]==is.labels[ic][i] ) correct++;
 		}
 
 		double x = ((double)act.length- 1 - correct );

@@ -2,7 +2,6 @@ package is2.parser;
 
 
 import is2.data.IEncoder;
-import is2.lemmatizer.MF;
 import is2.util.DB;
 
 import java.io.DataInputStream;
@@ -45,34 +44,6 @@ final public class MFO  implements IEncoder {
 		}
 	}
 	
-	
-	final public static class Data2 {
-		public static final int length=10;
-		
-		final public short[] a = new short[length];
-		final public int[] v = new int[length];
-		//private final short[] s = new short[length+1];
-		
-		final public MF mf;
-
-		public Data2() {mf = null;}
-
-		public Data2(MF m) {mf =m;}
-
-		final public void clear(int i) {stop =i;}
-		public int stop =0;
-		 public int shift;
-
-		final public long calcs(int b, long v, long l) {
-			if (l<0) return l;
-			l |= v<<shift;
-			shift +=b;
-			return l;
-		}
-
-			
-	}
-
 	
 	final public static class Data4 {
 		public int shift;
@@ -259,7 +230,7 @@ final public class MFO  implements IEncoder {
 	 * @param type
 	 * @param type2
 	 */
-	static final public int register(String a, String v) {
+	 final public int register(String a, String v) {
 
 		HashMap<String,Integer> fs = getFeatureSet().get(a);
 		if (fs==null) {
@@ -282,7 +253,7 @@ final public class MFO  implements IEncoder {
 	/**
 	 * Calculates the number of bits needed to encode a feature
 	 */
-	static public void calculateBits() {
+	 public void calculateBits() {
 		
 		int total=0;
 		for(Entry<String,Integer> e : getFeatureCounter().entrySet() ){
@@ -323,14 +294,6 @@ final public class MFO  implements IEncoder {
 		d.shift +=b;
 		return l;
 	}
-
-	static final public long calcs(Data2 d,int b, long v, long l) {
-		if (l<0) return l;
-		l |= v<<d.shift;
-		d.shift +=b;
-		return l;
-	}
-
 	
 	static final public short getFeatureBits(String a) {
 		return (short)m_featureBits.get(a).intValue();
@@ -514,116 +477,7 @@ final public class MFO  implements IEncoder {
 	}
 
 
-   
-	final public long calc2(Data2 d) {
-		
-		if (d.v[0]<0||d.v[1]<0) return -1;
-		
-		long l = d.v[0];
-		short shift =d.a[0];
-		l |= (long)d.v[1]<<shift;
-		shift +=d.a[1];
-		d.shift=shift ;
-		return l;
-	}
-   
-	final public long calc3(Data2 d) {
-		
-		if (d.v[0]<0||d.v[1]<0||d.v[2]<0) return -1;
-		//	if (d.v1<0||d.v2<0) return -1;
-		
-		long l = d.v[0];
-		short shift =d.a[0];
-		l |= (long)d.v[1]<<shift;
-		shift +=d.a[1];
-		l |= (long)d.v[2]<<shift;
-		d.shift=shift + d.a[2];
-		
-		//d.shift=;
-		return l;
-	}
-	
-	
-	final public long calc4(Data2 d) {
-			if (d.v[0]<0||d.v[1]<0||d.v[2]<0||d.v[3]<0) return -1;
-			
-			long l = d.v[0];
-			int shift =d.a[0];
-			l |= (long)d.v[1]<<shift;
-			shift +=d.a[1];
-			l |= (long)d.v[2]<<shift;
-			shift +=d.a[2];
-			l |= (long)d.v[3]<<shift;
-			d.shift= shift +d.a[3];
-					
-			return l;
-		}
-		
-	
-	
-	final public long calc5(Data2 d) {
-		
-		if (d.v[0]<0||d.v[1]<0||d.v[2]<0||d.v[3]<0||d.v[4]<0) return -1;
-			
-		long l = d.v[0];
-		int shift =d.a[0];
-		l |= (long)d.v[1]<<shift;
-		shift +=d.a[1];
-		l |= (long)d.v[2]<<shift;
-		shift +=d.a[2];
-		l |= (long)d.v[3]<<shift;
-		shift +=d.a[3];	
-		l |= (long)d.v[4]<<shift;
-		d.shift =shift+d.a[4];
-		
-		return l;
-	}
-	
-
-    final public long calc6(Data2 d) {
-		
-		if (d.v[0]<0||d.v[1]<0||d.v[2]<0||d.v[3]<0||d.v[4]<0||d.v[5]<0) return -1;
-			
-		long l = d.v[0];
-		int shift =d.a[0];
-		l |= (long)d.v[1]<<shift;
-		shift +=d.a[1];
-		l |= (long)d.v[2]<<shift;
-		shift +=d.a[2];
-		l |= (long)d.v[3]<<shift;
-		shift +=d.a[3];	
-		l |= (long)d.v[4]<<shift;
-		shift +=d.a[4];
-		l |= (long)d.v[5]<<shift;
-		d.shift =shift+d.a[5];
-		
-		return l;
-	}
-
-   final public long calc7(Data2 d) {
-		
-		if (d.v[0]<0||d.v[1]<0||d.v[2]<0||d.v[3]<0||d.v[4]<0||d.v[5]<0||d.v[6]<0) return -1;
-			
-		long l = (long)d.v[0];
-		int shift =d.a[0];
-//		shift =d.a[0];
-		l |= (long)d.v[1]<<shift;
-		shift +=d.a[1];
-		l |= (long)d.v[2]<<shift;
-		shift +=d.a[2];
-		l |= (long)d.v[3]<<shift;
-		shift +=d.a[3];	
-		l |= (long)d.v[4]<<shift;
-		shift +=d.a[4];
-		l |= (long)d.v[5]<<shift;
-		shift +=d.a[5];
-		l |= (long)d.v[6]<<shift;
-		shift +=d.a[6];
-		d.shift=shift;
-		return l;
-	}
-
-   
+      
    
    
 	/** 
@@ -642,7 +496,7 @@ final public class MFO  implements IEncoder {
 	 * @param dos
 	 * @throws IOException
 	 */
-    static public void writeData(DataOutputStream dos) throws IOException {
+     public void writeData(DataOutputStream dos) throws IOException {
         dos.writeInt(getFeatureSet().size());
        // DB.println("write"+getFeatureSet().size());
         for(Entry<String, HashMap<String,Integer>> e : getFeatureSet().entrySet()) {
@@ -659,7 +513,7 @@ final public class MFO  implements IEncoder {
                 
         }
     }
-    static public void read(DataInputStream din) throws IOException {
+     public void read(DataInputStream din) throws IOException {
 		 
 		int size = din.readInt();
 		for(int i=0; i<size;i++) {
@@ -689,7 +543,7 @@ final public class MFO  implements IEncoder {
       getFeatureSet().clear();
     }
 
-	static public HashMap<String,Integer> getFeatureCounter() {
+	 public HashMap<String,Integer> getFeatureCounter() {
 		return m_featureCounters;
 	}
 

@@ -692,8 +692,8 @@ final public class Extractor {
 	static public void initFeatures() {
 
 		MFO mf = new MFO();
-		MFO.register(POS, MID);
-		s_str = MFO.register(POS, STR);
+		mf.register(POS, MID);
+		s_str = mf.register(POS, STR);
 		s_end = mf.register(POS, END);
 
 		mf.register(TYPE, POS);

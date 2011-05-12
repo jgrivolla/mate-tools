@@ -5,6 +5,7 @@ import is2.data.DataF;
 import is2.data.F2SF;
 import is2.data.FV;
 import is2.data.Instances;
+import is2.data.Long2Int;
 import is2.data.PipeGen;
 
 import is2.data.Long2IntInterface;
@@ -15,7 +16,6 @@ import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
 import is2.tools.Tool;
 import is2.util.DB;
-import is2.util.Long2Int;
 import is2.util.OptionsSuper;
 
 import java.io.BufferedInputStream;
@@ -111,7 +111,7 @@ public class Parser implements Tool {
 
 			train(options, pipe,params,is);
 			
-			MFO.writeData(dos);
+			pipe.mf.writeData(dos);
 			
 
 			//		AI.analyise(params.parameters, pipe.extractor.s_type, pipe.extractor.mf);
@@ -174,7 +174,7 @@ public class Parser implements Tool {
 		zis.getNextEntry();
 		DataInputStream dis = new DataInputStream(new BufferedInputStream(zis));
 
-		MFO.read(dis);
+		pipe.mf.read(dis);
 
 		params.read(dis);
 		Long2IntInterface long2int = new Long2Int(params.size());
@@ -242,7 +242,7 @@ public class Parser implements Tool {
 		int maxLenInstances =0;
 		for(int i=0;i<numInstances;i++) if (maxLenInstances<is.length(i)) maxLenInstances=is.length(i);
 
-		DataF data = new DataF(maxLenInstances, MFO.getFeatureCounter().get(PipeGen.REL).shortValue());
+		DataF data = new DataF(maxLenInstances, pipe.mf.getFeatureCounter().get(PipeGen.REL).shortValue());
 
 		int iter = 0;
 		int del=0; 
@@ -271,7 +271,7 @@ public class Parser implements Tool {
 				//double upd = (double)(options.numIters*numInstances - (numInstances*((iter+1)-1) +(n+1))+1);
 				upd--;
 				
-				if (is.deprels[n].length>options.maxLen) continue;
+				if (is.labels[n].length>options.maxLen) continue;
 				
 				String info = " td "+((Decoder.timeDecotder)/1000000F)+" tr "+((Decoder.timeRearrange)/1000000F)
 				+" te "+((Pipe.timeExtract)/1000000F);
@@ -293,12 +293,12 @@ public class Parser implements Tool {
 
 				// get predicted feature vector
 				pred.clear();
-				pipe.extractor[0].encodeCat(pos,is.forms[n],is.lemmas[n],d.heads, d.types, is.feats[n],pred);
+				pipe.extractor[0].encodeCat(pos,is.forms[n],is.plemmas[n],d.heads, d.labels, is.feats[n],pred);
 
 				error += e;
 
 				act.clear();
-				pipe.extractor[0].encodeCat(pos,is.forms[n],is.lemmas[n],is.heads[n], is.deprels[n], is.feats[n], act);
+				pipe.extractor[0].encodeCat(pos,is.forms[n],is.plemmas[n],is.heads[n], is.labels[n], is.feats[n], act);
 
 				params.update(act, pred, is, n, d, upd,e);
 			}
@@ -350,7 +350,7 @@ public class Parser implements Tool {
 
 		if (!options.decodeProjective) System.out.println(""+Decoder.getInfo());
 
-		String[] types = new String[MFO.getFeatureCounter().get(PipeGen.REL)];
+		String[] types = new String[pipe.mf.getFeatureCounter().get(PipeGen.REL)];
 		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
 
 		
@@ -400,11 +400,11 @@ public class Parser implements Tool {
 				posNoRoot[j] = instance.gpos[j+1];
 				pposs[j] = instance.ppos[j+1];
 
-				labels[j] = types[prs.types[j+1]];
+				labels[j] = types[prs.labels[j+1]];
 				heads[j] = prs.heads[j+1];
-				lemmas[j] = instance.lemmas[j+1];
+				lemmas[j] = instance.plemmas[j+1];
 
-				if (instance.org_lemmas!=null) org_lemmas[j] = instance.org_lemmas[j+1];
+				if (instance.lemmas!=null) org_lemmas[j] = instance.lemmas[j+1];
 				if (instance.ofeats!=null)  of[j] = instance.ofeats[j+1];
 				if (instance.pfeats!=null)	pf[j] = instance.pfeats[j+1];
 
@@ -451,7 +451,7 @@ public class Parser implements Tool {
 	static public SentenceData09 outputParses (SentenceData09 instance, OptionsSuper options, Pipe pipe, Decoder decoder, ParametersFloat params) throws InterruptedException  {
 
 		
-		String[] types = new String[MFO.getFeatureCounter().get(PipeGen.REL)];
+		String[] types = new String[pipe.mf.getFeatureCounter().get(PipeGen.REL)];
 		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
 
 
@@ -459,12 +459,7 @@ public class Parser implements Tool {
 
 		Instances is = new Instances();
 		is.init(1, new MFO(),options.formatTask);
-		try {
-			new CONLLReader09().insert(is, instance);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		new CONLLReader09().insert(is, instance); 
 
 
 		String[] forms = instance.forms;
@@ -497,12 +492,12 @@ public class Parser implements Tool {
 			posNoRoot[j] = instance.gpos[j+1];
 			pposs[j] = instance.ppos[j+1];
 
-			labels[j] = types[d.types[j+1]];
+			labels[j] = types[d.labels[j+1]];
 			//System.out.print(" "+d.types[j+1] );
 			heads[j] = d.heads[j+1];
-			lemmas[j] = instance.lemmas[j+1];
+			lemmas[j] = instance.plemmas[j+1];
 
-			if (instance.org_lemmas!=null) org_lemmas[j] = instance.org_lemmas[j+1];
+			if (instance.lemmas!=null) org_lemmas[j] = instance.lemmas[j+1];
 			if (instance.ofeats!=null)  of[j] = instance.ofeats[j+1];
 			if (instance.pfeats!=null)	pf[j] = instance.pfeats[j+1];
 
@@ -538,16 +533,12 @@ public class Parser implements Tool {
 	
 	public SentenceData09 parse (SentenceData09 instance)   {
 
-		String[] types = new String[MFO.getFeatureCounter().get(PipeGen.REL)];
+		String[] types = new String[pipe.mf.getFeatureCounter().get(PipeGen.REL)];
 		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
 
 		Instances is = new Instances();
 		is.init(1, new MFO(),options.formatTask);
-		try {
-			new CONLLReader09().insert(is, instance);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
+		new CONLLReader09().insert(is, instance); 
 
 		String[] forms = instance.forms;
 
@@ -588,14 +579,14 @@ public class Parser implements Tool {
 			posNoRoot[j] = instance.gpos[j+1];
 			pposs[j] = instance.ppos[j+1];
 
-			labels[j] = types[d.types[j+1]];
-			instance.labels[j]= types[d.types[j]];
+			labels[j] = types[d.labels[j+1]];
+			instance.labels[j]= types[d.labels[j]];
 			//System.out.print(" "+d.types[j+1] );
 			heads[j] = d.heads[j+1];
 			instance.heads[j]= d.heads[j];
-			lemmas[j] = instance.lemmas[j+1];
+			lemmas[j] = instance.plemmas[j+1];
 
-			if (instance.org_lemmas!=null) org_lemmas[j] = instance.org_lemmas[j+1];
+			if (instance.lemmas!=null) org_lemmas[j] = instance.lemmas[j+1];
 			if (instance.ofeats!=null)  of[j] = instance.ofeats[j+1];
 			if (instance.pfeats!=null)	pf[j] = instance.pfeats[j+1];
 
@@ -603,7 +594,7 @@ public class Parser implements Tool {
 		}
 
 		// last token
-		instance.labels[j]= types[d.types[j]];
+		instance.labels[j]= types[d.labels[j]];
 		instance.heads[j]= d.heads[j];
 
 		

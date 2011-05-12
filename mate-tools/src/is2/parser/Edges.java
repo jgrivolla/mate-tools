@@ -57,10 +57,10 @@ public final class Edges {
 
 		
 		//	labelCount=null;
-		String[] types = new String[MFO.getFeatureCounter().get(PipeGen.REL)];
-		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
+//		String[] types = new String[MFO.getFeatureCounter().get(PipeGen.REL)];
+//		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
 
-    	is2.util.DB.println("set default label to "+types[def[0]]+" " );
+ //   	is2.util.DB.println("set default label to "+types[def[0]]+" " );
 
 		System.out.println("found default "+def[0]);
 	

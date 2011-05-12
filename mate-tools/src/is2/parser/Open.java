@@ -26,10 +26,10 @@ final public  class Open {
 	void create(Parse parse) {
 		if (dir == 0) {
 			parse.heads[s] = e;
-			if (label != -1) parse.types[s] = label;
+			if (label != -1) parse.labels[s] = label;
 		} else {
 			parse.heads[e] = s;
-			if (label != -1) parse.types[e] = label;
+			if (label != -1) parse.labels[e] = label;
 		}
 		if (left != null) left.create(parse);
 		if (right != null) right.create(parse);
