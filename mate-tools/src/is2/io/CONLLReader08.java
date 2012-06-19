@@ -19,7 +19,7 @@ import java.util.ArrayList;
  *  
  * @author Bernd Bohnet
  */
-public class CONLLReader09 extends IOGenerals {
+public class CONLLReader08 extends IOGenerals {
 
 
 	private BufferedReader inputReader;
@@ -30,19 +30,19 @@ public class CONLLReader09 extends IOGenerals {
 
 	public  boolean normalizeOn =true;
 
-	static public String joint ="";
+	
 	
 	private int format = 0; 
 
 	private int lineNumber = 0;
 
 
-	public CONLLReader09(boolean normalize){
+	public CONLLReader08(boolean normalize){
 
 		normalizeOn=normalize;
 	}
 
-	public CONLLReader09(String file){
+	public CONLLReader08(String file){
 		lineNumber=0;
 		try {
 			inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"),32768);
@@ -51,7 +51,7 @@ public class CONLLReader09 extends IOGenerals {
 		}
 	}
 
-	public CONLLReader09(String file, boolean normalize){
+	public CONLLReader08(String file, boolean normalize){
 		this(file);
 		normalizeOn=normalize;
 	}
@@ -73,13 +73,13 @@ public class CONLLReader09 extends IOGenerals {
 	/**
 	 * 
 	 */
-	public CONLLReader09() {}
+	public CONLLReader08() {}
 
 	/**
 	 * @param testfile
 	 * @param formatTask
 	 */
-	public CONLLReader09(String testfile, int formatTask) {
+	public CONLLReader08(String testfile, int formatTask) {
 		this(testfile);
 	}
 
@@ -264,99 +264,45 @@ public class CONLLReader09 extends IOGenerals {
 				String[] info = lineList.get(i-1);
 
 				it.id[i] = info[0];
-				it.forms[i] = info[1]; //normalize(
+				it.forms[i] = info[5]; //normalize(
 				if (info.length<3) continue;
 
-				it.lemmas[i] = info[2];
-				it.plemmas[i] =info[3]; 
-				it.gpos[i] = info[4];  
+				//it.lemmas[i] = info[2];
+				it.plemmas[i] =info[6]; 
+				it.gpos[i] = info[3];  
 
 				if (info.length<5) continue;
-				it.ppos[i] = info[5];//.split("\\|")[0];
+				it.ppos[i] = info[7];//.split("\\|")[0];
+				
 				// feat 6
-	
-	
+				// pfeat 7
+
+				// this causes trouble in the perl eval09 scirpt
+				//it.ofeats[i]=info[6].equals(CONLLWriter09.DASH)? "" : info[6];
+
 				// now we try underscore
-				it.ofeats[i]=info[6].equals(CONLLWriter09.DASH)? "_" : info[6];
-
-				if (joint.length()>0) {
-					
-					StringBuilder b = new StringBuilder();
-//					b.append(it.gpos[i]);
-					if (joint.startsWith("cz")) {
-						
-					//	boolean caseFound =false;
-				
-						String [] split = it.ofeats[i].split(PIPE);
-				//		if (!caseFound)
-						for(String s : split) {
-							if (s.startsWith("SubPOS")) {
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-						}
-					
-						for(String s : split) {
-							if (s.startsWith("Cas")){
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-						
-						}
-
-//						for(String s : split) {
-//							if (s.startsWith("Num")) {
-//								if (b.length()>0 )b.append("|");
-//								b.append(s);
-//							}
-//						}
+				it.ofeats[i]="_";
 
 				
-						
-					} else if (joint.contains("ger")) {
-					
-						String [] split = it.ofeats[i].split(PIPE);
-						for(String s : split) { 
-							if ( s.matches("Nom|Acc|Dat|Gen")) {
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-							if ( s.matches("Sg|Pl")) {
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-						}
-						
-					} else {
-						String [] split = it.ofeats[i].split(PIPE);
-						for(String s : split) 
-							if ( s.matches(joint)) b.append("|").append(s);
-					}
-					if (b.length()==0)b.append("_");
-					it.ofeats[i] = b.toString();
-				}
+				//	it.feats[i] ="_";
+					it.pfeats[i] = "_";
 				
-				if (info[7].equals(CONLLWriter09.DASH)) it.feats[i]=null;
-				else {
-					it.feats[i] =info[7].split(PIPE);
-					it.pfeats[i] = info[7];
-				}
 
 				
 				
-				if (info[8].equals(US))it.heads[i]=-1;
+				if (info[8].equals(US)) it.heads[i]=-1;
 				else it.heads[i] = Integer.parseInt(info[8]);// head
 	
-				it.pheads[i]=info[9].equals(US) ? it.pheads[i]=-1:  Integer.parseInt(info[9]);// head
+				it.pheads[i]=-1;// head
 
-				it.labels[i] = info[10];					
-				it.plabels[i] = info[11];
-				it.fillp[i]=info[12];
+				it.labels[i] = info[9];					
+				it.plabels[i] = "_";
+				
+				it.fillp[i]=info[10];
 
-				if (info.length>13) {
-					if (!info[13].equals(US)) it.addPredicate(i,info[13]);
-					for(int k=14;k<info.length;k++)  it.addArgument(i,k-14,info[k]);
-
+				if (info.length>11) {
+					if (!info[10].equals(US)) it.addPredicate(i,info[10]);
+					for(int k=11;k<info.length;k++)  it.addArgument(i,k-11,info[k]);
 				}
 
 
@@ -412,7 +358,6 @@ public class CONLLReader09 extends IOGenerals {
 			for(int p = 0; p < it.length(); p++) {
 
 				is.setForm(i, p, normalize(it.forms[p]));
-			//	is.setFormOrg(i, p, it.forms[p]);
 				is.setGPos(i, p, it.gpos[p]);	
 
 				//		System.out.println(""+is.gpos[i][p]);
@@ -436,7 +381,6 @@ public class CONLLReader09 extends IOGenerals {
 				if (it.feats!=null && it.feats[p]!=null) is.setFeats(i,p,it.feats[p]);
 
 				if (it.ofeats!=null) is.setFeature(i,p,it.ofeats[p]);
-				if (it.pfeats!=null) is.setPFeature(i,p,it.pfeats[p]);
 
 
 				is.setRel(i,p,it.labels[p]);
@@ -460,7 +404,7 @@ public class CONLLReader09 extends IOGenerals {
 		return true;
 
 	}
-	 public String normalize (String s) {
+	public String normalize (String s) {
 		if (!normalizeOn) return s;
 		if(s.matches(NUMBER))  return NUM;
 		return s;

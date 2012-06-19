@@ -118,7 +118,7 @@ public class CONLLWriter06  {
 	public CONLLWriter06 (String file) {
 		
 		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"ISO-8859"));
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"UTF-8"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -143,8 +143,12 @@ public class CONLLWriter06  {
 				else writer.write(DASH);									// lemma
 				writer.write('\t');
 				
-				writer.write(DASH);	// cpos
-				writer.write('\t');
+//				writer.write(DASH);	// cpos
+//				writer.write('\t');
+				
+
+				writer.write(inst.gpos[i]); // cpos has to be included
+				writer.write('\t'); 
 				
 				writer.write(inst.gpos[i]); // gpos
 				writer.write('\t');  

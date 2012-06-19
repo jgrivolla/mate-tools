@@ -15,8 +15,11 @@ import java.io.Writer;
 import java.util.StringTokenizer;
 
 
-public class CONLLWriter09  {
+public class CONLLWriter09 extends IOGenerals {
 
+	
+	int format =0;
+	
 	public static final String DASH = "_";
 
 	public static final boolean NO_ROOT = true, ROOT = false;
@@ -145,12 +148,26 @@ public class CONLLWriter09  {
 	public void write(SentenceData09 inst, boolean root) throws IOException {
 
 		int i, mod;
-		if(root&&inst.forms[0].startsWith("<root")){
+		if(root&&(inst.forms[0].startsWith("<root")||(inst.lemmas[0]!=null&&inst.lemmas[0].startsWith("<root")))){
 			i=1; mod=0;
 		} else {
 			i=0; mod=1;
 		}
 		//=()?1:0;
+		
+		if (format == this.F_ONE_LINE) {
+			boolean first =true;
+			for (; i<inst.length(); i++) {
+				if (first ){
+					first=false;
+				} else writer.write(" ");
+				writer.write(inst.plemmas[i]);
+			} 
+			writer.newLine();
+			
+			return ;
+		}
+		
 		
 		for (; i<inst.length(); i++) {
 			
@@ -274,6 +291,14 @@ public class CONLLWriter09  {
 	public void finishWriting () throws IOException {
 		writer.flush();
 		writer.close();
+	}
+
+	/**
+	 * Sets the output format such as CoNLL or one line for the lemmata of the sentence (see F_xxxx constants).
+	 * @param formatTask
+	 */
+	public void setOutputFormat(int formatTask) {
+		format =formatTask;
 	}
 
 
