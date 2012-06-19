@@ -33,7 +33,7 @@ import java.util.zip.ZipOutputStream;
 
 public class Tagger implements Tool, Train {
 
-	Pipe pipe;
+	ExtractorM pipe;
 	ParametersFloat params;
 
 
@@ -72,7 +72,7 @@ public class Tagger implements Tool, Train {
 		if (options.train) {
 
 			Long2Int li = new Long2Int(options.hsize);
-			tagger.pipe =  new Pipe (options,li);
+			tagger.pipe =  new ExtractorM (options,li);
 	    	InstancesTagger is = (InstancesTagger)tagger.pipe.createInstances(options.trainfile);
 			ParametersFloat params = new ParametersFloat(li.size());
 			
@@ -124,7 +124,7 @@ public class Tagger implements Tool, Train {
 	public void readModel(OptionsSuper options) {
 		
 		try {
-		pipe = new Pipe(options);
+		pipe = new ExtractorM(options);
 		params = new ParametersFloat(0);
 
 		// load the model
@@ -141,8 +141,8 @@ public class Tagger implements Tool, Train {
 		pipe.readMap(dis);
 		dis.close();
 
-		this.pipe.types = new String[pipe.mf.getFeatureCounter().get(Pipe.FEAT)];
-		for(Entry<String,Integer> e :pipe.mf.getFeatureSet().get(Pipe.FEAT).entrySet()) 
+		this.pipe.types = new String[pipe.mf.getFeatureCounter().get(ExtractorM.FEAT)];
+		for(Entry<String,Integer> e :pipe.mf.getFeatureSet().get(ExtractorM.FEAT).entrySet()) 
 			this.pipe.types[e.getValue()] = e.getKey();
 
 
@@ -163,7 +163,7 @@ public class Tagger implements Tool, Train {
 		int i = 0;
 		int del=0; 
 		
-		String[] wds = this.pipe.mf.reverse(this.pipe.mf.getFeatureSet().get(Pipe.WORD));
+		String[] wds = this.pipe.mf.reverse(this.pipe.mf.getFeatureSet().get(ExtractorM.WORD));
 		int numInstances = is.size();
 
 		float upd = (options.numIters*numInstances + 1);
@@ -188,7 +188,7 @@ public class Tagger implements Tool, Train {
 				int length = is.length(n);
 
 				int feats[] = new int[length];
-				long[] vs = new long[Pipe._FC]; 
+				long[] vs = new long[ExtractorM._FC]; 
 					
 				
 				for(int w1 = 0; w1 < length; w1++) {
@@ -210,13 +210,18 @@ public class Tagger implements Tool, Train {
 					}
 
 					pred.clear();
-					int p = bestType << Pipe.s_type;
-					for(int k=vs.length-1;k>=0;k--) if (vs[k]>=0) pred.add(this.pipe.li.l2i(vs[k]+p));
-
+					int p = bestType << ExtractorM.s_type;
+					for(int k=0;k<vs.length;k++) {
+						if (vs[k]==Integer.MIN_VALUE) break;
+						if (vs[k]>=0) pred.add(this.pipe.li.l2i(vs[k]+p));
+					}
+					
 					gold.clear();
-					p = is.gfeats[n][w1] << Pipe.s_type;
-					for(int k=vs.length-1;k>=0;k--) if (vs[k]>=0) gold.add(this.pipe.li.l2i(vs[k]+p));
-
+					p = is.gfeats[n][w1] << ExtractorM.s_type;
+					for(int k=0;k<vs.length;k++) {
+						if (vs[k]==Integer.MIN_VALUE) break;
+						if (vs[k]>=0) gold.add(this.pipe.li.l2i(vs[k]+p));
+					}
 					params.update(pred,gold, (float)upd, 1.0f);
 				}
 
@@ -258,13 +263,15 @@ public class Tagger implements Tool, Train {
 
 			SentenceData09 instance = depReader.getNext(is);
 			if (instance == null || instance.forms == null)	 break;
-			is.fillChars(instance, 0, Pipe._CEND);
+			is.fillChars(instance, 0, ExtractorM._CEND);
 
 			instance = exec(instance, this.pipe, params,(InstancesTagger)is);
 						
 			SentenceData09 i09 = new SentenceData09(instance);
 			i09.createSemantic(instance);
 		
+			if (options.overwritegold)  i09.ofeats = i09.pfeats;
+			
 			depWriter.write(i09);
 			
 			if (cnt%100==0) del=PipeGen.outValue(cnt, del);
@@ -283,13 +290,13 @@ public class Tagger implements Tool, Train {
 	}
 	
 	
-	private SentenceData09 exec(SentenceData09 instance, Pipe pipe,  ParametersFloat params, InstancesTagger is) {
+	private SentenceData09 exec(SentenceData09 instance, ExtractorM pipe,  ParametersFloat params, InstancesTagger is) {
 		
 		int length = instance.ppos.length;
 		
-		int[] feats = new int[instance.gpos.length];
+		short[] feats = new short[instance.gpos.length];
 		
-		long vs[] = new long[Pipe._FC];
+		long vs[] = new long[ExtractorM._FC];
 
 		String[] forms = instance.forms;
 
@@ -298,23 +305,23 @@ public class Tagger implements Tool, Train {
 		
 		for(int j = 0; j < length; j++) {
 			if (pipe.form2morph.get(is.forms[0][j])!=null) {
-				feats[j] =pipe.form2morph.get(is.forms[0][j]);
+				feats[j] = (short)pipe.form2morph.get(is.forms[0][j]).intValue();
 				instance.pfeats[j] = this.pipe.types[feats[j]];
 			} else {
 
 				int bestType = pipe.fillFeatureVectorsOne(params,j, forms[j], is, 0,feats,vs); 
-				feats[j] =  bestType;
+				feats[j] =  (short)bestType;
 				instance.pfeats[j]= this.pipe.types[bestType];
 			}
 		}
 		for(int j = 0; j < length; j++) {
 			if (pipe.form2morph.get(is.forms[0][j])!=null) {
-				feats[j] =pipe.form2morph.get(is.forms[0][j]);
+				feats[j] =(short)pipe.form2morph.get(is.forms[0][j]).intValue();
 				instance.pfeats[j] = this.pipe.types[feats[j]];
 			} else {
 
 				int bestType = pipe.fillFeatureVectorsOne(params,j, forms[j], is, 0,feats,vs); 
-				feats[j] =  bestType;
+				feats[j] =  (short)bestType;
 				instance.pfeats[j]= this.pipe.types[bestType];
 			}
 		}
@@ -346,7 +353,7 @@ public class Tagger implements Tool, Train {
 			is.setLemma(0, 0, CONLLReader09.ROOT_LEMMA);
 			for(int i=1;i<length;i++) is.setLemma(0, i, instance.plemmas[i]);
 			
-			is.fillChars(instance, 0, Pipe._CEND);
+			is.fillChars(instance, 0, ExtractorM._CEND);
 
 			exec(instance,pipe,params,is);
 		} catch(Exception e) {
