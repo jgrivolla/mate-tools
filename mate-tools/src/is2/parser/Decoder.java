@@ -24,6 +24,7 @@ final public class Decoder   {
 	 * Threshold for rearrange edges non-projective
 	 */
 	public static float NON_PROJECTIVITY_THRESHOLD = 0.3F;
+
 	
 	static ExecutorService executerService =java.util.concurrent.Executors.newFixedThreadPool(Parser.THREADS);
 
