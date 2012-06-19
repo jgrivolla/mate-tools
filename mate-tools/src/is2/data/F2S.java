@@ -42,7 +42,6 @@ final public class F2S extends IFV {
 	 */
 	@Override
 	public IFV clone() {
-		// TODO Auto-generated method stub
 		return new F2S(parameters);
 	}
 	

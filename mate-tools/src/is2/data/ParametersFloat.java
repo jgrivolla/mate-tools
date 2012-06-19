@@ -51,19 +51,42 @@ final public class ParametersFloat  {
 
 		
 		float lam_dist = act.getScore(parameters,false)- pred.getScore(parameters,false);
-		float b =(float)err - lam_dist;
+		float loss =(float)err - lam_dist;
 
 		FV dist = act.getDistVector(pred);	 
 
 		float alpha;
 		float A = dist.dotProduct(dist);
 		if (A<=0.0000000000000001)  alpha=0.0f;
-		else alpha= b/A;
+		else alpha= loss/A;
+		
+	//	alpha = Math.min(alpha, 0.00578125F);
 		
 		dist.update(parameters, total, alpha, upd,false); 
 	
 	}
 
+	public void update(FV pred, FV act,  float upd, float err, float C) {
+
+		
+		float lam_dist = act.getScore(parameters,false)- pred.getScore(parameters,false);
+		float loss =(float)err - lam_dist;
+
+		FV dist = act.getDistVector(pred);	 
+
+		float alpha;
+		float A = dist.dotProduct(dist);
+		if (A<=0.0000000000000001)  alpha=0.0f;
+		else alpha= loss/A;
+		
+		alpha = Math.min(alpha, C);
+		
+		dist.update(parameters, total, alpha, upd,false); 
+	
+	}
+
+	
+	
 	public double update(FV a, double b) {
 
 		double A = a.dotProduct(a);
@@ -118,6 +141,43 @@ final public class ParametersFloat  {
 		return parameters.length;
 	}
 
+	public void update(FVR act, FVR pred, Instances isd, int instc, Parse dx, double upd, double e, float lam_dist) {
+
+		e++;
+		
+		
+		float b = (float)e-lam_dist;
+		
+		FVR dist = act.getDistVector(pred);
+		
+		dist.update(parameters, total, hildreth(dist,b), upd,false);  
+	}
+	
+	
+	public void update(FVR pred, FVR act, float upd, float e) {
+
+		e++;
+		float lam_dist = act.getScore(parameters,false)- pred.getScore(parameters,false);
+		
+		float b = (float)e-lam_dist;
+		
+		FVR dist = act.getDistVector(pred);
+		
+		dist.update(parameters, total, hildreth(dist,b), upd,false);  
+	}
+	
+	protected double hildreth(FVR a, double b) {
+
+		double A = a.dotProduct(a);
+		if (A<=0.0000000000000000001) return 0.0;
+		return b/A;
+	}
+	
+	public float getScore(FVR fv) { //xx
+		if (fv ==null) return 0.0F;
+		return fv.getScore(parameters,false);
+
+	}
 
 	
 }

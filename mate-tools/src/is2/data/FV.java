@@ -2,8 +2,7 @@ package is2.data;
 
 
 
-import is2.parser.Extractor;
-import is2.transition990.ParametersFloat;
+
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -166,6 +165,12 @@ public final class FV extends IFV {
 			m_index[size] =i;
 			size++;
 		}
+    }
+
+    final public void add(int[] i) {
+    	
+    	for(int k =0;k<i.length;k++) 	add(i[k]);
+    	
     }
 
     final public void put(int i, double f) {
@@ -389,8 +394,30 @@ public final class FV extends IFV {
 
 	}
 
+	public double twoNorm(FV fl2) {
+
+		if (hm1==null) hm1 = new IntIntHash(size(),0.4F);
+		else hm1.clear();
+		
+		addFeaturesToMap(hm1);
+		
+		if (hm2==null)hm2 = new IntIntHash(fl2.size,0.4F);
+		else hm2.clear();
+		
+		fl2.addFeaturesToMap(hm2);
+
+		int[] keys = hm1.keys();
+
+		int result = 0;
+		for(int i = 0; i < keys.length; i++) result += hm1.get(keys[i])*hm2.get(keys[i]);
+
+		
+		return Math.sqrt((double)result);
+		
+
+	}
 	
-	private void addFeaturesToMap(IntIntHash map) {
+	public void addFeaturesToMap(IntIntHash map) {
 		
 		if (null != subfv1) {
 			subfv1.addFeaturesToMap(map);
@@ -501,7 +528,7 @@ public final class FV extends IFV {
 	 */
 	@Override
 	public double getScore() {
-		System.out.println("not implemented");
+		//System.out.println("not implemented");
 		// TODO Auto-generated method stub
 		return 0;
 	}

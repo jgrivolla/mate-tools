@@ -3,13 +3,14 @@ package is2.data;
 import java.util.BitSet;
 
 import is2.io.CONLLReader09;
+import is2.util.DB;
 
 
 
 public class Instances  {
 
 	
-	protected IEncoder m_encoder;
+	public IEncoder m_encoder;
 
 	
 	protected int size=0;
@@ -53,7 +54,8 @@ public class Instances  {
 	public BitSet[] pfill;
 
 
-	public int[][] gfeats;
+	public short[][] gfeats;
+	public short[][] pfeats;
 
 
 	public Instances() {}
@@ -70,6 +72,8 @@ public class Instances  {
 
 	
 	final public void setForm(int i, int p, String x) {
+		
+	
 		forms[i][p] = m_encoder.getValue(PipeGen.WORD,x);
 		if (forms[i][p]==-1) {
 			if (m_report) System.out.println("unkwrd "+x); 
@@ -78,6 +82,7 @@ public class Instances  {
 		} 
 		m_count++;
 	}
+	
 
 
 	final public void setRel(int i, int p, String x) {
@@ -120,7 +125,8 @@ public class Instances  {
 		plabels= new short[capacity][];
 		pheads= new short[capacity][];
 		feats = new short[capacity][][];
-		gfeats = new int[capacity][];
+		gfeats = new short[capacity][];
+		pfeats = new short[capacity][];
 		
 		predicat =new int[ic][];
 		predicateId = new short[ic][];
@@ -153,7 +159,8 @@ public class Instances  {
 		this.pfill[size] = new BitSet(length);
 		
 		feats[size] = new short[length][];
-		gfeats[size] = new int[length];
+		gfeats[size] = new short[length];
+		pfeats[size] = new short[length];
 		plabels[size] = new short[length];
 		pheads[size] = new short[length];
 		
@@ -206,10 +213,18 @@ public class Instances  {
 
 
 	public void setFeature(int i, int p, String feature) {
-		if (feature==null) return;
-	
-		this.gfeats[i][p]=  m_encoder.getValue(PipeGen.FEAT,feature);
-	//	DB.println("feats"+feature+" "+gfeats[i][p]);
+		if (feature==null) return;	
+		this.gfeats[i][p]= (short) m_encoder.getValue(PipeGen.FFEATS,feature);
+/*		if (gfeats[i][p]==-1) {
+			System.out.println("+"+feature);
+			new Exception().printStackTrace();
+			System.exit(0);
+		}
+		*/
+	}
+	public void setPFeature(int i, int p, String feature) {
+		if (feature==null) return;	
+		this.pfeats[i][p]= (short) m_encoder.getValue(PipeGen.FFEATS,feature);
 	}
 
 
@@ -338,7 +353,39 @@ public class Instances  {
 		return pfill[n].cardinality();
 	}
 
-	
+
+	/**
+	 * @param pscnt
+	 * @return
+	 */
+	public String print(int pscnt) {
+		StringBuilder s = new StringBuilder();
+		
+		for(int i=0;i<this.length(pscnt);i++) {
+			s.append(i+"\t"+forms[pscnt][i]+"\t"+this.glemmas[pscnt][i]+"\t"+this.plemmas[pscnt][i]+"\t"+this.gpos[pscnt][i]+"\t"
+					+this.pposs[pscnt][i]+"\t"+this.gfeats[pscnt][i]+"\t"+(this.feats[pscnt][i]!=null&&this.feats[pscnt][i].length>0?this.feats[pscnt][i][0]:null)+
+					"\t l "+(labels[pscnt]!=null&&labels[pscnt].length>i?labels[pscnt][i]:null)+"\t"+
+					"\t"+heads[pscnt][i]+"\t"+
+					(plabels[pscnt]!=null&&plabels[pscnt].length>i?plabels[pscnt][i]:null)+
+					"\t"+this.predicat[pscnt][i]+"\n");
+		}
+		return s.toString();
+	}
+
+	public String print1(int pscnt) {
+		StringBuilder s = new StringBuilder();
+		
+		for(int i=0;i<this.length(pscnt);i++) {
+			s.append(i+"\t"+forms[pscnt][i]+"\t"+"\t"+this.plemmas[pscnt][i]+"\t"+
+					+this.pposs[pscnt][i]+
+					"\t l "+(labels[pscnt]!=null&&labels[pscnt].length>i?labels[pscnt][i]:null)+"\t"+
+					"\t"+heads[pscnt][i]+"\t"+
+					(plabels[pscnt]!=null&&plabels[pscnt].length>i?plabels[pscnt][i]:null)+
+					"\n");
+		}
+		return s.toString();
+	}
+
 	
 	
 	

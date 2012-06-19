@@ -3,8 +3,6 @@
  */
 package is2.data;
 
-
-
 import is2.util.DB;
 
 import java.io.BufferedReader;
@@ -13,30 +11,31 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 /**
  * @author Dr. Bernd Bohnet, 28.10.2010
  * 
  * 
  */
-final public class Cluster {
+final public class Thesaurus {
 
 	public static final String LPATH = "LP";
 	public static final String SPATH = "SP";
 
 	// [word][p]  p = [0:long-path | 1:short-path]  
-	final private short[][] word2path; 
+	final private int[][] word2path; 
 	
-	public Cluster() {
-		word2path =new short[0][0];
-	}
+	public Thesaurus() {
+		word2path =new int[0][];
+	} 
 	
 	/**
 	 * @param clusterFile
 	 * @param mf
 	 * 
 	 */
-	public Cluster(String clusterFile, IEncoderPlus mf, int ls) {
+	public Thesaurus(String clusterFile, IEncoderPlus mf, int ls) {
 
 		final String REGEX = "\t";
 
@@ -51,21 +50,21 @@ final public class Cluster {
 				cnt++;
 				try {
 				String[] split = line.split(REGEX); 
-				mf.register(SPATH, split[0].length()<ls?split[0]:split[0].substring(0,ls));
-				mf.register(LPATH, split[0]);
+		//		mf.register(LPATH, split[0].length()<ls?split[0]:split[0].substring(0,ls));
+				mf.register(PipeGen.WORD, split[0]);
 				mf.register(PipeGen.WORD, split[1]);
 				} catch(Exception e) {
 					System.out.println("Error in cluster line "+cnt+" error: "+e.getMessage());
 				}
 			}
-			System.out.println("read number of clusters "+cnt);
+			System.out.println("read number of thesaury entries "+cnt);
 			inputReader.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 			
-		word2path = new short[mf.getFeatureCounter().get(PipeGen.WORD)][2];
+		word2path = new int[mf.getFeatureCounter().get(PipeGen.WORD)][];
 
 		
 		// insert words
@@ -73,17 +72,45 @@ final public class Cluster {
 			String line;
 			BufferedReader	inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(clusterFile),"UTF-8"),32768);
 
+			int startWd =-1;
+			ArrayList<Integer> wrds = new ArrayList<Integer>();
 			while ((line =inputReader.readLine())!=null) {
 
 				String[] split = line.split(REGEX);
-				int wd = mf.getValue(PipeGen.WORD, split[1]);
-				word2path[wd][0] = (short)mf.getValue(SPATH, split[0].length()<ls?split[0]:split[0].substring(0,ls));
-				word2path[wd][1] = (short)mf.getValue(LPATH, split[0]);
+				int wd = mf.getValue(PipeGen.WORD, split[0]);
+			//	DB.println("wd "+wd+" "+startWd);
+				if (startWd == wd) {
+					int thesaurusWrd = mf.getValue(PipeGen.WORD, split[1]);
+					if (thesaurusWrd!=wd) wrds.add(thesaurusWrd);
+				} else if (startWd!=-1) {
+					int[] ths = new int[wrds.size()];
+					for(int k=0;k<ths.length;k++) ths[k]=wrds.get(k);
+					word2path[startWd] = ths;
+				//	DB.println(""+wrds+" size "+ths.length);
+					wrds.clear();
+					int thesaurusWrd = mf.getValue(PipeGen.WORD, split[1]);
+					if (thesaurusWrd!=wd) wrds.add(thesaurusWrd);
+				}
+				startWd=wd;
 			}
+			
+			if (wrds.size()!=0) {
+				// put rest of the words
+				int[] ths = new int[wrds.size()];
+				for(int k=0;k<ths.length;k++) ths[k]=wrds.get(k);
+				word2path[startWd] = ths;
+			//	DB.println(""+wrds+" size "+ths.length);
+				wrds.clear();
+				
+
+				
+				
+			}
+			
 			inputReader.close();
 			int fill=0;
 			for(int l = 0; l<word2path.length; l++ ){
-				if (word2path[l][0]!=0) fill++;
+				if (word2path[l]!=null) fill++;
 			}
 			/*
 			for(int l = 0; l<word2path.length; l++ ){
@@ -103,12 +130,20 @@ final public class Cluster {
 	 * @param dos
 	 * @throws IOException 
 	 */
-	public Cluster(DataInputStream dis) throws IOException {
+	public Thesaurus(DataInputStream dis) throws IOException {
 
-		word2path = new short[dis.readInt()][2];
+		word2path = new int[dis.readInt()][];
 		for(int i =0;i<word2path.length;i++) {
+			int len = dis.readInt();
+			if (len>0) {
+				word2path[i] = new int[len];
+				for(int j =0;j<len;j++) {
+					word2path[i][j] = dis.readInt();
+				
+				}			
+			}
+			
 			word2path[i][0]=dis.readShort();
-			word2path[i][1]=dis.readShort();
 		}
 		DB.println("Read cluster with "+word2path.length+" words ");
 	}
@@ -121,9 +156,17 @@ final public class Cluster {
 	public void write(DataOutputStream dos) throws IOException {
 
 		dos.writeInt(word2path.length);
-		for(short[] i : word2path) {
-			dos.writeShort(i[0]);
-			dos.writeShort(i[1]);
+		for(int[] i : word2path) {
+			dos.writeInt(i==null?0:i.length);
+			
+			if (i!=null) {
+				for(int j=0;j<i.length;j++) {
+					
+					dos.writeInt(i[j]);
+					
+				}
+				
+			}
 		}
 	
 	}
@@ -142,17 +185,10 @@ final public class Cluster {
 	 * @param form the id of a word form
 	 * @return the long path to the word
 	 */
-	final public int getLP(int form) {
-		if (word2path.length<=form || word2path[form].length<=0) return -1;
-		return word2path[form][0]==0?-1:word2path[form][0];
-	}
-	
-	final public int getLP(int form, int l) {
-		if (word2path.length<form) return -1;
-		return word2path[form][l]==0?-1:word2path[form][l];
+	final public int get(int form, int k) {
+		if (word2path.length<form || word2path[form]==null) return -1;
+		return word2path[form][k];
 	}
 
-	final public int size() {
-		return word2path.length;
-	}
+	
 }

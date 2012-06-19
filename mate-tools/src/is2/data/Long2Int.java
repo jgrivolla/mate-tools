@@ -19,6 +19,28 @@ final public class Long2Int implements Long2IntInterface {
 		size=s;
 	}
 	
+	public  static void main(String args[]) {
+		
+		long l =123456;
+		long l2 =1010119;
+		System.out.println("l \t"+l+"\t"+printBits(l));
+
+		long x =100000000;
+		System.out.println("1m\t"+l2+"\t"+printBits(x)+"\t"+x);
+
+		System.out.println("l2\t"+l2+"\t"+printBits(l));
+
+		System.out.println("l2*l\t"+l2+"\t"+printBits(l*l2)+" \t "+l*l2);
+		
+		System.out.println("l2*l*l2\t"+l2+"\t"+printBits(l*l2*l2)+" \t "+l*l2*l2);
+		
+		System.out.println("l2*l*l2\t"+l2+"\t"+printBits(l*l2*l2*l2)+" \t "+l*l2*l2*l2);
+		
+		
+		System.out.println("l2*l*l2\t"+l2+"\t"+printBits((l*l2)%0xfffff)+" \t "+l*l2*l2*l2+"\t "+0xfffff);
+		System.out.println("l2*l*l2\t"+l2+"\t"+printBits((l*l2)&0xfffffff)+" \t "+l*l2*l2*l2);
+	}
+	
 	
 	/** Integer counter for long2int */
 	final private int size; //0x03ffffff //0x07ffffff
@@ -80,7 +102,8 @@ final public class Long2Int implements Long2IntInterface {
 	
 	static public StringBuffer printBits(long out) {
 		StringBuffer s = new StringBuffer();
-		for(int k=0;k<64;k++) {
+	
+		for(int k=0;k<65;k++) {
 			s.append((out & 1)==1?"1":"0");
 			out >>=1;
 		}

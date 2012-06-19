@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 
 public class SentenceData09 {
 
@@ -146,7 +147,13 @@ public class SentenceData09 {
 
 			labels[j] = i.labels[j+1];
 			heads[j] = i.heads[j+1];
+
+					
+			
 			if (i.pheads!=null) pheads[j] = i.pheads[j+1];
+			if (i.plabels!=null) plabels[j] = i.plabels[j+1];
+			
+			
 			if (i.lemmas!=null) lemmas[j] = i.lemmas[j+1];
 
 			plemmas[j] = i.plemmas[j+1];
@@ -419,6 +426,19 @@ public class SentenceData09 {
 		return o.toString();
 	}
 
-	
+	/**
+	 * Get the children of this instance
+	 * @param head 
+	 * @return children of the head 
+	 */
+	public  ArrayList<Integer> getChildren(int head) {
+
+		ArrayList<Integer> children = new ArrayList<Integer>();
+		for(int i=0;i<length();i++) {
+			if (heads[i]==head) children.add(i);
+		}
+		return children;
+	}
+
 	
 }

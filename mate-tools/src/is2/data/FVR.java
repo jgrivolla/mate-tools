@@ -3,8 +3,7 @@ package is2.data;
 
 
 import gnu.trove.TIntDoubleHashMap;
-import is2.parser.Extractor;
-import is2.transition990.ParametersFloat;
+
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,6 +17,8 @@ public final class FVR extends IFV {
 	
     private int size;
    
+    
+    
 	// content of the nodes NxC
 	private int m_index[];
 	private float m_value[];
@@ -443,6 +444,7 @@ public final class FVR extends IFV {
 	@Override
 	public double getScore() {
 		System.out.println("not implemented");
+		new Exception().printStackTrace();
 		// TODO Auto-generated method stub
 		return 0;
 	}

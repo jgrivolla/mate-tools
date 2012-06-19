@@ -23,8 +23,15 @@ public class PSTree {
 	public String pos[];
 	public int[] ok;
 	public int non;
-	public int terminal;
+	public int terminalCount;
 	public String[] morph;
+	
+	public int[] forms;
+	public int[] phrases;
+	public int[][] psfeats;
+	public int[] ppos;
+	
+	
 	/**
 	 * @param d
 	 */
@@ -89,7 +96,7 @@ public class PSTree {
 	public int equals(SentenceData09 s) {
 
 		int j=1; // starts with root
-		for(int i=0;i<terminal-1;i++){
+		for(int i=0;i<terminalCount-1;i++){
 
 			//	if (s.forms[j].equals("erschrekkend")) s.forms[j]="erschreckend"; 
 
@@ -402,7 +409,7 @@ public class PSTree {
 
 				} catch(Exception e) {
 					e.printStackTrace();
-					System.out.println(""+entries[headP]+" o[i+1] "+o[i+1]+" "+headP+" "+this.terminal);
+					System.out.println(""+entries[headP]+" o[i+1] "+o[i+1]+" "+headP+" "+this.terminalCount);
 					//		System.out.println(""+	this.toString());
 					System.exit(0);
 				}
@@ -494,7 +501,7 @@ public class PSTree {
 // && entries[headP].charAt(0)!=o[i+1].charAt(0)
 				} catch(Exception e) {
 					e.printStackTrace();
-					System.out.println(""+entries[headP]+" o[i+1] "+o[i+1]+" "+headP+" "+this.terminal);
+					System.out.println(""+entries[headP]+" o[i+1] "+o[i+1]+" "+headP+" "+this.terminalCount);
 				}
 
 				i++;
@@ -513,7 +520,7 @@ public class PSTree {
 	public final static boolean INSERT_NEWLINE =true;
 
 	/**
-	 * Convert internal format to bracket format 
+	 * Convert to bracket format 
 	 * @param newLine
 	 * @return
 	 */
@@ -523,7 +530,7 @@ public class PSTree {
 		StringBuffer b = new StringBuffer();
 		ArrayList<Integer> current=null;// = new ArrayList<Integer>();  
 		int open =0;
-		for(int i=0; i<terminal ;i++) {
+		for(int i=0; i<terminalCount ;i++) {
 			ArrayList<Integer> path = getPathToRoot(i);
  
 			ArrayList<Integer> diff = getDiffPath(path, current);
@@ -655,7 +662,7 @@ public class PSTree {
 		int h=i;
 		while(true) {
 			h=this.head[h];
-			if (h<this.terminal || path.contains(h)) break;
+			if (h<this.terminalCount || path.contains(h)) break;
 			path.add(h);
 		}
 
@@ -669,7 +676,7 @@ public class PSTree {
 	public String conll09() {
 		
 		StringBuilder s = new StringBuilder();
-		for(int i=0;i<this.terminal;i++) {
+		for(int i=0;i<this.terminalCount;i++) {
 			if (head[i]==-1&&entries[i]==null) break;
 
 			s.append((i+1)).append('\t').append(entries[i]).append("\t_\t_\t").append(pos[i]).append("\t_\t_\t_\t_\t_\t_\t_\t_\n");

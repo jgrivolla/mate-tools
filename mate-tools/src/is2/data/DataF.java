@@ -10,6 +10,9 @@ final public class DataF {
 		// first order features
 		final public float[][] pl;
 		
+		// remove !!!!
+//		final public float[][] highestLab;
+		
 		//final public FV[][][] label;
 		final public float[][][][] lab;
 
@@ -27,6 +30,7 @@ final public class DataF {
 			
 			pl = new float[length][length];
 			lab = new float[length][length][types][2];
+	//		highestLab = new float[length][length];
 			
 			sib = new float[length][length][length][2][];
 			gra = new float[length][length][length][2][];

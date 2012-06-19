@@ -11,6 +11,10 @@ import java.util.HashMap;
  * 
  */
 public interface IEncoderPlus extends IEncoder {
+	
+	final public static String NONE="<None>";
+	
+	
 	/**
 	 * @param spath
 	 * @param substring

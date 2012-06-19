@@ -1,6 +1,5 @@
 package is2.data;
 
-import is2.util.DB;
 
 import java.util.BitSet;
 
@@ -125,6 +124,8 @@ public class Parse implements Comparable<Parse> {
 	 */
 	@Override
 	public int compareTo(Parse o) {
+		
+		if (f1==o.f1) return this.signature().compareTo(o.signature());
 		return f1<o.f1?1:f1==o.f1?0:-1;
 	}
 
@@ -139,6 +140,17 @@ public class Parse implements Comparable<Parse> {
 		return b.toString();
 	}
 
+	
+	/**
+	 * @return the signature of a parse
+	 */
+	public StringBuilder signatureSB() {
+		StringBuilder b = new StringBuilder(heads.length*2);
+		for(int k=0;k<heads.length;k++) {
+			b.append((char)heads[k]).append((char)labels[k]);
+		}
+		return b;
+	}
 
 	
 }

@@ -1,15 +1,13 @@
 package is2.data;
 
 
-final public class F2SF extends IFV {
+final public class F2SP extends IFV {
 
 	final private float[] parameters;
 	
-
+	public double score =0;
 	
-	public float score =0;
-	
-	public F2SF(float[] p) {
+	public F2SP(float[] p) {
 		parameters =p;
 	}
 	
@@ -50,7 +48,7 @@ final public class F2SF extends IFV {
 		return score;
 	}
 
-	public float getScoreF() {
+	public double getScoreF() {
 		return score;
 	}
 
@@ -59,7 +57,7 @@ final public class F2SF extends IFV {
 	 */
 	@Override
 	public IFV clone() {
-		return new F2SF(this.parameters);
+		return new F2SP(this.parameters);
 	}
 
 	/**

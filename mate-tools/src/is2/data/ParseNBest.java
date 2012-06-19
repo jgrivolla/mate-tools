@@ -1,6 +1,8 @@
 package is2.data;
 
 
+
+
 final public class ParseNBest extends Parse {
 
 	
@@ -64,6 +66,40 @@ final public class ParseNBest extends Parse {
 		return signature;
 	}
 
+	/**
+	 * @param heads
+	 * @param types
+	 * @param oldP
+	 * @param ch
+	 * @param s
+	 */
+	public String signature(short[] heads, short[] types, short p, short ch,short l) {
+		StringBuilder b = new StringBuilder(heads.length*2);
+		for(int k=0;k<heads.length;k++) {
+		
+			
+			b.append(k==ch?(char)p:
+				(char)heads[k]).
+			append(k==ch?(char)l:(char)types[k]);
+		}
+		signature = b.toString();
+		return signature;
+		
+	}
+
+	@Override
+	public Parse clone() {
+		ParseNBest p = new ParseNBest();
+		p.heads = new short[heads.length];
+		p.labels = new short[labels.length];
+		
+		System.arraycopy(heads, 0, p.heads, 0, heads.length);
+		System.arraycopy(labels, 0, p.labels, 0, labels.length);
+		
+		p.f1=f1;
+		
+		return p;
+	}
 
 	
 }

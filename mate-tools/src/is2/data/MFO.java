@@ -15,7 +15,7 @@ import java.util.Map.Entry;
  * @author Bernd Bohnet, 20.09.2009
  */
 
-final public class MFO  implements IEncoder {
+final public class MFO  implements IEncoderPlus {
 
 	/** The features and its values */
 	static private final HashMap<String,HashMap<String,Integer>> m_featureSets = new HashMap<String,HashMap<String,Integer>>();
@@ -234,7 +234,7 @@ final public class MFO  implements IEncoder {
 	}
 
 
-	final public long calc6(Data4 d) {
+	static final public long calc6(Data4 d) {
 
 		if (d.v0<0||d.v1<0||d.v2<0||d.v3<0||d.v4<0||d.v5<0) return -1;
 
@@ -309,7 +309,7 @@ final public class MFO  implements IEncoder {
 
 	/** 
 	 * Maps a long to a integer value. This is very useful to save memory for sparse data long values 
-	 * @param l
+	 * @param node
 	 * @return the integer
 	 */
 	static public  int misses = 0;
