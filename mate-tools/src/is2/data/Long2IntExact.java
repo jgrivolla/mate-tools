@@ -17,7 +17,7 @@ final public class Long2IntExact implements Long2IntInterface {
 	
 	public Long2IntExact() {
 		size=115911564;
-	}
+	} 
 	
 	
 	public Long2IntExact(int s) {
