@@ -35,7 +35,7 @@ public class ParseOnly {
 		i.setPPos(new String[]{"<root-POS>","DT","VBZ","DT","NN","."});
 				
 		// parse the sentence 
-		SentenceData09 out = parser.parse(i);
+		SentenceData09 out = parser.apply(i);
 	
 		// output the sentence and dependency tree
 		System.out.println(out.toString());

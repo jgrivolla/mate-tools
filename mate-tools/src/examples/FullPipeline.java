@@ -6,11 +6,11 @@ import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
 import is2.tag.Tagger;
 import is2.tools.Tool;
-
+ 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
+ 
 /**
  * @author Bernd Bohnet, 13.09.2010
  * 

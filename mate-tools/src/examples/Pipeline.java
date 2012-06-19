@@ -1,5 +1,5 @@
 package examples;
-
+ 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -77,7 +77,7 @@ public class Pipeline {
 		Parser parser = new Parser(optsParser);
 		
 		// parse the sentence (you get a copy of the input i)
-		SentenceData09 parse = parser.parse(tagged);
+		SentenceData09 parse = parser.apply(tagged);
 
 		System.out.println(parse.toString());
 
