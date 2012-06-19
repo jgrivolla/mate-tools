@@ -11,7 +11,7 @@ public class DB {
 	private static final String LEER = "                            " ;
 	private static final String BIG = "                                                                                    " ;
 
-	private static boolean debug = false;
+	private static boolean debug = true;
 
 	final static public void println (Object err) {
 

@@ -48,17 +48,39 @@ public class Split {
 	
 		String s;
 		while ((s = bInfile.readLine()) != null) {
+			
+			
+			// do the first tokens contain a colon?
+			int colon =0;
+			for(int k=0;k<12;k++) {
+				if (s.length()<=k) break;
+				if (s.charAt(k) == ':') {
+					
+					colon++;
+					break;
+				}
+				if (s.charAt(k) == ' ') break;	
+			}
+
+			String prefix =colon>0?s.substring(0,s.indexOf(":"))+"_":"";
+			
+			if (colon>0) {
+				s = s.substring(s.indexOf(":")+1);
+			}
+			
 			StringTokenizer t = new StringTokenizer(s);
 			int i=1;
+			boolean found=false;
 			while(t.hasMoreTokens()) {
+				found =true;
 				String tk =t.nextToken();
 				if (tk.contains("=")) continue;
-				System.out.print(i+"\t");
+				System.out.print(prefix+i+"\t");
 				System.out.print(tk);
 				System.out.println("\t_\t_\t_\t_\t_\t_\t_\t_\t_\t_\t_\t_\t_");
 				i++;
 			}
-			System.out.println();
+			if (found) System.out.println();
 			
 		}
 		bInfile.close();
