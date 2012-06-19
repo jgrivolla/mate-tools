@@ -2,6 +2,9 @@ package is2.parser;
 
 
 import is2.data.IEncoder;
+import is2.data.IEncoderPlus;
+import is2.data.IFV;
+import is2.data.Long2IntInterface;
 import is2.util.DB;
 
 import java.io.DataInputStream;
@@ -16,7 +19,7 @@ import java.util.Map.Entry;
  * @author Bernd Bohnet, 20.09.2009
  */
 
-final public class MFO  implements IEncoder {
+final public class MFO  implements IEncoderPlus {
  
 	/** The features and its values */
 	static private final HashMap<String,HashMap<String,Integer>> m_featureSets = new HashMap<String,HashMap<String,Integer>>();
@@ -35,194 +38,17 @@ final public class MFO  implements IEncoder {
 	
 	final public static String NONE="<None>";
 	
-	public static class Data {
-		public final String[] a = new String[8];
-		public final String[] v = new String[8];
-		final short[] s = new short[9];
-		public void clear(int i) {
-			v[i]=null;
-		}
-	}
 	
 	
-	final public static class Data4 {
-		public int shift;
-		public short a0,a1,a2,a3,a4,a5,a6,a7,a8,a9;
-		public int v0,v1,v2,v3,v4,v5,v6,v7,v8,v9; 
-		
-		final public long calcs(int b, long v, long l) {
-			if (l<0) return l;
-			l |= v<<shift;
-			shift +=b;
-			return l;
-		}
-		
-		
-	final public long calc2() {
-			
-			if (v0<0||v1<0) return -1;
-			
-			long l = v0;
-			short shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			
-			return l;
-		}
 	
-	
-
-	final public long calc3() {
 		
-		if (v0<0||v1<0||v2<0) return -1;
-		//	if (v1<0||v2<0) return -1;
-		
-		long l = v0;
-		short shift =a0;
-		l |= (long)v1<<shift;
-		shift +=a1;
-		l |= (long)v2<<shift;
-		shift=(short) (shift + a2);
-		
-		//shift=;
-		return l;
-	}
-	
-	
-	final public long calc4() {
-			if (v0<0||v1<0||v2<0||v3<0) return -1;
-			
-			long l = v0;
-			int shift =a0;
-			l |= (long)v1<<shift;
-			shift +=a1;
-			l |= (long)v2<<shift;
-			shift +=a2;
-			l |= (long)v3<<shift;
-			shift= shift +a3;
-					
-			return l;
-		}
-		
-	
-	
-	final public long calc5() {
-		
-		if (v0<0||v1<0||v2<0||v3<0||v4<0) return -1;
-			
-		long l = v0;
-		int shift =a0;
-		l |= (long)v1<<shift;
-		shift +=a1;
-		l |= (long)v2<<shift;
-		shift +=a2;
-		l |= (long)v3<<shift;
-		shift +=a3;	
-		l |= (long)v4<<shift;
-		shift =shift+a4;
-		
-		return l;
-	}
-	
-
-    final public long calc6() {
-		
-		if (v0<0||v1<0||v2<0||v3<0||v4<0||v5<0) return -1;
-			
-		long l = v0;
-		int shift =a0;
-		l |= (long)v1<<shift;
-		shift +=a1;
-		l |= (long)v2<<shift;
-		shift +=a2;
-		l |= (long)v3<<shift;
-		shift +=a3;	
-		l |= (long)v4<<shift;
-		shift +=a4;
-		l |= (long)v5<<shift;
-		shift =shift+a5;
-		
-		return l;
-	}
-
-   final public long calc7() {
-		
-		if (v0<0||v1<0||v2<0||v3<0||v4<0||v5<0||v6<0) return -1;
-			
-		long l = v0;
-		int shift =a0;
-		l |= (long)v1<<shift;
-		shift +=a1;
-		l |= (long)v2<<shift;
-		shift +=a2;
-		l |= (long)v3<<shift;
-		shift +=a3;	
-		l |= (long)v4<<shift;
-		shift +=a4;
-		l |= (long)v5<<shift;
-		shift +=a5;
-		l |= (long)v6<<shift;
-		shift =shift+a6;
-		
-		return l;
-	}
-
-
-   final public long calc8() {
-		
-		if (v0<0||v1<0||v2<0||v3<0||v4<0||v5<0||v6<0||v7<0) return -1;
-			
-		long l = v0;
-		int shift =a0;
-		l |= (long)v1<<shift;
-		shift +=a1;
-		l |= (long)v2<<shift;
-		shift +=a2;
-		l |= (long)v3<<shift;
-		shift +=a3;	
-		l |= (long)v4<<shift;
-		shift +=a4;
-		l |= (long)v5<<shift;
-		shift +=a5;
-		l |= (long)v6<<shift;
-		shift +=a6;
-		l |= (long)v7<<shift;
-		shift =shift+a7;
-		
-		return l;
-	}
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	}
+	 
 	
 	public MFO () {}
 	
 	
 	public  int size() {return count;}
 	
-	
-	final public void stop() {
-		stop=true;
-	}
-	
-	final public void start() {
-		stop=false;		
-	}
 	
 	
 	/**
@@ -288,14 +114,9 @@ final public class MFO  implements IEncoder {
 	}
 	
 	
-	static final public long calcs(Data4 d,int b, long v, long l) {
-		if (l<0) return l;
-		l |= v<<d.shift;
-		d.shift +=b;
-		return l;
-	}
 	
 	static final public short getFeatureBits(String a) {
+		if(m_featureBits.get(a)==null) return 0;
 		return (short)m_featureBits.get(a).intValue();
 	}
 
@@ -335,149 +156,22 @@ final public class MFO  implements IEncoder {
 		return vi.intValue();
 	}
 	
-
-
-
-	final public long calc2(Data4 d) {
+	
+	public static String printBits(int k) {
+		StringBuffer s = new StringBuffer();
+		for(int i =0;i<31;i++) {
+			s.append((k&0x00000001)==1?'1':'0');
+			k=k>>1;
 			
-			if (d.v0<0||d.v1<0) return -1;
-			//	if (d.v1<0||d.v2<0) return -1;
-			
-			long l = d.v0;
-			short shift =d.a0;
-			l |= (long)d.v1<<shift;
-			shift +=d.a1;
-		//	l |= (long)d.v2<<shift;
-			d.shift=shift;
-			
-			//d.shift=;
-			return l;
 		}
-	
-	
-
-	final public long calc3(Data4 d) {
-		
-		if (d.v0<0||d.v1<0||d.v2<0) return -1;
-		//	if (d.v1<0||d.v2<0) return -1;
-		
-		long l = d.v0;
-		short shift =d.a0;
-		l |= (long)d.v1<<shift;
-		shift +=d.a1;
-		l |= (long)d.v2<<shift;
-		d.shift=shift + d.a2;
-		
-		//d.shift=;
-		return l;
+		s.reverse();
+		return s.toString();
 	}
 	
 	
-	final public long calc4(Data4 d) {
-			if (d.v0<0||d.v1<0||d.v2<0||d.v3<0) return -1;
-			
-			long l = d.v0;
-			int shift =d.a0;
-			l |= (long)d.v1<<shift;
-			shift +=d.a1;
-			l |= (long)d.v2<<shift;
-			shift +=d.a2;
-			l |= (long)d.v3<<shift;
-			d.shift= shift +d.a3;
-					
-			return l;
-		}
-		
-	
-	
-	final public long calc5(Data4 d) {
-		
-		if (d.v0<0||d.v1<0||d.v2<0||d.v3<0||d.v4<0) return -1;
-			
-		long l = d.v0;
-		int shift =d.a0;
-		l |= (long)d.v1<<shift;
-		shift +=d.a1;
-		l |= (long)d.v2<<shift;
-		shift +=d.a2;
-		l |= (long)d.v3<<shift;
-		shift +=d.a3;	
-		l |= (long)d.v4<<shift;
-		d.shift =shift+d.a4;
-		
-		return l;
-	}
-	
 
-    final public long calc6(Data4 d) {
-		
-		if (d.v0<0||d.v1<0||d.v2<0||d.v3<0||d.v4<0||d.v5<0) return -1;
-			
-		long l = d.v0;
-		int shift =d.a0;
-		l |= (long)d.v1<<shift;
-		shift +=d.a1;
-		l |= (long)d.v2<<shift;
-		shift +=d.a2;
-		l |= (long)d.v3<<shift;
-		shift +=d.a3;	
-		l |= (long)d.v4<<shift;
-		shift +=d.a4;
-		l |= (long)d.v5<<shift;
-		d.shift =shift+d.a5;
-		
-		return l;
-	}
-
-   final public long calc7(Data4 d) {
-		
-		if (d.v0<0||d.v1<0||d.v2<0||d.v3<0||d.v4<0||d.v5<0||d.v6<0) return -1;
-			
-		long l = d.v0;
-		int shift =d.a0;
-		l |= (long)d.v1<<shift;
-		shift +=d.a1;
-		l |= (long)d.v2<<shift;
-		shift +=d.a2;
-		l |= (long)d.v3<<shift;
-		shift +=d.a3;	
-		l |= (long)d.v4<<shift;
-		shift +=d.a4;
-		l |= (long)d.v5<<shift;
-		shift +=d.a5;
-		l |= (long)d.v6<<shift;
-		d.shift =shift+d.a6;
-		
-		return l;
-	}
-
-
-   final public long calc8(Data4 d) {
-		
-		if (d.v0<0||d.v1<0||d.v2<0||d.v3<0||d.v4<0||d.v5<0||d.v6<0||d.v7<0) return -1;
-			
-		long l = d.v0;
-		int shift =d.a0;
-		l |= (long)d.v1<<shift;
-		shift +=d.a1;
-		l |= (long)d.v2<<shift;
-		shift +=d.a2;
-		l |= (long)d.v3<<shift;
-		shift +=d.a3;	
-		l |= (long)d.v4<<shift;
-		shift +=d.a4;
-		l |= (long)d.v5<<shift;
-		shift +=d.a5;
-		l |= (long)d.v6<<shift;
-		shift +=d.a6;
-		l |= (long)d.v7<<shift;
-		d.shift =shift+d.a7;
-		
-		return l;
-	}
-
-
-      
+   
+   
    
    
 	/** 
@@ -496,7 +190,7 @@ final public class MFO  implements IEncoder {
 	 * @param dos
 	 * @throws IOException
 	 */
-     public void writeData(DataOutputStream dos) throws IOException {
+    static public void writeData(DataOutputStream dos) throws IOException {
         dos.writeInt(getFeatureSet().size());
        // DB.println("write"+getFeatureSet().size());
         for(Entry<String, HashMap<String,Integer>> e : getFeatureSet().entrySet()) {
@@ -513,7 +207,7 @@ final public class MFO  implements IEncoder {
                 
         }
     }
-     public void read(DataInputStream din) throws IOException {
+    public void read(DataInputStream din) throws IOException {
 		 
 		int size = din.readInt();
 		for(int i=0; i<size;i++) {
@@ -543,7 +237,7 @@ final public class MFO  implements IEncoder {
       getFeatureSet().clear();
     }
 
-	 public HashMap<String,Integer> getFeatureCounter() {
+    public HashMap<String,Integer> getFeatureCounter() {
 		return m_featureCounters;
 	}
 
@@ -558,5 +252,6 @@ final public class MFO  implements IEncoder {
 		}
 		return set;
 	}
-	
+
+
 }

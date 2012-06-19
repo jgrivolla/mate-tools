@@ -1,6 +1,10 @@
 package is2.parser;
 
-import is2.data.DataF;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+
+
+import is2.data.DataFES;
 import is2.data.Parse;
 import is2.util.DB;
 
@@ -12,6 +16,7 @@ import is2.util.DB;
  */
 final public class Decoder   {
 
+	public static final boolean TRAINING = true;
 	public static long timeDecotder;
 	public static long timeRearrange;
 
@@ -19,7 +24,13 @@ final public class Decoder   {
 	 * Threshold for rearrange edges non-projective
 	 */
 	public static float NON_PROJECTIVITY_THRESHOLD = 0.3F;
+	
+	static ExecutorService executerService =java.util.concurrent.Executors.newFixedThreadPool(Parser.THREADS);
 
+	// do not initialize
+	private Decoder() {};
+	
+	
 	/**
 	 * Build a dependency tree based on the data
 	 * @param pos part-of-speech tags
@@ -29,69 +40,32 @@ final public class Decoder   {
 	 * @return a parse tree
 	 * @throws InterruptedException
 	 */
-	public static Parse  decode(short[] pos,  DataF x, boolean projective) throws InterruptedException {
+	public static Parse  decode(short[] pos,  DataFES x, boolean projective, boolean training) throws InterruptedException {
 
 		long ts = System.nanoTime();
 		
-		
+		if (executerService.isShutdown()) executerService = java.util.concurrent.Executors.newCachedThreadPool();
 		final int n = pos.length;
 
 		final Open O[][][][] = new Open[n][n][2][];
 		final Closed C[][][][] = new Closed[n][n][2][];
 
+		ArrayList<ParallelDecoder> pe = new ArrayList<ParallelDecoder>(); 
 
-		int maxThreads =(pos.length>Parser.THREADS)? Parser.THREADS: pos.length;
-		//maxThreads=1; // change this change this change this!!!!!
-		ParallelDecoder[] pd = new ParallelDecoder[maxThreads];
-
-		
-		int threads =  maxThreads;
-		for(int i=0;i<threads ;i++)  pd[i]= new ParallelDecoder(pos, x,  O, C, n);
-
-		boolean start =true;
+		for(int i=0;i<Parser.THREADS ;i++)  pe.add(new ParallelDecoder(pos, x,  O, C, n));
 		
 		for (short k = 1; k < n; k++) {
-		
-			int thread=0;
 
 			// provide the threads the data
 			for (short s = 0; s < n; s++) {
 				short t = (short) (s + k);
 				if (t >= n) break;
 				
-				pd[thread++].add(s,t);
-				if (thread>=threads)thread=0;
+				ParallelDecoder.add(s,t);
 			}
-			
-			// start or continue the threads
-			if (start)	{
-				for(int i=0;i<threads;i++)  pd[i].start();	
-				start =false;
-			} else for(int i=0;i<threads;i++)  pd[i].waiting=false;				
-
-			
-			// wait until last thread has finished this round; next needs the results
-			int i=threads-1;
-			while(i>=0) {
-				ParallelDecoder pdx = pd[i];
-				if (ParallelDecoder.sets.size()==0 && pdx.waiting)  i--;					 
-				else Thread.yield();				
-			}
+						
+			executerService.invokeAll(pe);
 		}
-		
-		// end the threads
-		for(int i=0;i<threads;i++) {
-			pd[i].done=true;
-			pd[i].waiting=false;
-		}		
-	
-		for(int i=0;i<threads;i++) {
-			pd[i].join(1000);
-			if (pd[i].isAlive())DB.println("error thread is still alive ");
-		}
-		
-		
-			
 		
 		float bestSpanScore = (-1.0F / 0.0F);
 		Closed bestSpan = null;
@@ -113,7 +87,7 @@ final public class Decoder   {
 		 
 		ts = System.nanoTime();
 		
-		if (!projective) rearrange(pos, out.heads, out.labels,x);
+		if (!projective) rearrange(pos, out.heads, out.labels,x,training);
 		
 		timeRearrange += (System.nanoTime()-ts);		
 
@@ -131,14 +105,15 @@ final public class Decoder   {
 	 * @param edges the existing edges defined by part-of-speech tags 
 	 * @throws InterruptedException
 	 */
-	public static void rearrange(short[] pos, short[] heads, short[] labs,  DataF x) throws InterruptedException {
+	public static void rearrange(short[] pos, short[] heads, short[] labs,  DataFES x, boolean training) throws InterruptedException {
 
 		int threads =(pos.length>Parser.THREADS)? Parser.THREADS: pos.length;
 
-		ParallelRearrange[] rp = new ParallelRearrange[threads];
+		
 		
 		// wh  what to change, nPar - new parent, nType - new type
 		short wh = -1, nPar = -1,nType = -1;
+		ArrayList<ParallelRearrange> pe = new ArrayList<ParallelRearrange>(); 
 		
 		while(true) {
 			boolean[][] isChild = new boolean[heads.length][heads.length];
@@ -148,7 +123,8 @@ final public class Decoder   {
 			float max = Float.NEGATIVE_INFINITY;
 			float p = Extractor.encode3(pos, heads, labs, x);
 
-			for(int i=0;i<rp.length;i++)  rp[i]=new ParallelRearrange( isChild, pos,x,heads,labs);
+			pe.clear();
+			for(int i=0;i<threads;i++)  pe.add(new ParallelRearrange( isChild, pos,x,heads,labs));
 			
 			for(int ch = 1; ch < heads.length; ch++) {
 
@@ -158,16 +134,15 @@ final public class Decoder   {
 					ParallelRearrange.add(p,(short) ch, pa);
 				} 
 			}  
+			executerService.invokeAll(pe);
 			
-			for(int i=0;i<threads;i++) rp[i].start();					
-			for(int i=0;i<threads;i++)  rp[i].join();
-			
-			for(int i=0;i<rp.length;i++) 
-				if(max < rp[i].max  ) {					
-						max = rp[i].max;  	wh = rp[i].wh; 
-						nPar = rp[i].nPar;  nType = rp[i].nType ;
+			for(ParallelRearrange.PA rp :ParallelRearrange.order) 
+				if(max < rp.max  ) {					
+						max = rp.max;  	wh = rp.wh; 
+						nPar = rp.nPar;  nType = rp.nType ;
 				}
-
+			ParallelRearrange.order.clear();
+			
 			if(max <= NON_PROJECTIVITY_THRESHOLD)	break; // bb: changed from 0.0
 
 			heads[wh] = nPar;
@@ -176,12 +151,10 @@ final public class Decoder   {
 		}
 	}
 
-
-	
 	public static String getInfo() {
 
 		return "Decoder non-projectivity threshold: "+NON_PROJECTIVITY_THRESHOLD;
-
 	}
+
 
 }

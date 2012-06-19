@@ -1,6 +1,8 @@
 package is2.parser;
 
+import is2.data.Cluster;
 import is2.data.DataF;
+import is2.data.DataFES;
 import is2.data.F2SF;
 import is2.data.Instances;
 
@@ -12,13 +14,17 @@ import is2.io.CONLLReader09;
 import is2.util.OptionsSuper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
 
 final public class Pipe extends PipeGen {
 
 	public Extractor[] extractor;
-	//public CopyOfExtractor[] extractor;
 	final public MFO mf = new MFO();
 
+	public Cluster cl;
+	
+	
 	private OptionsSuper options;
 	public static long timeExtract;
 
@@ -32,7 +38,6 @@ final public class Pipe extends PipeGen {
 		CONLLReader09 depReader = new CONLLReader09(file);
 
 		mf.register(REL,"<root-type>");
-
 
 		// register at least one predicate since the parsing data might not contain predicates as in 
 		// the Japaness corpus but the development sets contains some
@@ -85,25 +90,30 @@ final public class Pipe extends PipeGen {
 		System.out.println();
 		Extractor.initFeatures();
 
+		Extractor.maxForm = mf.getFeatureCounter().get(WORD);
+		
+		if (options.clusterFile==null)cl = new Cluster();
+		else cl=  new Cluster(options.clusterFile, mf,6);
+		
+		
 
 		mf.calculateBits();
-		Extractor.initStat();
+		Extractor.initStat(options.featureCreation);
 		
+		System.out.println(""+mf.toString());
 		
 		for(Extractor e : extractor) e.init();
 
 		depReader.startReading(file);
 
 		int num1 = 0;
-
+		
 		is.init(ic, new MFO());
 
 		Edges.init(mf.getFeatureCounter().get(POS));
-
 		
 		
-		System.out.print("Creating Features: ");
-
+		System.out.print("Creating edge filters and read corpus: ");
 		del = 0;
 
 		while (true) {
@@ -118,26 +128,18 @@ final public class Pipe extends PipeGen {
 
 			for (int k = 0; k < is.length(last); k++) {
 				if (is.heads[last][k] < 0)	continue;
-				Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.labels[last][k]);
+				Edges.put(pos[is.heads[last][k]],pos[k], is.labels[last][k]);
+//				Edges.put(pos[k],pos[is.heads[last][k]], is.labels[last][k]);
 			}
 
-			pos = is.gpos[last];
-
-			for (int k = 0; k < is.length(last); k++) {
-				if (is.heads[last][k] < 0)	continue;
-		//		Edges.put(pos[is.heads[last][k]],pos[k], k < is.heads[last][k],is.deprels[last][k]);
-			}
-			
 			if (!options.allFeatures && num1 > options.count) break;
 
 			num1++;
 
 		}
 		del = outValue(num1, del);
-
+		System.out.println();
 		Edges.findDefault();
-
-		System.out.print(" processed "+is.size());
 	}
 
 
@@ -156,23 +158,24 @@ final public class Pipe extends PipeGen {
 		return instance;
 	}
 
+	 public static ExecutorService executerService =java.util.concurrent.Executors.newFixedThreadPool(Parser.THREADS);
 
 
-	public DataF fillVector(F2SF params, Decoder decoder,Instances is, int inst, DataF d, short[] pos) throws InterruptedException {
+	public DataFES fillVector(F2SF params, Instances is,int inst, DataFES d,  Cluster cluster) throws InterruptedException {
 
 		long ts = System.nanoTime();
 
+		if (executerService.isShutdown()) executerService =java.util.concurrent.Executors.newCachedThreadPool();
+		
+		
 		final int length = is.length(inst);
-		if (d ==null || d.len<length)d = new DataF(length,mf.getFeatureCounter().get(PipeGen.REL).shortValue());
+		if (d ==null || d.len<length)d = new DataFES(length,mf.getFeatureCounter().get(PipeGen.REL).shortValue());
 
-		int threads=is.length(inst)>Parser.THREADS? Parser.THREADS:length;
-
-		ParallelExtract[] efp = new ParallelExtract[threads]; 
-		for(int i=0;i<efp.length;i++) efp[i]= new ParallelExtract(extractor[i],is, inst, d,(F2SF)params.clone(), pos);
-
+		ArrayList<ParallelExtract> pe = new ArrayList<ParallelExtract>();
+		for(int i=0;i<Parser.THREADS;i++) pe.add(new ParallelExtract(extractor[i],is, inst, d, (F2SF)params.clone(), cluster));
 
 		for (int w1 = 0; w1 < length; w1++) {
-			for (int w2 = 0; w2 < length; w2++) {
+			for (int w2 =w1+1; w2 < length; w2++) {
 
 				if (w1==w2) continue;
 
@@ -181,25 +184,32 @@ final public class Pipe extends PipeGen {
 
 			}
 		}
-		for(int i=0;i<threads;i++) efp[i].start();					
-		for(int i=0;i<threads;i++) efp[i].join();
+//		for(int i=0;i<efp.length;i++) efp[i].start();					
+//		for(int i=0;i<efp.length;i++) efp[i].join();
+		executerService.invokeAll( pe);
 
-		
-		
 		timeExtract += (System.nanoTime()-ts);
 
+		
+		
+
+		
+		
 		return d;
 	}
 
 	public double errors( Instances is, int ic, Parse p) {
 		short[] act = is.heads[ic];
-		int correct = 0;
+		double correct = 0;
 
 		// do not count root
 		for(int i = 1; i < act.length; i++)  	 {
 
 			//		if (is.ppos[ic] ==null ) System.out.println("mf null"+is.ppos[ic][i]);
-			if (p.heads[i]==act[i] && p.labels[i]==is.labels[ic][i] ) correct++;
+			if (p.heads[i]==act[i] ){
+				correct+=0.5;
+				if (p.labels[i]==is.labels[ic][i] ) correct+=0.5;
+			}
 		}
 
 		double x = ((double)act.length- 1 - correct );

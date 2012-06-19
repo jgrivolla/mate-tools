@@ -14,8 +14,8 @@ import java.io.IOException;
 
 final public class ParametersFloat extends Parameters  {
 
-	private float[] parameters;
-	private float[] total;
+	public float[] parameters;
+	public float[] total;
 
 	public ParametersFloat(int size) {
 		parameters = new   float[size];
@@ -26,6 +26,13 @@ final public class ParametersFloat extends Parameters  {
 		}
 	}
 
+	/**
+	 * @param parameters2
+	 */
+	public ParametersFloat(float[] p) {
+		parameters =p;
+	}
+
 
 	@Override
 	public void average(double avVal) {
@@ -34,7 +41,15 @@ final public class ParametersFloat extends Parameters  {
 		}
 		total =null;
 	}
-	
+
+	public ParametersFloat average2(double avVal) {
+		float[] px = new float[this.parameters.length];
+		for(int j = 0; j < total.length; j++) {
+			px[j] = total[j]/((float)avVal);
+		}
+		ParametersFloat pf = new ParametersFloat(px);
+		return pf;
+	}
 	
 	@Override
 	public void update(FV act, FV pred, Instances isd, int instc, Parse d, double upd, double e) {
@@ -84,6 +99,18 @@ final public class ParametersFloat extends Parameters  {
 		
 		
 		DB.println("read parameters "+parameters.length+" not zero "+notZero);
+
+	}
+	
+	public int countNZ() {
+
+		int notZero=0;
+		for(int i=0;i<parameters.length;i++) {
+			if (parameters[i]!=0.0F) notZero++; 
+		}
+		return notZero;
+		
+	//	DB.println("read parameters "+parameters.length+" not zero "+notZero);
 
 	}
 

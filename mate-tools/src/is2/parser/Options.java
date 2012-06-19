@@ -28,6 +28,10 @@ public final class Options extends OptionsSuper {
 				maxLen= Integer.parseInt(args[i+1]); i++;			
 			} else if (args[i].equals("-cores")) {
 				cores= Integer.parseInt(args[i+1]); i++;			
+			} else if (args[i].equals("-no2nd")) {
+				no2nd= true;			
+			} else if (args[i].equals("-few2nd")) {
+				few2nd= true;			
 			} else super.addOption(args, i);
 					
 		}

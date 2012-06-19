@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 public final class Edges {
 
 	
-	private static short[][][][] edges;
+	private static short[][][] edges;
 	private static HashMap<Short,Integer> labelCount = new HashMap<Short,Integer>();
 
 	private static HashMap<String,Integer> slabelCount = new HashMap<String,Integer>();
@@ -34,7 +34,7 @@ public final class Edges {
 	 * @param length
 	 */
 	public static void init(int length) {
-			edges = new short[length][length][2][];
+			edges = new short[length][length][];
 	}
 	
 	
@@ -42,9 +42,7 @@ public final class Edges {
 		
 		int best =0;
 
-		int total =0;
 		
-		System.out.println("total edge pos combinations "+total);
 		
 		for(Entry<Short,Integer> e :  labelCount.entrySet()) {
 
@@ -57,42 +55,41 @@ public final class Edges {
 
 		
 		//	labelCount=null;
-//		String[] types = new String[MFO.getFeatureCounter().get(PipeGen.REL)];
-//		for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
+	//	String[] types = new String[mf.getFeatureCounter().get(PipeGen.REL)];
+	//	for (Entry<String, Integer> e : MFO.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
 
- //   	is2.util.DB.println("set default label to "+types[def[0]]+" " );
+    	is2.util.DB.println("set default label to "+def[0]+" " );
 
-		System.out.println("found default "+def[0]);
+	//	System.out.println("found default "+def[0]);
 	
 	}
 	
 
-	final static public void put(int pos1, int pos2, boolean dir, short label) {
-		putD(pos1, pos2,dir, label);
+	final static public void put(int pos1, int pos2, short label) {
+		putD(pos1, pos2,label);
 	//	putD(pos2, pos1,!dir, label);		
 	}
 	
 	
-	final static public void putD(int pos1, int pos2, boolean dir, short label) {
+	final static public void putD(int pos1, int pos2, short label) {
 		
 		Integer lc = labelCount.get(label);
 		if (lc==null) labelCount.put(label, 1);
 		else labelCount.put(label, lc+1);
 
-		String key = pos1+"-"+pos2+dir+label;
+		String key = pos1+"-"+pos2+label;
 		Integer lcs = slabelCount.get(key);
 		if (lcs==null) slabelCount.put(key, 1);
 		else slabelCount.put(key, lcs+1);
 
-		
-		if (edges[pos1][pos2][dir?0:1]==null) {
-			edges[pos1][pos2][dir?0:1]=new short[1];
-			edges[pos1][pos2][dir?0:1][0]=label;
+		if (edges[pos1][pos2]==null) {
+			edges[pos1][pos2]=new short[1];
+			edges[pos1][pos2][0]=label;
 			
 //			edgesh[pos1][pos2][dir?0:1] = new TIntHashSet(2);
 //			edgesh[pos1][pos2][dir?0:1].add(label);
 		} else {
-			short labels[] = edges[pos1][pos2][dir?0:1];
+			short labels[] = edges[pos1][pos2];
 			for(short l : labels) {				
 				//contains label already?
 				if(l==label) return;
@@ -101,16 +98,16 @@ public final class Edges {
 			short[] nlabels = new short[labels.length+1];
 			System.arraycopy(labels, 0, nlabels, 0, labels.length);
 			nlabels[labels.length]=label;
-			edges[pos1][pos2][dir?0:1]=nlabels;
+			edges[pos1][pos2]=nlabels;
 			
 	//		edgesh[pos1][pos2][dir?0:1].add(label);
 		}
 	}
 	
-	final static public short[] get(int pos1, int pos2, boolean dir) {
+	final static public short[] get(int pos1, int pos2) {
 		
-		if (pos1<0 || pos2<0 || edges[pos1][pos2][dir?0:1]==null) return def;
-		return edges[pos1][pos2][dir?0:1];
+		if (pos1<0 || pos2<0 || edges[pos1][pos2]==null) return def;
+		return edges[pos1][pos2];
 	}
 
 	
@@ -124,22 +121,14 @@ public final class Edges {
 
 		for(int p1 =0;p1<len;p1++) {
 			for(int p2 =0;p2<len;p2++) {
-				if (edges[p1][p2][0]==null) d.writeShort(0);
+				if (edges[p1][p2]==null) d.writeShort(0);
 				else {
-					d.writeShort(edges[p1][p2][0].length);
-					for(int l =0;l<edges[p1][p2][0].length;l++) {
-						d.writeShort(edges[p1][p2][0][l]);
+					d.writeShort(edges[p1][p2].length);
+					for(int l =0;l<edges[p1][p2].length;l++) {
+						d.writeShort(edges[p1][p2][l]);
 					}
 					
 				}
-
-				if (edges[p1][p2][1]==null) d.writeShort(0);
-				else {
-					d.writeShort(edges[p1][p2][1].length);
-					for(int l =0;l<edges[p1][p2][1].length;l++) {
-						d.writeShort(edges[p1][p2][1][l]);
-					}
-				}				
 			}
 		}
 		
@@ -154,28 +143,18 @@ public final class Edges {
 	public static void read(DataInputStream d) throws IOException {
 		int len = d.readShort();
 
-		edges = new short[len][len][2][];
+		edges = new short[len][len][];
 		for(int p1 =0;p1<len;p1++) {
 			for(int p2 =0;p2<len;p2++) {
 				int ll = d.readShort();
 				if (ll==0) {
-					edges[p1][p2][0]=null;
+					edges[p1][p2]=null;
 				} else {
-					edges[p1][p2][0] = new short[ll];
+					edges[p1][p2] = new short[ll];
 					for(int l =0;l<ll;l++) {
-						edges[p1][p2][0][l]=d.readShort();
+						edges[p1][p2][l]=d.readShort();
 					}					
 				}
-
-				ll = d.readShort();
-				if (ll==0) {
-					edges[p1][p2][1]=null;
-				} else {
-					edges[p1][p2][1] = new short[ll];
-					for(int l =0;l<ll;l++) {
-						edges[p1][p2][1][l]=d.readShort();
-					}					
-				}					
 			}
 		}
 		
