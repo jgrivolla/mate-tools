@@ -17,12 +17,8 @@ public final class Options extends OptionsSuper {
 
 			if (args[i].equals("--help")) explain();
 			
-			if (args[i].equals("-decode")) {
-				decodeProjective = args[i+1].equals("proj"); i++;
-			} else if (args[i].equals("-decodeTH")) {		
-				decodeTH = Double.parseDouble(args[i+1]); i++;
-			} else if (args[i].equals("-nonormalize")) {
-				normalize=false;
+			if (args[i].equals("-normalize")) {
+				normalize=Boolean.parseBoolean(args[++i]);
 			} else if (args[i].equals("-features")) {
 				features= args[i+1]; i++;			
 			} else if (args[i].equals("-hsize")) {

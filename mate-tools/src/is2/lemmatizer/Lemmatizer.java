@@ -377,7 +377,9 @@ public class Lemmatizer implements Tool, Train {
 		long start = System.currentTimeMillis();
 
 		CONLLReader09 depReader = new CONLLReader09(options.testfile, CONLLReader09.NO_NORMALIZE);
+		depReader.setInputFormat(options.formatTask);
 		CONLLWriter09 depWriter = new CONLLWriter09(options.outfile);
+		depWriter.setOutputFormat(options.formatTask);
 
 		System.out.print("Processing Sentence: ");
 
@@ -397,6 +399,18 @@ public class Lemmatizer implements Tool, Train {
 				is.fillChars(instance, 0, Pipe._CEND);
 				cnt++;
 				SentenceData09 i09 =lemmatize(is, instance, this.li);
+				
+				if(options.normalize) for(int k=0;k<i09.length();k++) {
+					boolean save = depReader.normalizeOn;
+					depReader.normalizeOn =true;
+					i09.plemmas[k] = depReader.normalize(i09.plemmas[k]);
+					depReader.normalizeOn = save;
+				}
+				
+				if (options.overwritegold)  i09.lemmas = i09.plemmas;
+				
+				
+				
 				 depWriter.write(i09);
 
 				 if (cnt%100 ==0) del=Pipe.outValue(cnt, del);
