@@ -139,7 +139,7 @@ public class TigerReader implements PSReader {
 					
 					if (root==-1) root= terminals;
 					ps.head[cnt-1]=0;  // root
-					ps.terminal=terminals;
+					ps.terminalCount=terminals;
 					lines.clear();
 					state=1;
 				
@@ -346,11 +346,11 @@ public class TigerReader implements PSReader {
 			if(term.contains("1\\/2-foot-tall"))  term=term.replace("\\/", "/");
 
 			
-			ps.entries[ps.terminal] =term;
-			ps.pos[ps.terminal]=pos;
-			ps.head[ps.terminal]=head;
+			ps.entries[ps.terminalCount] =term;
+			ps.pos[ps.terminalCount]=pos;
+			ps.head[ps.terminalCount]=head;
 			//	System.out.println("terminal "+term+" "+ps.terminal+" head "+head);
-			ps.terminal  ++;
+			ps.terminalCount  ++;
 		} else if (found && ! all) {
 			if(pos.startsWith("NP-SBJ")) pos="NP-SBJ";
 			if(pos.startsWith("WHNP")) pos="WHNP";
