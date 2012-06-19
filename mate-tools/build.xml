@@ -1,0 +1,64 @@
+<project name="analyse" default="compile" basedir=".">
+    <description>
+        The base ant build file.
+    </description>
+    
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="classes" location="classes"/>
+  <property name="dist" location="dist"/>
+  	<property name="include" location="include"/>
+
+  
+  <target name="init" description="Clears the /class directory">
+    <!-- Create the time stamp -->
+    <tstamp/> 
+    <mkdir dir="dist"/>
+    <mkdir dir="javadoc"/>
+    <mkdir dir="classes"/>
+  </target>
+
+  <target name="compile" depends="init" description="Compile the source" >
+    <!-- Compile the java code from ${src} into ${build}   executable="javac" -->
+  
+    <javac  srcdir="${src}"   
+           destdir="${classes}"          
+    	 includeantruntime="false"
+    	executable="javac.exe"
+    	   optimize="true"
+    	   debug="off"
+	   classpath="libs/trove-2.0.4.jar:libs/commons-math-2.2.jar"/>
+	
+  </target>
+
+  <target name="build"  description="Build the distribution .jar file" >
+    <!-- Create the temporary distribution directory -->
+    <delete includeEmptyDirs="true"><fileset dir="dist" includes="**/*" excludes="gtc*.jar"/></delete>  
+    <mkdir dir="${dist}/temp-${DSTAMP}"/>  
+    <copy todir="${dist}/temp-${DSTAMP}"><fileset dir="${classes}" /></copy>  
+  	<copy todir="${dist}/temp-${DSTAMP}"><fileset dir="${include}" /></copy>
+    <!-- copy everything from /include/others to dist 
+    <copy todir="${dist}/temp-${DSTAMP}"><fileset dir="${include}/others" /></copy>-->
+    <!-- copy everything from /include/classes to dist 
+    <copy todir="${dist}/temp-${DSTAMP}"><fileset dir="${include}/classes" /></copy>-->
+    <!-- pack everything into a .jar file -->
+    <jar jarfile="${dist}/anna.jar" 
+         basedir="${dist}/temp-${DSTAMP}"/>
+    <delete dir="${dist}/temp-{DSTAMP}" />
+  </target>
+  
+  <target name="javadoc" depends="init" description="Create the javadoc API documentation" >
+        <delete includeEmptyDirs="true"><fileset dir="javadoc" includes="**/*"/></delete>  
+        <!-- TODO: you might add new packages to packagenames -->
+        <javadoc destdir="javadoc" access="package" source="1.4"
+            use="false" notree="false" nonavbar="false" noindex="true"
+            splitindex="false" author="true" version="true"
+            nodeprecatedlist="true" nodeprecated="false"
+            packagenames="gtc.*.*"
+            sourcepath="src" classpath="class"/>
+   </target>
+   
+
+	 <target name="all" depends="init,compile,javadoc" description="Make all" />
+</project>
+
