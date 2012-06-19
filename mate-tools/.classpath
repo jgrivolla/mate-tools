@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/btools"/>
 	<classpathentry kind="lib" path="/mtt/lib/trove.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
