@@ -36,7 +36,6 @@ public class Tagger implements Tool, Train {
 	ExtractorM pipe;
 	ParametersFloat params;
 
-
 	/**
 	 * Initialize 
 	 * @param options
