@@ -142,7 +142,7 @@ public class Tagger implements Tool, Train {
 			e.printStackTrace();
 		}
 	}
-
+  
 	/**
 	 * Do the training
 	 * @param instanceLengths
