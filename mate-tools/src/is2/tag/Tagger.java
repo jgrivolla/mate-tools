@@ -11,6 +11,7 @@ import is2.data.PipeGen;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
+import is2.parserR2.Pipe;
 import is2.tools.IPipe;
 import is2.tools.Tool;
 import is2.tools.Train;
@@ -378,6 +379,24 @@ public class Tagger implements Tool, Train {
 	public ArrayList<POS> tag(InstancesTagger is,int instanceIndex, int word, String wordForm) {
 
 		return  pipe.classify( wordForm , params, word, is, instanceIndex, is.pposs[instanceIndex], li);
+		
+	}
+	
+	public ArrayList<String> tagStrings(InstancesTagger is,int instanceIndex, int word, String wordForm) {
+
+		ArrayList<POS> plist  = pipe.classify( wordForm , params, word, is, instanceIndex, is.pposs[instanceIndex], li);
+		String pos[] = mf.reverse(this.pipe.mf.getFeatureSet().get(ExtractorT2.POS));
+	
+		ArrayList<String> postags =null;
+		for(POS p : plist) {
+			try {
+				 postags.add(pos[p.p]);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return postags;
+	
 		
 	}
 
