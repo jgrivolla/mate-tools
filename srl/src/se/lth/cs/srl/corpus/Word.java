@@ -273,7 +273,7 @@ public class Word implements Serializable{
 	 * For proper CoNLL 2009 format output, use the Sentence.toString() method
 	 */
 	public String toString() {
-		return Form+"\t"+Lemma+"\t"+Lemma+"\t"+POS+"\t"+POS+"\t_\t_\t"+headID+"\t"+headID+"\t"+Deprel+"\t"+Deprel;
+		return Form+"\t"+Lemma+"\t"+Lemma+"\t"+POS+"\t"+POS+"\t_\t"+Feats+"\t"+headID+"\t"+headID+"\t"+Deprel+"\t"+Deprel;
 		//return Form+"\t"+Lemma+"\t"+POS+"\t"+headID+"\t"+Deprel;
 	}
 	/**

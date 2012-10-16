@@ -1,8 +1,8 @@
 package se.lth.cs.srl.languages;
 
-import is2.lemmatizer.LemmatizerInterface;
+import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
 
 import java.io.File;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class Chinese extends Language {
 	@Override
 	public Preprocessor getPreprocessor(FullPipelineOptions options) {
 		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new StanfordChineseSegmenterWrapper(options.tokenizer) : null); 
-		LemmatizerInterface lemmatizer=new SimpleChineseLemmatizer();
+		Lemmatizer lemmatizer=new SimpleChineseLemmatizer();
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
 		Parser parser=BohnetHelper.getParser(options.parser);
 		return new Preprocessor(tokenizer,lemmatizer,tagger,null,parser);

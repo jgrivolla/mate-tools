@@ -2,9 +2,9 @@ This file briefly describes the role of the libraries which are used
 by the SRL system and references their associated licenses.
 
 ------------------------------------------------------------------------
-anna.jar
+anna-3-1.jar
 
-mate-tools, manually compiled from source at 2010-10-31 12:42 CET
+mate-tools anna, Downloaded 2012-10-15 15:24 CET
 Homepage: http://code.google.com/p/mate-tools/
 License: GPL (see GPL.txt)
 

@@ -16,6 +16,8 @@ public abstract class Options {
 	public int global_aiBeam=4;
 	public int global_acBeam=4;
 	
+	public static int cores=Runtime.getRuntime().availableProcessors();
+	
 	protected void superParseCmdLine(String[] args){
 		if(args.length<3){
 			System.err.println("Not enough arguments, aborting.");
@@ -49,6 +51,10 @@ public abstract class Options {
 				ai++;
 				global_acBeam=Integer.parseInt(args[ai]);
 				ai++;
+			} else if(args[ai].equals("-cores")){
+				ai++;
+				cores=Integer.parseInt(args[ai++]);
+				System.out.println("using cores: "+cores);
 			} else if(args[ai].equals("-help") || args[ai].equals("--help")){
 				usage();
 				System.exit(0);

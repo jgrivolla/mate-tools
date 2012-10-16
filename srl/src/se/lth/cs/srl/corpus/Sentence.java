@@ -22,9 +22,20 @@ public class Sentence extends ArrayList<Word> {
 	}
 
 	public Sentence(SentenceData09 data){
-		this(data.forms,data.lemmas,data.ppos,data.pfeats,data.heads,data.labels);
+		this();
+		for(int i=0;i<data.forms.length;++i){
+			Word nextWord=new Word(data.forms[i],data.plemmas[i],data.ppos[i],data.pfeats[i],this);
+			super.add(nextWord);
+		}
+		for(int i=0;i<data.forms.length;++i){
+			Word curWord=super.get(i+1);
+			curWord.setHead(super.get(data.pheads[i]));
+			curWord.setDeprel(data.plabels[i]);
+		}
+		this.buildDependencyTree();
 	}
 	
+
 	public Sentence(String[] words, String[] lemmas, String[] tags,	String[] morphs) {
 		this();
 		for(int i=1;i<words.length;++i){ //Skip root-tokens.
@@ -33,15 +44,6 @@ public class Sentence extends ArrayList<Word> {
 		}
 	}
 
-	public Sentence(String[] forms, String[] lemmas, String[] ppos,	String[] pfeats, int[] heads, String[] labels) {
-		this(forms,lemmas,ppos,pfeats);
-		for(int i=1;i<heads.length;++i){
-			Word curWord=super.get(i);
-			curWord.setHead(super.get(heads[i]));
-			curWord.setDeprel(labels[i]);
-		}
-		this.buildDependencyTree();
-	}
 
 	private void addPredicate(Predicate pred){
 		predicates.add(pred);

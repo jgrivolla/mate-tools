@@ -2,7 +2,7 @@ package se.lth.cs.srl.languages;
 
 import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class German extends Language {
 		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new OpenNLPToolsTokenizerWrapper(new opennlp.tools.lang.german.Tokenizer(options.tokenizer.toString())) : null);
 		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
-		is2.mtag.Main mtagger=BohnetHelper.getMTagger(options.morph);
+		is2.mtag.Tagger mtagger=BohnetHelper.getMTagger(options.morph);
 		Parser parser=BohnetHelper.getParser(options.parser);
 		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, mtagger, parser);
 		return pp;

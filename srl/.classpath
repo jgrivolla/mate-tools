@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-1.6.0-sun-1.6.0.15"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/maxent-2.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/opennlp-tools-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/trove.jar"/>
 	<classpathentry kind="lib" path="lib/liblinear-1.51-with-deps.jar"/>
 	<classpathentry kind="lib" path="lib/seg.jar"/>
-	<classpathentry kind="lib" path="lib/anna.jar"/>
 	<classpathentry kind="lib" path="lib/whatswrong-0.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/anna-3-1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

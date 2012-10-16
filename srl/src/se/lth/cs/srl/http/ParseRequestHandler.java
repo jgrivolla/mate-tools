@@ -60,15 +60,19 @@ public class ParseRequestHandler extends Handler {
 		Sentence sen=null;
 		try {
 			sen = pipeline.parse(inputSentence);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Throwable t) {
+			t.printStackTrace();
+			content_type="text/plain";
+			httpResponse="Server crashed.";
+			sendContent(exchange,httpResponse,content_type);
+			System.err.println("Server crashed. Exiting.");
+			System.exit(1);
 		}
 		parsingTime=System.currentTimeMillis()-parsingTime;
 		
 		//Prepare the response;
 		if(vars.containsKey("returnType") && vars.get("returnType").equals("html")){
-			boolean performURLLookup=vars.containsKey("doPerformDictionaryLookup"); //TODO: verify that this works.
+			boolean performURLLookup=vars.containsKey("doPerformDictionaryLookup");
 			boolean includeDependencyGraphImage=vars.containsKey("doRenderDependencyGraph");
 			httpResponse=getHTMLResponse(sen,parsingTime,performURLLookup,includeDependencyGraphImage);
 			content_type="text/html; charset=UTF-8";
@@ -178,7 +182,6 @@ public class ParseRequestHandler extends Handler {
 				ret.append("<img src=\"/img/"+key+".png\"/>");
 				ret.append("<br/>\n<hr/>\n<br/>\n");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -190,8 +193,12 @@ public class ParseRequestHandler extends Handler {
 		ret.append("</tr>\n");
 		for(String line:sen.toString().split("\n")){
 			ret.append("<tr>");
+			int tokIdx=0;
 			for(String token:line.split("\t")){
+				if(tokIdx%2==0 && tokIdx>1 && tokIdx<12)
+					token="_";
 				ret.append("<td>").append(token).append("</td>");
+				++tokIdx;
 			}
 			ret.append("</tr>\n");
 		}

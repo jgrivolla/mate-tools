@@ -2,7 +2,7 @@ package se.lth.cs.srl.languages;
 
 import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
 
 import java.io.File;
 import java.io.IOException;

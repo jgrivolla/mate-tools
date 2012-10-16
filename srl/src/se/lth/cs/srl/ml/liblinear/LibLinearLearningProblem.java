@@ -92,10 +92,12 @@ public class LibLinearLearningProblem implements LearningProblem {
 		void writeIndices(Collection<Integer> indices) {
 			Iterator<Integer> it=indices.iterator();
 			if(it.hasNext()){
+				Integer last=null;
 				Integer currentIndex=it.next();
 				Integer next=null;
+				int count=0;
 				do {
-					int count=1;
+					count=1;
 					next=null;
 					while(it.hasNext() && (next=it.next()).equals(currentIndex)){
 						count++;
@@ -104,8 +106,14 @@ public class LibLinearLearningProblem implements LearningProblem {
 					out.print(':');
 					out.print(count);
 					out.print(' ');
+					last=currentIndex;
 					currentIndex=next;
 				} while(it.hasNext());
+				if(!last.equals(currentIndex) && currentIndex!=null){
+					out.print(currentIndex);
+					out.print(':');
+					out.print(count);
+				}
 			}
 		}
 		

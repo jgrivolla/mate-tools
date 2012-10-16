@@ -2,11 +2,15 @@ package se.lth.cs.srl.util;
 
 import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import se.lth.cs.srl.options.FullPipelineOptions;
+import se.lth.cs.srl.options.Options;
 
 public class BohnetHelper {
 
@@ -17,16 +21,16 @@ public class BohnetHelper {
 	
 	public static Tagger getTagger(File modelFile) {
 		String[] argsT={"-model",modelFile.toString()};
-		return new Tagger(new is2.tag3.Options(argsT));
+		return new Tagger(new is2.tag.Options(argsT));
 	}
 	
-	public static is2.mtag.Main getMTagger(File modelFile) throws IOException{
+	public static is2.mtag.Tagger getMTagger(File modelFile) throws IOException{
 		String[] argsMT={"-model",modelFile.toString()};
-		return new is2.mtag.Main(new is2.mtag.Options(argsMT));
+		return new is2.mtag.Tagger(new is2.mtag.Options(argsMT));
 	}
 	
 	public static Parser getParser(File modelFile){
-		String[] argsDP={"-model",modelFile.toString()};
+		String[] argsDP={"-model",modelFile.toString(),"-cores",Integer.toString(Math.min(Options.cores,FullPipelineOptions.cores))};
 		return new Parser(new is2.parser.Options(argsDP));
 	}
 	

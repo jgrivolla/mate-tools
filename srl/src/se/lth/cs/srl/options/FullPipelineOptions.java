@@ -21,65 +21,11 @@ public abstract class FullPipelineOptions {
 	public int acBeam=4;
 	public double alfa=1.0;
 	
+	public static int cores=Runtime.getRuntime().availableProcessors();
+	
 	public boolean skipPI=false;
 	
 	public boolean loadPreprocessorWithTokenizer=true;
-	
-//	public void verifyFiles(boolean verifyTokenizer,boolean verifyLemmatizer,boolean verifyTagger,boolean verifyMTagger,boolean verifyParser,boolean verifySRL) {
-//		List<File> files=new ArrayList<File>();
-//		if(verifyTokenizer){
-//			if(tokenizer==null){
-//				System.err.println("You forgot to specify the model file for the tokenizer. Try again.");
-//				System.exit(1);
-//			} else
-//				files.add(tokenizer);
-//		}
-//		if(verifyLemmatizer){
-//			if(lemmatizer==null){
-//				System.err.println("You forgot to specify the model file for the lemmatizer. Try again.");
-//				System.exit(1);
-//			} else
-//				files.add(lemmatizer);
-//		}
-//		if(verifyTagger){
-//			if(tagger==null){
-//				System.err.println("You forgot to specify the model file for the pos tagger. Try again.");
-//				System.exit(1);
-//			} else 
-//				files.add(tagger);
-//		}
-//		if(verifyMTagger){
-//			if(morph==null){
-//				System.err.println("You forgot to specify the model file for the morphological tagger. Try again.");
-//				System.exit(1);
-//			} else
-//				files.add(morph);
-//		}
-//		if(verifyParser){
-//			if(parser==null){
-//				System.err.println("You forgot to specify the model file for the dependency parser. Try again.");
-//				System.exit(1);
-//			} else
-//				files.add(parser);
-//		}
-//		if(verifySRL){
-//			if(srl==null){
-//				System.err.println("You forgot to specify the model file for the srl system. Try again.");
-//				System.exit(1);
-//			} else
-//				files.add(srl);
-//		}
-//		for(File f:files){
-//			if(!f.exists()){
-//				System.err.println("File "+f+" does not exist. Aborting.");
-//				System.exit(1);
-//			}
-//			if(!f.canRead()){
-//				System.err.println("File "+f+" can not be read. Aborting.");
-//				System.exit(1);
-//			}
-//		}
-//	}
 	
 	public ParseOptions getParseOptions(){
 		ParseOptions parseOptions=new ParseOptions();
@@ -173,6 +119,9 @@ public abstract class FullPipelineOptions {
 			ai++;
 			alfa=Double.parseDouble(args[ai]);
 			ai++;
+		} else if(args[ai].equals("-cores")){
+			ai++;
+			cores=Integer.parseInt(args[ai++]);
 		}
 		return ai;
 	}

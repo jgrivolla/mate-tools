@@ -6,9 +6,9 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
 import is2.data.SentenceData09;
-import is2.lemmatizer.LemmatizerInterface;
+import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
-import is2.tag3.Tagger;
+import is2.tag.Tagger;
 import is2.tools.Tool;
 
 import se.lth.cs.srl.preprocessor.tokenization.StanfordChineseSegmenterWrapper;
@@ -20,10 +20,10 @@ public class Preprocessor {
 	private final Tokenizer tokenizer;
 	private final Tool lemmatizer;
 	private final Tagger tagger;
-	private final is2.mtag.Main mtagger;
+	private final is2.mtag.Tagger mtagger;
 	private final Parser parser;
 	
-	public Preprocessor(Tokenizer tokenizer,LemmatizerInterface lemmatizer,Tagger tagger,is2.mtag.Main mtagger,Parser parser){
+	public Preprocessor(Tokenizer tokenizer,Lemmatizer lemmatizer,Tagger tagger,is2.mtag.Tagger mtagger,Parser parser){
 		this.tokenizer=tokenizer;
 		this.lemmatizer=(Tool) lemmatizer;
 		this.tagger=tagger;
@@ -82,7 +82,7 @@ public class Preprocessor {
 		}
 		if(parser!=null){
 			long start=System.currentTimeMillis();
-			parser.apply(instance);
+			instance=parser.apply(instance);
 			dpTime+=System.currentTimeMillis()-start;
 		}
 		return instance;
@@ -103,7 +103,7 @@ public class Preprocessor {
 		
 		File desegmentedInput=new File("chi-desegmented.out");
 		Tokenizer tokenizer=new StanfordChineseSegmenterWrapper(new File("/home/anders/Download/stanford-chinese-segmenter-2008-05-21/data"));
-		LemmatizerInterface lemmatizer=new SimpleChineseLemmatizer();
+		Lemmatizer lemmatizer=new SimpleChineseLemmatizer();
 		Tagger tagger=BohnetHelper.getTagger(new File("models/chi/tag-chn.model"));
 		Preprocessor pp=new Preprocessor(tokenizer,lemmatizer,tagger,null,null);
 		BufferedReader reader=new BufferedReader(new InputStreamReader(new FileInputStream(desegmentedInput),"UTF-8"));

@@ -57,30 +57,18 @@ public class CompletePipeline {
 		this.srl=srl;
 	}
 	
-//	public Sentence parse(String sentence) throws Exception{
-//		SentenceData09 sen=pp.preprocess(sentence);
-//		Sentence ret=dpParse(sen);
-//		srl.parseSentence(ret);
-//		return ret;
-//	}
-	
 	public Sentence parse(String sentence) throws Exception{
 		return parse(Arrays.asList(pp.tokenize(sentence)));
 	}
 	
 	public Sentence parse(List<String> words) throws Exception{
-//		SentenceData09 sen=pp.preprocess(words.toArray(new String[0]));
-//		Sentence ret=dpParse(sen);
-//		srl.parseSentence(ret);
-//		return ret;
-		
-		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[0])));
+		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[words.size()])));
 		srl.parseSentence(s);
 		return s;
 	}
 	
 	public Sentence parseOraclePI(List<String> words,List<Boolean> isPred) throws Exception{
-		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[0])));
+		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[words.size()])));
 		for(int i=0;i<isPred.size();++i){
 			if(isPred.get(i)){
 				s.makePredicate(i);

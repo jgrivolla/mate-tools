@@ -1,7 +1,5 @@
 package se.lth.cs.srl.http.whatswrongglue;
 
-import is2.data.SentenceData09;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +28,7 @@ public class WhatsWrongHelper {
 	private static final TokenProperty FORM=new TokenProperty("Form", 0);
 	private static final TokenProperty LEMMA=new TokenProperty("Lemma",1);
 	private static final TokenProperty POS=new TokenProperty("POS", 2);
-	private static final TokenProperty FEATS=new TokenProperty("Feats", 3);
+//	private static final TokenProperty FEATS=new TokenProperty("Feats", 3);
 	
 	public static ByteArrayOutputStream renderJPG(NLPInstance instance,double scaleFactor) throws IOException{
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
@@ -52,8 +50,8 @@ public class WhatsWrongHelper {
 			tokens.add(new Token(i));
 		}
 		
-		//XXX This is a nasty workaround. Should be fixed. Just like the Sentence object altogether.
-		//Moreover, the form of the root token is /not/ <root> during training of the srl. Need to check the impact of this on models.
+		//Don't render feats -- it makes things to wide. Just uncomment the feats lines below to get it back.
+		
 		tokens.get(0).addProperty(FORM, "<root>");
 		for(int i=1,size=s.size();i<size;++i){
 			Word w=s.get(i);
@@ -61,19 +59,19 @@ public class WhatsWrongHelper {
 			String form=w.getForm();
 			String lemma=w.getLemma();
 			String pos=w.getPOS();
-			String feats=w.getFeats();
+//			String feats=w.getFeats();
 			if(form==null || form.equals(""))
 				form="!";
 			if(lemma==null || lemma.equals(""))
 				lemma="_";
 			if(pos==null || pos.equals(""))
 				pos="_";
-			if(feats==null || feats.equals(""))
-				feats="_";
+//			if(feats==null || feats.equals(""))
+//				feats="_";
 			t.addProperty(FORM,form);
 			t.addProperty(LEMMA, lemma);
 			t.addProperty(POS, pos);
-			t.addProperty(FEATS, feats);
+//			t.addProperty(FEATS, feats);
 			int tokenHead=w.getHeadId();
 //			if(tokenHead>=0) //XXX Note that root has head -1, but we skip this now anyway. 
 				edges.add(new Edge(tokens.get(tokenHead),t,w.getDeprel(),"dep"));
@@ -82,10 +80,11 @@ public class WhatsWrongHelper {
 		return instance;
 	}
 	
-	public static NLPInstance getNLPInstance(SentenceData09 s){
-		throw new Error("Not implemented!"); //TODO implement me
-		//return null;
-	}
+	//This could be worth implementing at some point...
+//	public static NLPInstance getNLPInstance(SentenceData09 s){
+//		throw new Error("Not implemented!");
+//		//return null;
+//	}
 	
 	public static void main(String[] args) throws IOException{
 		SentenceReader reader=new AllCoNLL09Reader(new File("/home/anders/corpora/conll09/eng/CoNLL2009-ST-English-trial.txt"));
