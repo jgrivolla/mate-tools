@@ -42,20 +42,23 @@ public class Lemmatizer implements Tool, Train {
 	public Pipe pipe;
 	public ParametersFloat params;
 	private Long2Int li;
+	
+	private boolean doUppercase=false;
 
 	private long[] vs= new long[40];
 
 
 	public Lemmatizer(Options options)  {
 		this.readModel(options);
+		doUppercase=options.upper;
 	}
 
 	/**
 	 * Creates a lemmatizer due to the model stored in modelFileName
 	 * @param modelFileName the path and file name to a lemmatizer model
 	 */
-	public Lemmatizer(String modelFileName)  {
-
+	public Lemmatizer(String modelFileName,boolean doUppercase)  {
+		this.doUppercase=doUppercase;
 		// tell the lemmatizer the location of the model
 		try {
 			Options m_options = new Options(new String[] {"-model", modelFileName});
@@ -68,20 +71,31 @@ public class Lemmatizer implements Tool, Train {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Deprecated. Use the constructor Lemmatizer(String,boolean) instead. (this one forces no uppercasing)
+	 * 
+	 * @deprecated
+	 * @param modelFileName
+	 */
+	public Lemmatizer(String modelFileName)  {
+		this(modelFileName,false);
+	}
 
 
 
-	public Lemmatizer() { }
+	public Lemmatizer(boolean doUppercase) {this.doUppercase=doUppercase; }
 
 
 
 	public static void main (String[] args) throws FileNotFoundException, Exception
 	{
 
-		Lemmatizer lemmatizer = new Lemmatizer();
+		Options options = new Options(args);
+		Lemmatizer lemmatizer = new Lemmatizer(options.upper);
 
 		long start = System.currentTimeMillis();
-		Options options = new Options(args);
+		
 
 		if (options.train) {
 
@@ -128,7 +142,7 @@ public class Lemmatizer implements Tool, Train {
 			ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(options.modelName)));
 			zos.putNextEntry(new ZipEntry("data")); 
 			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(zos));
-
+			
 			this.pipe.mf.writeData(dos);
 
 			dos.flush();
@@ -259,7 +273,7 @@ public class Lemmatizer implements Tool, Train {
 							}
 						}
 
-					if (options.upper) {
+					if (doUppercase) {
 						fs.clear();
 						for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) fs.add(li.l2i(vs[l]+(LC*Pipe.s_type)));
 
@@ -466,29 +480,31 @@ public class Lemmatizer implements Tool, Train {
 				}		
 			}
 			//instance.ppos[w1]=""+bestOp;
-			if (f==null) instance.plemmas[w1] = StringEdit.change(instance.forms[w1],pipe.types[bestOp]);
+			if (f==null) instance.plemmas[w1] = StringEdit.change((doUppercase?instance.forms[w1]:instance.forms[w1].toLowerCase()),pipe.types[bestOp]);
 
 			// check for empty string
 			if(instance.plemmas[w1].length()==0) instance.plemmas[w1] = "_";
-			
-			fs.clear();
-			for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) fs.add(li.l2i(vs[l]+(LC*Pipe.s_type)));
 
-			try {
+			if(doUppercase){
+				fs.clear();
+				for(int l=vs.length-1;l>=0;l--) if (vs[l]>0) fs.add(li.l2i(vs[l]+(LC*Pipe.s_type)));
 
-				if (fs.score<=0 && instance.plemmas[w1].length()>1) {
-					instance.plemmas[w1] = Character.toUpperCase(instance.plemmas[w1].charAt(0))+instance.plemmas[w1].substring(1);
-				} else if (fs.score<=0 && instance.plemmas[w1].length()>0) {
-					instance.plemmas[w1] = String.valueOf(Character.toUpperCase(instance.plemmas[w1].charAt(0)));
-				} else if (fs.score>0) {
-					instance.plemmas[w1] = instance.plemmas[w1].toLowerCase();
+
+				try {
+
+					if (fs.score<=0 && instance.plemmas[w1].length()>1) {
+						instance.plemmas[w1] = Character.toUpperCase(instance.plemmas[w1].charAt(0))+instance.plemmas[w1].substring(1);
+					} else if (fs.score<=0 && instance.plemmas[w1].length()>0) {
+						instance.plemmas[w1] = String.valueOf(Character.toUpperCase(instance.plemmas[w1].charAt(0)));
+					} else if (fs.score>0) {
+						instance.plemmas[w1] = instance.plemmas[w1].toLowerCase();
+					}
+
+				} catch(Exception e){
+					e.printStackTrace();
+					//	System.out.println("error "+pipe.types[bestOp]+" "+instance.forms[w1]);
 				}
-
-			} catch(Exception e){
-				e.printStackTrace();
-				//	System.out.println("error "+pipe.types[bestOp]+" "+instance.forms[w1]);
 			}
-
 		}
 
 
