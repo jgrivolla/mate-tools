@@ -170,7 +170,7 @@ public class CONLLReader09 extends IOGenerals {
 		} catch(Exception e) {
 			System.out.println("\n!!! Error in input file sentence before line: "+lineNumber+" (in sentence line "+i+" ) "+e.toString());
 			e.printStackTrace();
-			System.exit(0);
+		
 			
 			
 
