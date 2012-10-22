@@ -14,7 +14,7 @@ public class OptionsSuper {
 	public String pbframes = null;
 
 	public boolean nopred = false;
-	public boolean upper = true;
+	public boolean upper = false;
 	
 	public boolean train = false;
 	public boolean eval = false;
