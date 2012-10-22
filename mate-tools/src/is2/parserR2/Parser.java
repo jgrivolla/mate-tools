@@ -63,8 +63,6 @@ public class Parser implements Tool {
 	
 	 ExtractorFactory extractorFactory = new ExtractorFactory(ExtractorFactory.StackedClusteredR2);
 	 
-	 
-	 
 	
 	/**
 	 * Initialize the parser
