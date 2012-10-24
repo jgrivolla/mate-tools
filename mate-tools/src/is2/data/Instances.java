@@ -224,7 +224,7 @@ public class Instances  {
 	}
 	public void setPFeature(int i, int p, String feature) {
 		if (feature==null) return;	
-		this.pfeats[i][p]= (short) m_encoder.getValue(PipeGen.FFEATS,feature);
+		this.pfeats[i][p]= (short) m_encoder.getValue(PipeGen.FEAT,feature);
 	}
 
 
