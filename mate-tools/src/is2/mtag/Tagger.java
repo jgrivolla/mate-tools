@@ -352,6 +352,9 @@ public class Tagger implements Tool, Train {
 			is.setLemma(0, 0, CONLLReader09.ROOT_LEMMA);
 			for(int i=1;i<length;i++) is.setLemma(0, i, instance.plemmas[i]);
 			
+			is.setPPoss(0, 0, CONLLReader09.ROOT_POS);
+			for(int i=1;i<length;i++) is.setPPoss(0, i, instance.ppos[i]);
+			
 			is.fillChars(instance, 0, ExtractorM._CEND);
 
 			exec(instance,pipe,params,is);
