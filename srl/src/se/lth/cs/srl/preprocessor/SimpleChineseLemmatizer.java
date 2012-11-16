@@ -15,6 +15,10 @@ public class SimpleChineseLemmatizer extends Lemmatizer {
 //			ret[i]=forms[i];
 //		return ret;
 //	}
+	
+	public SimpleChineseLemmatizer(){
+		super(false);
+	}
 
 	@Override
 	public SentenceData09 apply(SentenceData09 instance) {

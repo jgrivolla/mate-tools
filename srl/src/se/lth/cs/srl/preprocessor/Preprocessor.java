@@ -71,8 +71,14 @@ public class Preprocessor {
 		if(mtagger!=null){
 			long start=System.currentTimeMillis();
 			mtagger.apply(instance);
+			//XXX
+			//Need to split the feats and put them in the right place for the parser.
+			for(int i=1;i<instance.pfeats.length;++i){
+				if(instance.pfeats[i]!=null && !instance.pfeats[i].equals("_"))
+					instance.feats[i]=instance.pfeats[i].split("\\|");
+			}
 			mtagTime+=System.currentTimeMillis()-start;
-		} else { //TODO lose this else block when the Sentence class has been lost.
+		} else {
 			instance.pfeats=new String[instance.forms.length];
 		}
 		if(tagger!=null){
