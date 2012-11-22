@@ -23,7 +23,7 @@ public class SimpleChineseLemmatizer extends Lemmatizer {
 	@Override
 	public SentenceData09 apply(SentenceData09 instance) {
 		for(int i=0;i<instance.forms.length;++i)
-			instance.lemmas[i]=instance.forms[i];
+			instance.plemmas[i]=instance.forms[i];
 		
 		return instance;
 	}

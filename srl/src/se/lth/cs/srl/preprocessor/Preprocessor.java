@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import is2.data.SentenceData09;
 import is2.lemmatizer.Lemmatizer;
@@ -80,6 +81,7 @@ public class Preprocessor {
 			mtagTime+=System.currentTimeMillis()-start;
 		} else {
 			instance.pfeats=new String[instance.forms.length];
+			Arrays.fill(instance.pfeats, "_");
 		}
 		if(tagger!=null){
 			long start=System.currentTimeMillis();
