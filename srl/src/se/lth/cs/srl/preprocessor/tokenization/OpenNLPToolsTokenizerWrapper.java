@@ -1,5 +1,13 @@
 package se.lth.cs.srl.preprocessor.tokenization;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
+
 public class OpenNLPToolsTokenizerWrapper implements se.lth.cs.srl.preprocessor.tokenization.Tokenizer {
 	
 	opennlp.tools.tokenize.Tokenizer tokenizer;
@@ -8,7 +16,6 @@ public class OpenNLPToolsTokenizerWrapper implements se.lth.cs.srl.preprocessor.
 		this.tokenizer=tokenizerImplementation;
 	}
 	
-
 	@Override
 	public String[] tokenize(String sentence) {
 		String[] tokens=tokenizer.tokenize(sentence);
@@ -19,4 +26,9 @@ public class OpenNLPToolsTokenizerWrapper implements se.lth.cs.srl.preprocessor.
 		return withRoot;
 	}
 	
+	public static OpenNLPToolsTokenizerWrapper loadOpenNLPTokenizer(File modelFile) throws IOException{
+		BufferedInputStream modelIn = new BufferedInputStream(new FileInputStream(modelFile.toString()));
+		opennlp.tools.tokenize.Tokenizer tokenizer = new TokenizerME(new TokenizerModel(modelIn));
+		return new OpenNLPToolsTokenizerWrapper(tokenizer);
+	}
 }

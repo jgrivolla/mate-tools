@@ -11,22 +11,30 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-LANG="chi"
-TOKENIZER_MODEL="models/chi/stanford-chinese-segmenter-2008-05-21/data"
-#LEMMATIZER_MODEL="models/eng/lemma-eng.model"
-POS_MODEL="models/chi/tag-chn.model"
-#MORPH_MODEL="models/ger/morph-ger.model" #Morphological tagger is not applicable to English. Fix the path and uncomment if you are running german.
-PARSER_MODEL="models/chi/prs-chn.model"
-SRL_MODEL="models/chi/srl-chn.model"
+Lang="eng"
+MODELDIR=`dirname $0`/../../models/eng/
+TOKENIZER_MODEL=${MODELDIR}/en-token.bin
+#TOKENIZER_MODEL="models/chi/stanford-chinese-segmenter-2008-05-21/data"  #Use this for chinese.
+LEMMATIZER_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model
+POS_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.postagger.model
+#MORPH_MODEL=${MODELDIR}/  #No morph model for English.
+PARSER_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.parser.model
+SRL_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.srl.model
 
-PORT=8081 #The port to listen on
+PORT=8072 #The port to listen on
 
 ##################################################
 ## (2) These ones may need to be changed
 ##################################################
 JAVA="java" #Edit this i you want to use a specific java binary.
 MEM="4g" #Memory for the JVM, might need to be increased for large corpora.
-CP="srl.jar:lib/anna.jar:lib/liblinear-1.51-with-deps.jar:lib/opennlp-tools-1.4.3.jar:lib/maxent-2.5.2.jar:lib/trove.jar:lib/seg.jar:lib/whatswrong-0.2.3.jar"
+DIST_ROOT=`dirname $0`/..
+CP=${DIST_ROOT}/srl.jar
+for jar in ${DIST_ROOT}/lib/*.jar; do
+#    echo $jar
+    CP=${CP}:$jar
+done
+#exit 0;
 JVM_ARGS="-Djava.awt.headless=true -cp $CP -Xmx$MEM"
 # The java.awt.headless property is needed to render the images of dependency graphs if the server is executed remotely (and there is no GUI stuff involved anyway)
 
@@ -35,7 +43,7 @@ JVM_ARGS="-Djava.awt.headless=true -cp $CP -Xmx$MEM"
 ##################################################
 #RERANKER="-reranker" #Uncomment this if you want to use a reranker too. The model is assumed to contain a reranker. While training, the corresponding parameter has to be provided.
 
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.HttpPipeline $LANG $RERANKER -token $TOKENIZER_MODEL -tagger $POS_MODEL -parser $PARSER_MODEL -srl $SRL_MODEL -port $PORT"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.HttpPipeline $Lang $RERANKER -token $TOKENIZER_MODEL -tagger $POS_MODEL -parser $PARSER_MODEL -srl $SRL_MODEL -port $PORT"
 
 if [ "$LEMMATIZER_MODEL" != "" ]; then
   CMD="$CMD -lemma $LEMMATIZER_MODEL"

@@ -23,21 +23,21 @@ Powerful machine-learning library.
 Used for training models in the SRL system.
 
 ------------------------------------------------------------------------
-maxent-2.5.1.jar
+opennlp-tools-1.5.2-incubating.jar
 
-Maxent, version 2.5.1 
-Homepage: http://maxent.sourceforge.net/
-License: LGPL (see LGPL.txt)
+OpenNLP Tools, version 1.5.2
+Homepage: http://opennlp.apache.org/
+License: Apache License (see APACHE-LICENSE-2.0.txt)
 
-Package for training and using maximum entropy models.
-Used by OpenNLP tools to train models.
+Package that provides various NLP tools.
+Used for the tokenization step in the pipeline.
 
 ------------------------------------------------------------------------
-opennlp-tools-1.4.3.jar
+opennlp-maxent-3.0.2-incubating.jar
 
-OpenNLP Tools, version 1.4.3
-Homepage: http://opennlp.sourceforge.net/
-License: LGPL (see LGPL.txt)
+Part of OpenNLP Tools, version 1.5.2
+Homepage: http://opennlp.apache.org/
+License: Apache License (see APACHE-LICENSE-2.0.txt)
 
 Package that provides various NLP tools.
 Used for the tokenization step in the pipeline.
@@ -50,16 +50,6 @@ Homepage: http://nlp.stanford.edu/software/segmenter.shtml
 License: GPL (see GPL.txt)
 
 Chinese word segmenter. Used for Chinese.
-
-------------------------------------------------------------------------
-trove.jar
-
-GNU Trove, version 1.0.2
-Homepage: http://trove4j.sf.net
-License: LGPL (see LGPL.txt)
-
-High performance collections for Java.
-Used by OpenNLP Tools.
 
 ------------------------------------------------------------------------
 

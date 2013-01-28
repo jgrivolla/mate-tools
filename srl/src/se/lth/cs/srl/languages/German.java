@@ -69,7 +69,7 @@ public class German extends Language {
 
 	@Override
 	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
-		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new OpenNLPToolsTokenizerWrapper(new opennlp.tools.lang.german.Tokenizer(options.tokenizer.toString())) : null);
+		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(options.tokenizer) : null);
 		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
 		is2.mtag.Tagger mtagger=BohnetHelper.getMTagger(options.morph);

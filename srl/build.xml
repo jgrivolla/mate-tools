@@ -8,20 +8,17 @@
 	<property name="lib" value="${basedir}/lib"/>
 	<property name="LICENSE" value="${basedir}/LICENSE"/>
 
-	<property name="dist.version" value="2"/>
+	<property name="dist.version" value="3"/>
 	
 	<path id="classpath">
 		<pathelement location="${lib}/liblinear-1.51-with-deps.jar"/>
-		<pathelement location="${lib}/opennlp-tools-1.4.3.jar"/>
-		<pathelement location="${lib}/trove.jar"/>
-		<pathelement location="${lib}/maxent-2.5.2.jar"/>
+		<pathelement location="${lib}/opennlp-tools-1.5.2-incubating.jar"/>
 		<pathelement location="${lib}/anna-3.3.jar"/>
-		<pathelement location="${lib}/junit.jar"/>
 		<pathelement location="${lib}/seg.jar"/>
 		<pathelement location="${lib}/whatswrong-0.2.3.jar"/>
 	</path>
 		
-	<target name="compile" description="Compile source">
+	<target name="compile" description="Compile source" depends="clean">
 		<mkdir dir="${classes}"/>
 		<javac srcdir="${src}" destdir="${classes}" debug="on" classpathref="classpath"/>
 	</target>

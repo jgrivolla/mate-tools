@@ -76,7 +76,7 @@ public class English extends Language {
 
 	@Override
 	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
-		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new OpenNLPToolsTokenizerWrapper(new opennlp.tools.lang.english.Tokenizer(options.tokenizer.toString())) : null);
+		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(options.tokenizer) : null);
 		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
 		Tagger tagger=BohnetHelper.getTagger(options.tagger);
 		Parser parser=BohnetHelper.getParser(options.parser);
