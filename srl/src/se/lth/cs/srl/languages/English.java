@@ -15,6 +15,7 @@ import se.lth.cs.srl.corpus.Word;
 import se.lth.cs.srl.options.FullPipelineOptions;
 import se.lth.cs.srl.preprocessor.Preprocessor;
 import se.lth.cs.srl.preprocessor.tokenization.OpenNLPToolsTokenizerWrapper;
+import se.lth.cs.srl.preprocessor.tokenization.StanfordPTBTokenizer;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
 import se.lth.cs.srl.util.FileExistenceVerifier;
@@ -70,26 +71,19 @@ public class English extends Language {
 	}
 
 	@Override
-	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
-		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(options.tokenizer) : null);
-		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
-		Tagger tagger=BohnetHelper.getTagger(options.tagger);
-		Parser parser=BohnetHelper.getParser(options.parser);
-		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, null, parser);
-		return pp;
-	}
-
-	@Override
 	public String verifyLanguageSpecificModelFiles(FullPipelineOptions options) {
 		File[] files;
-		if(options.loadPreprocessorWithTokenizer){
-			files=new File[2];
-			files[1]=options.tokenizer;
-		} else {
+//		if(options.loadPreprocessorWithTokenizer){
+//			files=new File[2];
+//			files[1]=options.tokenizer;
+//		} else {
 			files=new File[1];
-		}
+//		}
 		files[0]=options.lemmatizer;
 		return FileExistenceVerifier.verifyFiles(files);
 	}
 
+	Tokenizer getDefaultTokenizer(){
+		return new StanfordPTBTokenizer();
+	}
 }

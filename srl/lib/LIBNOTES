@@ -50,6 +50,8 @@ Homepage: http://nlp.stanford.edu/software/segmenter.shtml
 License: GPL (see GPL.txt)
 
 Chinese word segmenter. Used for Chinese.
+It also includes the Stanford PTB tokenizer, which is used as the default
+tokenizer for English.
 
 ------------------------------------------------------------------------
 

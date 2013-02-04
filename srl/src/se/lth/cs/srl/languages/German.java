@@ -59,26 +59,26 @@ public class German extends Language {
 		return null;
 	}
 
-	@Override
-	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
-		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(options.tokenizer) : null);
-		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
-		Tagger tagger=BohnetHelper.getTagger(options.tagger);
-		is2.mtag.Tagger mtagger=BohnetHelper.getMTagger(options.morph);
-		Parser parser=BohnetHelper.getParser(options.parser);
-		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, mtagger, parser);
-		return pp;
-	}
+//	@Override
+//	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
+//		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(options.tokenizer) : null);
+//		Lemmatizer lemmatizer=BohnetHelper.getLemmatizer(options.lemmatizer);
+//		Tagger tagger=BohnetHelper.getTagger(options.tagger);
+//		is2.mtag.Tagger mtagger=BohnetHelper.getMTagger(options.morph);
+//		Parser parser=BohnetHelper.getParser(options.parser);
+//		Preprocessor pp=new Preprocessor(tokenizer, lemmatizer, tagger, mtagger, parser);
+//		return pp;
+//	}
 
 	@Override
 	public String verifyLanguageSpecificModelFiles(FullPipelineOptions options) { //TODO this could be done nicer... I guess the proper way would be to create an enum of all the modules in the complete pipeline, and let each language enumerate which modules it requires. Then the language class can handle the verification, and not every subclass. 
 		File[] files;
-		if(options.loadPreprocessorWithTokenizer){
-			files=new File[3];
-			files[2]=options.tokenizer;
-		} else {
+//		if(options.loadPreprocessorWithTokenizer){
+//			files=new File[3];
+//			files[2]=options.tokenizer;
+//		} else {
 			files=new File[2];
-		}
+//		}
 		files[0]=options.lemmatizer;
 		files[1]=options.morph;
 		return FileExistenceVerifier.verifyFiles(files);

@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import se.lth.cs.srl.options.FullPipelineOptions;
 import se.lth.cs.srl.preprocessor.Preprocessor;
-import se.lth.cs.srl.preprocessor.tokenization.OpenNLPToolsTokenizerWrapper;
+import se.lth.cs.srl.preprocessor.tokenization.ExnerSwedishTokenizer;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
 
@@ -21,7 +21,7 @@ public class Swedish extends AbstractDummyLanguage {
 
 	@Override
 	public Preprocessor getPreprocessor(FullPipelineOptions options) throws IOException {
-		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(options.tokenizer) : null);
+		Tokenizer tokenizer=options.loadPreprocessorWithTokenizer ? getTokenizer(options.tokenizer):null;
 		Lemmatizer lemmatizer=options.lemmatizer==null?null:BohnetHelper.getLemmatizer(options.lemmatizer);
 		Tagger tagger=options.tagger==null?null:BohnetHelper.getTagger(options.tagger);
 		is2.mtag.Tagger mtagger=options.morph==null?null:BohnetHelper.getMTagger(options.morph);
@@ -30,5 +30,7 @@ public class Swedish extends AbstractDummyLanguage {
 		return pp;
 	}
 
-
+	Tokenizer getDefaultTokenizer(){
+		return new ExnerSwedishTokenizer();
+	}
 }

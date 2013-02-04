@@ -182,11 +182,12 @@ public class CompletePipeline {
 		long freeWithGC=Runtime.getRuntime().freeMemory()/1024;
 		ret.append("Free (after gc call):\t"+Util.insertCommas(freeWithGC)+"kb\n");
 		ret.append("\n");
-		ret.append("Time spent doing tokenization (ms):           "+Util.insertCommas(pp.tokenizeTime)+"\n");
-		ret.append("Time spent doing lemmatization (ms):          "+Util.insertCommas(pp.lemmatizeTime)+"\n");
-		ret.append("Time spent doing pos-tagging (ms):            "+Util.insertCommas(pp.tagTime)+"\n");
-		ret.append("Time spent doing morphological tagging (ms):  "+Util.insertCommas(pp.mtagTime)+"\n");
-		ret.append("Time spent doing dependency parsing (ms):     "+Util.insertCommas(pp.dpTime)+"\n");
+//		ret.append("Time spent doing tokenization (ms):           "+Util.insertCommas(pp.tokenizeTime)+"\n");
+//		ret.append("Time spent doing lemmatization (ms):          "+Util.insertCommas(pp.lemmatizeTime)+"\n");
+//		ret.append("Time spent doing pos-tagging (ms):            "+Util.insertCommas(pp.tagTime)+"\n");
+//		ret.append("Time spent doing morphological tagging (ms):  "+Util.insertCommas(pp.mtagTime)+"\n");
+//		ret.append("Time spent doing dependency parsing (ms):     "+Util.insertCommas(pp.dpTime)+"\n");
+		ret.append(pp.getStatus()).append('\n');
 		ret.append("Time spent doing semantic role labeling (ms): "+Util.insertCommas(srl.parsingTime)+"\n");
 		ret.append("\n\n");
 		ret.append(srl.getStatus());

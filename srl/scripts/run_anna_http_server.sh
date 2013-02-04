@@ -10,7 +10,7 @@
 ##################################################
 Lang="eng"
 MODELDIR=`dirname $0`/../../models/eng/
-TOKENIZER_MODEL=${MODELDIR}/en-token.bin
+#TOKENIZER_MODEL=${MODELDIR}/en-token.bin #If tokenizer is blank, it will use some default (Stanford for English, Exner for Swedish, and whitespace otherwise)
 #TOKENIZER_MODEL="models/chi/stanford-chinese-segmenter-2008-05-21/data"  #Use this for chinese.
 LEMMATIZER_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model
 POS_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.postagger.model
@@ -39,7 +39,11 @@ JVM_ARGS="-Djava.awt.headless=true -cp $CP -Xmx$MEM"
 ##################################################
 #RERANKER="-reranker" #Uncomment this if you want to use a reranker too. The model is assumed to contain a reranker. While training, the corresponding parameter has to be provided.
 
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.AnnaHttpPipeline $Lang $RERANKER -token $TOKENIZER_MODEL -tagger $POS_MODEL -parser $PARSER_MODEL -port $PORT"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.AnnaHttpPipeline $Lang $RERANKER -tagger $POS_MODEL -parser $PARSER_MODEL -port $PORT"
+
+if [ "$TOKEN" != "" ]; then
+    CMD=${CMD}" -token $TOKEN"
+fi
 
 if [ "$LEMMATIZER_MODEL" != "" ]; then
   CMD="$CMD -lemma $LEMMATIZER_MODEL"

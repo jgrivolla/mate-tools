@@ -5,6 +5,7 @@ import is2.parser.Parser;
 import is2.tag.Tagger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -56,15 +57,6 @@ public class Chinese extends Language {
 	}
 
 	@Override
-	public Preprocessor getPreprocessor(FullPipelineOptions options) {
-		Tokenizer tokenizer=(options.loadPreprocessorWithTokenizer ? new StanfordChineseSegmenterWrapper(options.tokenizer) : null); 
-		Lemmatizer lemmatizer=new SimpleChineseLemmatizer();
-		Tagger tagger=BohnetHelper.getTagger(options.tagger);
-		Parser parser=BohnetHelper.getParser(options.parser);
-		return new Preprocessor(tokenizer,lemmatizer,tagger,null,parser);
-	}
-
-	@Override
 	public String verifyLanguageSpecificModelFiles(FullPipelineOptions options) {
 		if(options.loadPreprocessorWithTokenizer){
 			File serDictionaryFile=new File(options.tokenizer,"dict-chris6.ser.gz");
@@ -75,4 +67,10 @@ public class Chinese extends Language {
 		}
 	}
 
+	Tokenizer getTokenizerFromModelFile(File tokenModelFile) throws IOException {
+		return new StanfordChineseSegmenterWrapper(tokenModelFile);
+	}
+	Lemmatizer getLemmatizer(File lemmaModelFile) throws IOException{
+		return new SimpleChineseLemmatizer();
+	}
 }

@@ -73,7 +73,7 @@ public class AnnaHttpPipeline extends AbstractPipeline {
 						"  <font size=\"-1\">\n" +
 						"    <b>System composition</b>\n" +
 						"    <ul>\n" +
-						"      <li>Tokenization - <a href=\"http://opennlp.apache.org/\">OpenNLP tools</a> tokenizer (all but Chinese), <a href=\"http://nlp.stanford.edu/software/segmenter.shtml\">Stanford Chinese Segmenter</a> (Chinese)</li>\n"+
+						"      <li>Tokenization - <a href=\"http://opennlp.apache.org/\">OpenNLP tools</a> tokenizer (most languages), <a href=\"http://nlp.stanford.edu/software/segmenter.shtml\">Stanford Chinese Segmenter</a> (Chinese), <a href=\"http://nlp.stanford.edu/software/tokenizer.shtml\">Stanford PTB tokenizer</a> (English), flex-based automaton by Peter Exner (Swedish) </li>\n"+
 						"      <li>POS-tagger, lemmatizer, morphological tagger, and dependency parser - by Bernd Bohnet</li>\n" +
 						"      <li>Graph Visualization - using <a href=\"http://code.google.com/p/whatswrong/\">What's Wrong With My NLP?</a></li>\n" +
 						"    </ul>\n"+
