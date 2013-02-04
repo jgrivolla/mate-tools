@@ -11,27 +11,27 @@
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
-CORPUS="/home/anders/corpora/conll09/eng/CoNLL2009-ST-English-train.txt" #training corpus
-LANG="eng"
-MODEL="srl-$LANG.model"
+CORPUS=~/corpora/conll09/spa/CoNLL2009-ST-Spanish-train.txt.pdeps #training corpus
+Lang="spa"
+MODEL="srl-$Lang.model"
 
 ##################################################
 ## (2) These ones may need to be changed
 ##################################################
 JAVA="java" #Edit this i you want to use a specific java binary.
-MEM="2500m" #Memory for the JVM, might need to be increased for large corpora.
+MEM="4g" #Memory for the JVM, might need to be increased for large corpora.
 CP="srl.jar:lib/liblinear-1.51-with-deps.jar"
 JVM_ARGS="-cp $CP -Xmx$MEM"
 
 ##################################################
 ## (3) The following changes the behaviour of the system
 ##################################################
-#LLBINARY="-llbinary /home/anders/liblinear-1.6/train" #Path to locally compiled liblinear. Uncomment this and correct the path if you have it. This will make training models faster (30-40%)
+#LLBINARY="-llbinary /home/anders/liblinear-1.6/train" #Path to locally compiled liblinear. Uncomment this and correct the path if you have it. This will make training models faster (30-40%). The models come out slightly differently compared to the java version though due to floating point arithmetics.
 #RERANKER="-reranker" #Uncomment this if you want to train a reranker too. This takes about 8 times longer than the simple pipeline.
 
 
 #Execute
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Learn $LANG $CORPUS $MODEL $RERANKER $LLBINARY"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.Learn $Lang $CORPUS $MODEL $RERANKER $LLBINARY"
 echo "Executing: $CMD"
 
 $CMD

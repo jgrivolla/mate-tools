@@ -81,7 +81,7 @@ public class LibLinearModel implements Model {
 		//String[] llargs=new String[]{"-q","-s","0","-B","1",dataFile.toString(),outputFile.toString()};
 		
 		if(Learn.learnOptions.liblinearBinary!=null){
-			String[] llargs=new String[]{"-q","-s","0",dataFile.toString(),outputFile.toString()};
+			String[] llargs=new String[]{"-q","-B","1.0","-s","0",dataFile.toString(),outputFile.toString()};
 			StringBuilder cmd=new StringBuilder(Learn.learnOptions.liblinearBinary.toString());
 			for(String arg:llargs){
 				cmd.append(' ').append(arg);
@@ -91,7 +91,7 @@ public class LibLinearModel implements Model {
 				throw new Error("LibLinear binary exited with non-zero exit value: "+p.exitValue());
 		} else {
 			try {
-				String[] llargs=new String[]{"-s","0",dataFile.toString(),outputFile.toString()};
+				String[] llargs=new String[]{"-s","0","-B","1.0",dataFile.toString(),outputFile.toString()};
 				liblinear.Linear.disableDebugOutput(); //We would like to have llargs=new String[]{"-q","-s","0",dataFile.toString(),outputFile.toString()};, but there is something buggy with the java implmentation.
 				liblinear.Train.main(llargs);
 			} catch (InvalidInputDataException e) {

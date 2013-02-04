@@ -47,12 +47,12 @@ public class PredicateDisambiguator implements PipelineStep {
 			String lemma=pred.getLemma();
 			String sense;
 			if(POSPrefix==null){
-				sense=predicateReference.getSimpleSense(lemma, null);
+				sense=predicateReference.getSimpleSense(pred, null);
 			} else {
 
 				String filename=predicateReference.getFileName(lemma,POSPrefix);
 				if(filename==null){
-					sense=predicateReference.getSimpleSense(lemma,POSPrefix);
+					sense=predicateReference.getSimpleSense(pred,POSPrefix);
 				} else {
 					Model m=getModel(filename);
 					Collection<Integer> indices=new TreeSet<Integer>();

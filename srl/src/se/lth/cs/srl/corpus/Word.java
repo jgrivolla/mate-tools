@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,8 +35,11 @@ public class Word implements Serializable{
 	Word potentialArgument; //This is basically an attribute of Predicate rather than Word,
 							//but this way things work smoother with the features.
 	
+	final int idx;
+	
 	//BOS constructor.
 	public Word(Sentence s) {
+		idx=0;
 		isBOS=true;
 		children=new HashSet<Word>();
 		this.Form="<ROOT-FORM>";
@@ -53,11 +57,12 @@ public class Word implements Serializable{
 		this.mySentence=s;
 	}
 	
-	public Word(String form,String lemma,String POS,String feats,Sentence mySentence){
+	public Word(String form,String lemma,String POS,String feats,Sentence mySentence,int idx){
+		this.idx=idx;
 		this.Form=form;
-		this.Lemma=lemma;
-		this.POS=POS;
-		this.Feats=feats;
+		this.Lemma=lemma==null?"_":lemma;
+		this.POS=POS==null?"_":POS;
+		this.Feats=feats==null?"_":feats;
 		this.mySentence=mySentence;
 		//children=new HashSet<Word>();
 		if(Learn.learnOptions!=null && Learn.learnOptions.deterministicPipeline){
@@ -73,6 +78,7 @@ public class Word implements Serializable{
 	 * @param w The Word
 	 */
 	public Word(Word w) {
+		this.idx=w.idx;
 		this.Form=w.Form;
 		this.Lemma=w.Lemma;
 		this.POS=w.POS;
@@ -91,8 +97,8 @@ public class Word implements Serializable{
 		head.children.add(this);
 	}
 	
-	public Word(String[] CoNLL2009Columns,Sentence s){
-		this(CoNLL2009Columns[1],CoNLL2009Columns[3],CoNLL2009Columns[5],CoNLL2009Columns[7],s);
+	public Word(String[] CoNLL2009Columns,Sentence s,int idx){
+		this(CoNLL2009Columns[1],CoNLL2009Columns[3],CoNLL2009Columns[5],CoNLL2009Columns[7],s,idx);
 //		this.Form=CoNLL2009Columns[1];
 //		this.Lemma=CoNLL2009Columns[3];
 //		this.POS=CoNLL2009Columns[5];
@@ -309,4 +315,15 @@ public class Word implements Serializable{
 		//ret.addAll(getDominated(children));
 		return ret;
 	}
+
+	public int getIdx() {
+		return idx;
+	}
+	
+	public static final Comparator<Word> WORD_LINEAR_ORDER_COMPARATOR=new Comparator<Word>(){
+		@Override
+		public int compare(Word arg0, Word arg1) {
+			return arg0.idx-arg1.idx;
+		}
+	};
 }

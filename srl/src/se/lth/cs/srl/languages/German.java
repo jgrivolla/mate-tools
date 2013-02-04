@@ -7,7 +7,6 @@ import is2.tag.Tagger;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
@@ -21,16 +20,9 @@ import se.lth.cs.srl.util.FileExistenceVerifier;
 
 public class German extends Language {
 
-	private static final Pattern BAR_PATTERN=Pattern.compile("\\|");
-	
 	@Override
-	public Pattern getFeatSplitPattern() {
-		return BAR_PATTERN;
-	}
-
-	@Override
-	public String getDefaultSense(String lemma) {
-		return lemma+".1";
+	public String getDefaultSense(Predicate pred) {
+		return pred.getLemma()+".1";
 	}
 
 	@Override

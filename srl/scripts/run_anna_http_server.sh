@@ -5,9 +5,6 @@
 ## (2) deals with the jvm parameters and may need to be changed
 ## (3) deals with the behaviour of the system
 
-## For further information on switches, see the source code, or run
-## java -cp srl-20100902.jar se.lth.cs.srl.http.HttpPipeline
-
 ##################################################
 ## (1) The following needs to be set appropriately
 ##################################################
@@ -19,9 +16,8 @@ LEMMATIZER_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model
 POS_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.postagger.model
 #MORPH_MODEL=${MODELDIR}/  #No morph model for English.
 PARSER_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.parser.model
-SRL_MODEL=${MODELDIR}/CoNLL2009-ST-English-ALL.anna-3.3.srl.model
 
-PORT=8072 #The port to listen on
+PORT=8073 #The port to listen on
 
 ##################################################
 ## (2) These ones may need to be changed
@@ -43,7 +39,7 @@ JVM_ARGS="-Djava.awt.headless=true -cp $CP -Xmx$MEM"
 ##################################################
 #RERANKER="-reranker" #Uncomment this if you want to use a reranker too. The model is assumed to contain a reranker. While training, the corresponding parameter has to be provided.
 
-CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.SRLHttpPipeline $Lang $RERANKER -token $TOKENIZER_MODEL -tagger $POS_MODEL -parser $PARSER_MODEL -srl $SRL_MODEL -port $PORT"
+CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.AnnaHttpPipeline $Lang $RERANKER -token $TOKENIZER_MODEL -tagger $POS_MODEL -parser $PARSER_MODEL -port $PORT"
 
 if [ "$LEMMATIZER_MODEL" != "" ]; then
   CMD="$CMD -lemma $LEMMATIZER_MODEL"

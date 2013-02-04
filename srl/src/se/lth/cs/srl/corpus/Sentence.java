@@ -24,7 +24,7 @@ public class Sentence extends ArrayList<Word> {
 	public Sentence(SentenceData09 data){
 		this();
 		for(int i=0;i<data.forms.length;++i){
-			Word nextWord=new Word(data.forms[i],data.plemmas[i],data.ppos[i],data.pfeats[i],this);
+			Word nextWord=new Word(data.forms[i],data.plemmas[i],data.ppos[i],data.pfeats[i],this,i+1);
 			super.add(nextWord);
 		}
 		for(int i=0;i<data.forms.length;++i){
@@ -39,7 +39,7 @@ public class Sentence extends ArrayList<Word> {
 	public Sentence(String[] words, String[] lemmas, String[] tags,	String[] morphs) {
 		this();
 		for(int i=1;i<words.length;++i){ //Skip root-tokens.
-			Word nextWord=new Word(words[i],lemmas[i],tags[i],morphs[i],this);
+			Word nextWord=new Word(words[i],lemmas[i],tags[i],morphs[i],this,i);
 			super.add(nextWord);
 		}
 	}
@@ -133,9 +133,10 @@ public class Sentence extends ArrayList<Word> {
 	public static Sentence newDepsOnlySentence(String[] lines) {
 		Sentence ret=new Sentence();
 		Word nextWord;
+		int ix=1;
 		for(String line:lines){
 			String[] cols=WHITESPACE_PATTERN.split(line,13);
-			nextWord=new Word(cols,ret);
+			nextWord=new Word(cols,ret,ix++);
 			ret.add(nextWord);
 		}
 		ret.buildDependencyTree();
@@ -145,14 +146,15 @@ public class Sentence extends ArrayList<Word> {
 	public static Sentence newSentence(String[] lines){
 		Sentence ret=new Sentence();
 		Word nextWord;
+		int ix=1;
 		for(String line:lines){
 			String[] cols=WHITESPACE_PATTERN.split(line);
 			if(cols[12].equals("Y")){
-				Predicate pred=new Predicate(cols,ret);
+				Predicate pred=new Predicate(cols,ret,ix++);
 				ret.addPredicate(pred);
 				nextWord=pred;
 			} else {
-				nextWord=new Word(cols,ret);
+				nextWord=new Word(cols,ret,ix++);
 			}
 			ret.add(nextWord);	
 		}
@@ -163,14 +165,15 @@ public class Sentence extends ArrayList<Word> {
 	public static Sentence newSRLOnlySentence(String[] lines){
 		Sentence ret=new Sentence();
 		Word nextWord;
+		int ix=1;
 		for(String line:lines){
 			String[] cols=WHITESPACE_PATTERN.split(line,13);
 			if(cols[12].charAt(0)=='Y'){
-				Predicate pred=new Predicate(cols,ret);
+				Predicate pred=new Predicate(cols,ret,ix++);
 				ret.addPredicate(pred);
 				nextWord=pred;
 			} else {
-				nextWord=new Word(cols,ret);
+				nextWord=new Word(cols,ret,ix++);
 			}
 			ret.add(nextWord);	
 		}

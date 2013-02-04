@@ -22,13 +22,8 @@ import se.lth.cs.srl.util.FileExistenceVerifier;
 public class English extends Language {
 
 	@Override
-	public Pattern getFeatSplitPattern() {
-		return null;
-	}
-
-	@Override
-	public String getDefaultSense(String lemma) {
-		return lemma+".01";
+	public String getDefaultSense(Predicate pred) {
+		return pred.getLemma()+".01";
 	}
 
 	private static Pattern CALSPattern=Pattern.compile("^A0|A1|A2|A3|A4$");

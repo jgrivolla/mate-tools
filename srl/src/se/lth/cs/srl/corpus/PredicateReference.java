@@ -100,13 +100,14 @@ public class PredicateReference implements Serializable {
 		return map.get(POSPrefix).map.get(lemma).senses.get(label);
 	}
 
-	public String getSimpleSense(String lemma, String prefix) {
+	public String getSimpleSense(Predicate pred, String prefix) {
+		String lemma=pred.getLemma();
 		PredicateMap predicateMap=map.get(prefix);
 		if(predicateMap==null)
-			return Language.getLanguage().getDefaultSense(lemma);
+			return Language.getLanguage().getDefaultSense(pred);
 		Value v=predicateMap.map.get(lemma);
 		if(v==null)
-			return Language.getLanguage().getDefaultSense(lemma);
+			return Language.getLanguage().getDefaultSense(pred);
 		else
 			return v.senses.get(0);
 	}

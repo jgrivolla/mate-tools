@@ -41,13 +41,8 @@ public class Chinese extends Language {
 	}
 
 	@Override
-	public String getDefaultSense(String lemma) {
-		return lemma+".01";
-	}
-
-	@Override
-	public Pattern getFeatSplitPattern() {
-		throw new Error("You are wrong here.");
+	public String getDefaultSense(Predicate pred) {
+		return pred.getLemma()+".01";
 	}
 
 	@Override

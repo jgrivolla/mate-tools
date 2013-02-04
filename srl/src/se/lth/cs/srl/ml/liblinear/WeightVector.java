@@ -109,7 +109,7 @@ public abstract class WeightVector implements Serializable {
 	        }
 		}
 		protected double computeScore(Collection<Integer> ints){
-			double sum=(bias>0?bias*weightMap.get(features):0);
+			double sum=bias>0?(weightMap.containsKey(features)?bias*weightMap.get(features):0.d):0.d;
 			for(Integer i:ints){
 				if((i-1)<features && weightMap.containsKey(i-1))
 					sum+=weightMap.get(i-1);
@@ -221,7 +221,7 @@ public abstract class WeightVector implements Serializable {
 		protected double[] computeScores(Collection<Integer> ints){
 			double[] ret=new double[classes];
 			for(int i=0;i<classes;++i){
-				double curvalue=(bias>0?bias*weightMap.get(features).weights[i]:0);
+				double curvalue=bias>0?(weightMap.containsKey(features)?bias*weightMap.get(features).weights[i]:0d):0d;
 				for(Integer in:ints){
 					if(weightMap.containsKey(in-1) && (in-1)<features)
 						curvalue+=weightMap.get(in-1).weights[i];

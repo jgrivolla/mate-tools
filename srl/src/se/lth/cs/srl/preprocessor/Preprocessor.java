@@ -15,6 +15,7 @@ import is2.tools.Tool;
 import se.lth.cs.srl.preprocessor.tokenization.StanfordChineseSegmenterWrapper;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
+import se.lth.cs.srl.util.Util;
 
 public class Preprocessor {
 
@@ -102,6 +103,16 @@ public class Preprocessor {
 		String[] words=tokenizer.tokenize(sentence);
 		tokenizeTime+=(System.currentTimeMillis()-start);
 		return words;
+	}
+	
+	public StringBuilder getStatus(){
+		StringBuilder sb=new StringBuilder();
+		sb.append("Tokenizer time:  "+Util.insertCommas(tokenizeTime)).append('\n');
+		sb.append("Lemmatizer time: "+Util.insertCommas(lemmatizeTime)).append('\n');
+		sb.append("Tagger time:     "+Util.insertCommas(tagTime)).append('\n');
+		sb.append("MTagger time:    "+Util.insertCommas(mtagTime)).append('\n');
+		sb.append("Parser time:     "+Util.insertCommas(dpTime)).append('\n');
+		return sb;
 	}
 	
 	

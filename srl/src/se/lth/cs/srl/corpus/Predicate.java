@@ -29,8 +29,8 @@ public class Predicate extends Word {
 	 * Only use this constructor if you manually add the other attributes later on (i.e. in constructor Word(String CoNLL2009String))
 	 * @param sense the sense label of the predicate
 	 */
-	public Predicate(String[] CoNLL2009Columns,Sentence s){
-		super(CoNLL2009Columns,s);
+	public Predicate(String[] CoNLL2009Columns,Sentence s,int idx){
+		super(CoNLL2009Columns,s,idx);
 		if(CoNLL2009Columns.length>13)
 			this.sense=CoNLL2009Columns[13];
 		if(Learn.learnOptions!=null && Learn.learnOptions.deterministicPipeline){

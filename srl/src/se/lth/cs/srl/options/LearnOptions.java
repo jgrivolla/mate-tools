@@ -31,7 +31,7 @@ public class LearnOptions extends Options {
 	public boolean deleteTrainFiles=true;
 	
 	public boolean deterministicPipeline=true;
-	public boolean deterministicReranker=false;
+	public boolean deterministicReranker=true;
 	
 	public boolean global_insertGoldMapForTrain=true;
 	public int global_numberOfCrossTrain=5;
@@ -72,10 +72,10 @@ public class LearnOptions extends Options {
 		} else if(args[ai].equals("-ndPipeline")){
 			ai++;
 			deterministicPipeline=false;
-		} else if(args[ai].equals("-dReranker")){
+		} else if(args[ai].equals("-ndReranker")){
 			ai++;
-			deterministicPipeline=true;
-			deterministicReranker=true;
+			deterministicPipeline=false;
+			deterministicReranker=false;
 			trainReranker=true;
 		}
 		return ai;
