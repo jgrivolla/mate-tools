@@ -45,8 +45,8 @@ JVM_ARGS="-Djava.awt.headless=true -cp $CP -Xmx$MEM"
 
 CMD="$JAVA $JVM_ARGS se.lth.cs.srl.http.SRLHttpPipeline $Lang $RERANKER -tagger $POS_MODEL -parser $PARSER_MODEL -srl $SRL_MODEL -port $PORT"
 
-if [ "$TOKEN" != "" ]; then
-    CMD=${CMD}" -token $TOKEN"
+if [ "$TOKENIZER_MODEL" != "" ]; then
+    CMD=${CMD}" -token $TOKENIZER_MODEL"
 fi
 
 if [ "$LEMMATIZER_MODEL" != "" ]; then
