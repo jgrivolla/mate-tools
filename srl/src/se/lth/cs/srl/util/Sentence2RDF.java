@@ -200,6 +200,6 @@ public class Sentence2RDF {
     	p.println();
     	s2r.printRDF(p);
     	p.close();
-    	return baos.toString();
+    	return baos.toString("UTF8");
     }
 }

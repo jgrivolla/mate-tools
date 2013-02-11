@@ -28,6 +28,21 @@ public abstract class AbstractHandler implements HttpHandler{
 	}
 	
 	protected String getContent(HttpExchange exchange) throws IOException {
+		/*
+		 * It would be nice to not assume UTF8 below, but I don't know how to do that.
+		 * Maybe escaping is actually done with HTML escapes. I should read up on this.
+		 * For now I leave it like this.
+		 */
+//		{   //Get the content-type in what was submitted
+//			System.out.println("Headers: ");
+//			Headers h=exchange.getRequestHeaders();
+//			for(Entry<String,List<String>> he:h.entrySet()){
+//				System.out.println(he.getKey());
+//				for(String v:he.getValue())
+//					System.out.println("\t"+v);
+//			}
+//		}
+		
 		BufferedReader httpInput=new BufferedReader(new InputStreamReader(exchange.getRequestBody(),"UTF-8"));
 		StringBuilder in=new StringBuilder();
 		String input;
