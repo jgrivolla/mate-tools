@@ -214,7 +214,7 @@ public class Instances  {
 
 	public void setFeature(int i, int p, String feature) {
 		if (feature==null) return;	
-		this.gfeats[i][p]= (short) m_encoder.getValue(PipeGen.FEAT,feature);
+		this.gfeats[i][p]= (short) m_encoder.getValue(PipeGen.FFEATS,feature);
 /*		if (gfeats[i][p]==-1) {
 			System.out.println("+"+feature);
 			new Exception().printStackTrace();
@@ -224,7 +224,7 @@ public class Instances  {
 	}
 	public void setPFeature(int i, int p, String feature) {
 		if (feature==null) return;	
-		this.pfeats[i][p]= (short) m_encoder.getValue(PipeGen.FEAT,feature);
+		this.pfeats[i][p]= (short) m_encoder.getValue(PipeGen.FFEATS,feature);
 	}
 
 

@@ -433,7 +433,7 @@ public class CONLLReader09 extends IOGenerals {
 					} else is.setGLemma(i, p, it.lemmas[p]);
 
 
-				if (it.feats!=null && it.feats[p]!=null) is.setFeats(i,p,it.feats[p]);
+				if (it.feats!=null && it.feats[p]!=null) is.setFeats(i,p,it.feats[p]); 
 
 				if (it.ofeats!=null) is.setFeature(i,p,it.ofeats[p]);
 				if (it.pfeats!=null) is.setPFeature(i,p,it.pfeats[p]);

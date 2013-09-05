@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map.Entry;
 
-import org.apache.commons.math.stat.inference.TestUtils;
+//import org.apache.commons.math.stat.inference.TestUtils;
 
 
 import is2.data.Parse;
@@ -27,7 +27,9 @@ public class Evaluator {
 
 			Results r = evaluate(options.goldfile, options.outfile); 
 
-		} else if (options.significant1!=null && options.significant2!=null ) {
+		} 
+		/*
+		else if (options.significant1!=null && options.significant2!=null ) {
 			
 			System.out.println("compare1 "+options.significant1);
 			System.out.println("compare2 "+options.significant2);
@@ -57,7 +59,9 @@ public class Evaluator {
 //			significant(options.significant1, options.significant2) ;
 
 
-		} else if (options.significant1!=null) {
+		} 
+	*/
+	else if (options.significant1!=null) {
 			Results r = evaluate(options.goldfile, options.outfile,true); 
 //			significant(options.significant1, options.significant2) ;
 

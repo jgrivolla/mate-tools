@@ -12,14 +12,19 @@ package is2.util;
  */
 final public class IntStack {
 	
-	public int[] stack;
+	final public int[] stack;
 	public int position =-1;
 	
 	public IntStack(int size) {
-		//DB.println("int stack "+size);
-		//new Exception().printStackTrace();
-		stack = new int[size]; 
+		if (size<=0) stack = new int[1];
+		else stack = new int[size+1];
 	}
+
+	public IntStack(IntStack s) {
+		stack=s.stack;
+		position = s.position;
+	}
+
 	
 	public int peek() {
 		return position==-1?-1:stack[position];

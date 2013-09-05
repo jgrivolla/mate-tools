@@ -23,7 +23,9 @@ public class OptionsSuper {
 	public boolean flt = false;
 	public boolean loadTaggerModels =false;
 
-	public String modelName = "prs.model";
+	public String modelName = "prs.mdl";
+	public String modelTaggerName = null;
+	
 	public String useMapping = null;
 	public String device = "C:";
 	public String tmp = null;
@@ -74,7 +76,7 @@ public class OptionsSuper {
 	public boolean average = true;
 	public boolean label =false;
 	public boolean stack=false;
-	
+	public boolean oneRoot = false;
 	
 	public String significant1 =null,significant2 =null;
 
@@ -128,6 +130,8 @@ public class OptionsSuper {
 				count = Integer.parseInt(args[i+1]); i++;
 			} else if (args[i].equals("-model")) {
 				modelName = args[i+1]; i++;
+			} else if (args[i].equals("-tmodel")) {
+				this.modelTaggerName = args[i+1]; i++;
 			} else if (args[i].equals("-nonormalize")) {
 				normalize=false;
 			} else if (args[i].equals("-float")) {
@@ -167,7 +171,8 @@ public class OptionsSuper {
 			} else if (args[i].equals("-min-occure-forms")) {
 				minOccureForms = Integer.parseInt(args[++i]);		
 			} else if (args[i].equals("-loadTaggerModels")) {
-				this.loadTaggerModels=true;;		
+				this.loadTaggerModels=true;;
+		
 			} else if (args[i].equals("-feature_creation")) {
 				this.featureCreation = args[++i].equals("shift")?SHIFT:MULTIPLICATIVE;		
 			}

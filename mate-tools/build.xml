@@ -27,7 +27,7 @@
     	executable="javac.exe"
     	   optimize="true"
     	   debug="off"
-	   classpath="libs/trove-2.0.4.jar:libs/commons-math-2.2.jar"/>
+	   classpath=""/>
 	
   </target>
 
@@ -42,7 +42,7 @@
     <!-- copy everything from /include/classes to dist 
     <copy todir="${dist}/temp-${DSTAMP}"><fileset dir="${include}/classes" /></copy>-->
     <!-- pack everything into a .jar file -->
-    <jar jarfile="${dist}/anna-3.jar" 
+    <jar jarfile="${dist}/anna-3.5.jar" 
          basedir="${dist}/temp-${DSTAMP}"/>
     <delete dir="${dist}/temp-{DSTAMP}" />
   </target>

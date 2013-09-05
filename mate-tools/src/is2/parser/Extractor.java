@@ -448,6 +448,7 @@ final public class Extractor {
 		c = extractFeat(f, c ,featsP, featsSbl); 
 
 		featsP =feats[p]; 
+		
 
 		dlf.v0= n++; dlf.v1=label; dlf.v2=sP; dlf.v3=pP;
 		c = extractFeat(f, c ,featsP, featsSbl); 

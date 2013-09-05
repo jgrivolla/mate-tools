@@ -6,20 +6,19 @@ import is2.data.F2SF;
 import is2.data.FV;
 import is2.data.Instances;
 import is2.data.InstancesTagger;
+import is2.data.Long2Int;
 import is2.data.Long2IntInterface;
+import is2.data.ParametersFloat;
 import is2.data.PipeGen;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
-import is2.parserR2.Pipe;
 import is2.tools.IPipe;
 import is2.tools.Tool;
 import is2.tools.Train;
 import is2.util.DB;
-import is2.data.Long2Int;
+import is2.util.Evaluator;
 import is2.util.OptionsSuper;
-import is2.data.ParametersFloat;
-
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,12 +29,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-import is2.util.Evaluator;
 
 
 public class Tagger implements Tool, Train {
