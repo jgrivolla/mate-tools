@@ -35,6 +35,7 @@ import se.lth.cs.srl.ml.liblinear.Label;
 import se.lth.cs.srl.ml.liblinear.LibLinearLearningProblem;
 import se.lth.cs.srl.options.LearnOptions;
 import se.lth.cs.srl.options.ParseOptions;
+import se.lth.cs.srl.util.BrownCluster;
 
 public class Reranker extends SemanticRoleLabeler {
 
@@ -121,7 +122,8 @@ public class Reranker extends SemanticRoleLabeler {
 		//Start by training a usual pipeline, then drag the featuregenerator and argLabels out of it and reuse them.
 		List<Sentence> trainCorpus=new AllCoNLL09Reader(learnOptions.inputCorpus).readAll();
 		//Map<Step,File> featureFiles=options.getFeatureFiles();
-		Pipeline fullPipeline=Pipeline.trainNewPipeline(trainCorpus, learnOptions.getFeatureFiles(), zos);
+		BrownCluster bc=Learn.learnOptions.brownClusterFile==null?null:new BrownCluster(Learn.learnOptions.brownClusterFile);
+		Pipeline fullPipeline=Pipeline.trainNewPipeline(trainCorpus, learnOptions.getFeatureFiles(), zos,bc);
 		FeatureGenerator fg=fullPipeline.getFg();
 		argLabels=fullPipeline.getArgLabels();
 		Map<Step,FeatureSet> featureSets=new HashMap<Step,FeatureSet>(fullPipeline.getFeatureSets()); //We copy this and use for the reranker subclassifiers
@@ -144,7 +146,7 @@ public class Reranker extends SemanticRoleLabeler {
 			ArgumentIdentifier aiModule=(ArgumentIdentifier) pipeline.steps.get(1); //Note since we have no PI,
 			ArgumentClassifier acModule=(ArgumentClassifier) pipeline.steps.get(2); //the AI and AC modules are shifted down one step.
 						
-			int predCount=0;
+//			int predCount=0;
 			for(Sentence sen:testCorpus){
 				for(Predicate pred:sen.getPredicates()){
 					++predCount;
@@ -214,14 +216,14 @@ public class Reranker extends SemanticRoleLabeler {
 	
 	private int softMax(List<ArgMap> argmaps) {
 		//To perform softmax on the reranking probabilities, uncomment the sumRR lines.
-		double sumProbs=0;
+//		double sumProbs=0;
 		//double sumRR=0;
 		for(ArgMap am:argmaps){
 			double prob=am.getIdProb();
 			if(am.size()!=0) //Empty argmaps have P(Labeling)==1
 				prob*=Math.pow(am.getLblProb(),1.0/am.size());
 			am.setProb(prob);
-			sumProbs+=prob;
+//			sumProbs+=prob;
 			//sumRR+=am.getRerankProb();
 		}
 		double bestScore=0;

@@ -1,18 +1,16 @@
 package se.lth.cs.srl.preprocessor.tokenization;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import se.lth.cs.srl.util.FileExistenceVerifier;
 
 import edu.stanford.nlp.ie.crf.CRFClassifier;
+import edu.stanford.nlp.ling.CoreLabel;
 
 /**
- * This is a wrapper for the Stanford Chinese Segmenter, version 2008-05-21.
- * Note that that very distribution is somewhat weird in the sense that the
- * included sources don't match the binaries. The source doesn't compile,
- * and the binaries obviously have a method CRFClassifier.segmentString(String arg0),
- * which does not appear in the corresponding source. It seems to work though. 
+ * This is a wrapper for the Stanford Chinese Segmenter, version 3.2.0
  * 
  * @author anders bjorkelund
  *
@@ -20,7 +18,7 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 
 public class StanfordChineseSegmenterWrapper implements Tokenizer {
 
-	CRFClassifier classifier;
+	private final CRFClassifier<CoreLabel> classifier;
 	/**
 	 * Initialize the segmenter
 	 * 
@@ -49,7 +47,7 @@ public class StanfordChineseSegmenterWrapper implements Tokenizer {
 	    props.setProperty("inputEncoding", "UTF-8");
 	    props.setProperty("sighanPostProcessing", "true");
 
-	    classifier = new CRFClassifier(props);
+	    classifier = new CRFClassifier<CoreLabel>(props);
 	    //classifier.loadClassifierNoExceptions("data/ctb.gz", props);
 	    classifier.loadClassifierNoExceptions(ctbFile.toString(), props);
 	    // flags must be re-set after data is loaded
@@ -71,25 +69,27 @@ public class StanfordChineseSegmenterWrapper implements Tokenizer {
 /*
  * Used this to figure out how to invoke the segmenter. I'll leave ith ere for future reference.
  * It's based on the SegDemo.java class provided with the segmenter dist.
- * 
+ */
 
 	public static void main(String[] args) throws Exception{
 		args=new String[]{"chi-sen.deseg"};		
 	    Properties props = new Properties();
 	    //props.setProperty("sighanCorporaDict", "data");
-	    props.setProperty("sighanCorporaDict", "/home/anders/Download/stanford-chinese-segmenter-2008-05-21/data");
+//	    String dir="/home/users0/anders/storage/backuped/demos/SRLDemos/models/chi/stanford-chinese-segmenter-2008-05-21";
+	    String dir="/home/users0/anders/storage/scratch/anders/stanford-segmenter-2013-06-20/";
+	    props.setProperty("sighanCorporaDict", dir+"/data");
 	    // props.setProperty("NormalizationTable", "data/norm.simp.utf8");
 	    // props.setProperty("normTableEncoding", "UTF-8");
 	    // below is needed because CTBSegDocumentIteratorFactory accesses it
 	    //props.setProperty("serDictionary","data/dict-chris6.ser.gz");
-	    props.setProperty("serDictionary","/home/anders/Download/stanford-chinese-segmenter-2008-05-21/data/dict-chris6.ser.gz");
+	    props.setProperty("serDictionary",dir+"/data/dict-chris6.ser.gz");
 	    //props.setProperty("testFile", args[0]);
 	    props.setProperty("inputEncoding", "UTF-8");
 	    props.setProperty("sighanPostProcessing", "true");
 
-	    CRFClassifier classifier = new CRFClassifier(props);
+	    CRFClassifier<CoreLabel> classifier = new CRFClassifier<CoreLabel>(props);
 	    //classifier.loadClassifierNoExceptions("data/ctb.gz", props);
-	    classifier.loadClassifierNoExceptions("/home/anders/Download/stanford-chinese-segmenter-2008-05-21/data/ctb.gz", props);
+	    classifier.loadClassifierNoExceptions(dir+"/data/ctb.gz", props);
 	    // flags must be re-set after data is loaded
 	    classifier.flags.setProperties(props);
 	    //classifier.writeAnswers(classifier.test(args[0]));
@@ -99,6 +99,6 @@ public class StanfordChineseSegmenterWrapper implements Tokenizer {
 	    List<String> forms=classifier.segmentString("上海浦东近年来颁布实行了涉及经济、贸易、建设、规划、科技、文教等领域的七十一件法规性文件，确保了浦东开发的有序进行。");
 	    for(String form:forms)
 	    	System.out.println(form);
-	}*/
+	}
 	
 }

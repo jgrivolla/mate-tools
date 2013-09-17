@@ -27,6 +27,7 @@ import se.lth.cs.srl.io.SentenceWriter;
 import se.lth.cs.srl.options.FeatureSelectionOptions;
 import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Step;
+import se.lth.cs.srl.util.BrownCluster;
 import se.lth.cs.srl.util.scorer.AbstractScorer;
 import se.lth.cs.srl.util.scorer.PredicateIdentificationScorer;
 
@@ -65,6 +66,7 @@ public class SelectFeatures {
 	public static void main(String[] args) throws IOException{
 		options=new FeatureSelectionOptions(args);
 		Learn.learnOptions=options.getLearnOptions();
+		BrownCluster bc=Learn.learnOptions.brownClusterFile==null?null:new BrownCluster(Learn.learnOptions.brownClusterFile);
 		File corpusDir=new File(options.tempDir,"corpora");
 		File ffDir=new File(options.tempDir,"features");
 		corpusDir.mkdir();
@@ -75,8 +77,8 @@ public class SelectFeatures {
 		//FeatureGenerator fg=createFeatureGenerator(sentences,options);
 		fg=new FeatureGenerator();
 		//Here cross train prepipelines if step is not PI and preannotate testing corpora or this
-		List<Feature> startingFeatures=getStartSetFromFile(fg);
-		SelectionState startState=getStartingState(fg,startingFeatures);
+		List<Feature> startingFeatures=getStartSetFromFile(fg,bc);
+		SelectionState startState=getStartingState(fg,startingFeatures,bc);
 		printMemUsage();
 		fg.buildFeatureMaps(sentences);
 		printMemUsage();
@@ -118,7 +120,7 @@ public class SelectFeatures {
 			options.quadratic=true;
 			fg=new FeatureGenerator();
 			printMemUsage();
-			SelectionState qstate=getStartingState(fg,startState.current.get(options.POSPrefix));
+			SelectionState qstate=getStartingState(fg,startState.current.get(options.POSPrefix),bc);
 			qstate.score=startState.score;
 			qstate.comments=startState.comments;
 			printMemUsage();
@@ -199,7 +201,7 @@ public class SelectFeatures {
 		}
 	}
 
-	private static List<Feature> getStartSetFromFile(FeatureGenerator fg) throws IOException{
+	private static List<Feature> getStartSetFromFile(FeatureGenerator fg,BrownCluster bc) throws IOException{
 		List<Feature> features=new ArrayList<Feature>();
 		if(options.startingFeatureFile!=null){
 			Map<String,List<String>> fnameMap=FeatureFile.readFile(options.startingFeatureFile);
@@ -208,14 +210,14 @@ public class SelectFeatures {
 				throw new Error("The feature file provided does not contain the POSPrefix we want to explore. Aborting.");
 			}
 			for(String name:fnames){
-				Feature f=fg.getFeature(name, options.step==Step.pi, options.POSPrefix);
+				Feature f=fg.getFeature(name, options.step==Step.pi, options.POSPrefix,bc);
 				features.add(f);
 			}
 		}
 		return features;
 	}
 	
-	private static SelectionState getStartingState(FeatureGenerator fg,List<Feature> startFeatures) throws IOException {
+	private static SelectionState getStartingState(FeatureGenerator fg,List<Feature> startFeatures,BrownCluster bc) throws IOException {
 		SelectionState state=new SelectionState();
 		
 		state.current=new HashMap<String,List<Feature>>();
@@ -227,7 +229,7 @@ public class SelectFeatures {
 			except.add(f.getName());
 		}
 		
-		Collection<Feature> allFeatures=getAllFeatures(fg,except);
+		Collection<Feature> allFeatures=getAllFeatures(fg,except,bc);
 		for(Feature f:allFeatures){
 			if(!startFeatures.contains(f)){
 				state.additional.add(f);
@@ -243,7 +245,7 @@ public class SelectFeatures {
 	}
 
 
-	private static Collection<Feature> getAllFeatures(FeatureGenerator fg,List<String> except) {
+	private static Collection<Feature> getAllFeatures(FeatureGenerator fg,List<String> except,BrownCluster bc) {
 		List<FeatureName> singleNames=new ArrayList<FeatureName>();
 		Collections.addAll(singleNames,noArgsSingleFeatures);
 //		List<FeatureName> singleNames=Arrays.asList(noArgsSingleFeatures);
@@ -259,7 +261,7 @@ public class SelectFeatures {
 		Collection<Feature> ret=new HashSet<Feature>();
 		for(FeatureName fn:singleNames){
 			if(!except.contains(fn.toString())){
-				Feature f=fg.getFeature(fn, options.step==Step.pi,options.POSPrefix);
+				Feature f=fg.getFeature(fn, options.step==Step.pi,options.POSPrefix,bc);
 				ret.add(f);
 			}
 		}
@@ -271,7 +273,7 @@ public class SelectFeatures {
 						continue;
 					try {
 						if(!except.contains(FeatureGenerator.getCanonicalName(fn1, fn2))){
-							Feature f=fg.getQFeature(fn1, fn2, options.step==Step.pi, options.POSPrefix);
+							Feature f=fg.getQFeature(fn1, fn2, options.step==Step.pi, options.POSPrefix,bc);
 							ret.add(f);
 						}
 					} catch (IllegalArgumentException e){

@@ -38,6 +38,8 @@ public class LearnOptions extends Options {
 	
 	private Map<Step,File> featureFiles;
 
+	public File brownClusterFile;
+	
 	LearnOptions(){}
 	
 	public LearnOptions(String[] args) {
@@ -77,6 +79,9 @@ public class LearnOptions extends Options {
 			deterministicPipeline=false;
 			deterministicReranker=false;
 			trainReranker=true;
+		} else if(args[ai].equals("-cluster")){
+			ai++;
+			brownClusterFile=new File(args[ai++]);
 		}
 		return ai;
 	}

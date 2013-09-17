@@ -1,21 +1,12 @@
 package se.lth.cs.srl.languages;
 
-import is2.lemmatizer.Lemmatizer;
-import is2.parser.Parser;
-import is2.tag.Tagger;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
 import se.lth.cs.srl.options.FullPipelineOptions;
-import se.lth.cs.srl.preprocessor.Preprocessor;
-import se.lth.cs.srl.preprocessor.tokenization.OpenNLPToolsTokenizerWrapper;
-import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
-import se.lth.cs.srl.util.BohnetHelper;
 import se.lth.cs.srl.util.FileExistenceVerifier;
 
 public class German extends Language {

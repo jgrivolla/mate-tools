@@ -13,7 +13,7 @@ public class DumpFeature {
 		ZipFile zipFile=new ZipFile("/home/anders/slask/ger-pl.model");
 		ObjectInputStream ois=new ObjectInputStream(zipFile.getInputStream(zipFile.getEntry("objects")));
 		FeatureGenerator fg=(FeatureGenerator) ois.readObject();
-		Feature f=fg.getQFeature(FeatureName.LeftPOS,FeatureName.ArgFeats,true,"V");
+		Feature f=fg.getQFeature(FeatureName.LeftPOS,FeatureName.ArgFeats,true,"V",null);
 		ArrayList<String> values=new ArrayList<String>();
 		values.addAll(f.indices.keySet());
 		Collections.sort(values);

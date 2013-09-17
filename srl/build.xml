@@ -16,6 +16,7 @@
 		<pathelement location="${lib}/anna-3.3.jar"/>
 		<pathelement location="${lib}/seg.jar"/>
 		<pathelement location="${lib}/whatswrong-0.2.3.jar"/>
+		<pathelement location="${lib}/stanford-parser.jar"/>
 	</path>
 		
 	<target name="compile" description="Compile source" depends="clean">

@@ -12,6 +12,8 @@ import java.util.Map;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word.WordData;
 import se.lth.cs.srl.pipeline.Step;
+import se.lth.cs.srl.util.BrownCluster;
+import se.lth.cs.srl.util.BrownCluster.ClusterVal;
 
 public class FeatureGenerator implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -28,18 +30,18 @@ public class FeatureGenerator implements Serializable {
 	
 	
 	
-	public Map<Step,FeatureSet> readFeatureFiles(Map<Step,File> files) throws IOException {
+	public Map<Step,FeatureSet> readFeatureFiles(Map<Step,File> files,BrownCluster bc) throws IOException {
 		Map<Step,FeatureSet> featureSets=new HashMap<Step,FeatureSet>();
 		Map<String,List<String>> piNames=FeatureFile.readFile(files.get(Step.pi));
-		featureSets.put(Step.pi,createFeatureSet(piNames,true));
+		featureSets.put(Step.pi,createFeatureSet(piNames,true,bc));
 		for(Step s:new Step[]{Step.pd,Step.ai,Step.ac}){
 			Map<String,List<String>> names=FeatureFile.readFile(files.get(s));
-			featureSets.put(s, createFeatureSet(names,false));
+			featureSets.put(s, createFeatureSet(names,false,bc));
 		}
 		return featureSets;
 	}
 	
-	private FeatureSet createFeatureSet(Map<String,List<String>> names,boolean includeAllWords){
+	private FeatureSet createFeatureSet(Map<String,List<String>> names,boolean includeAllWords,BrownCluster bc){
 		Map<String,List<Feature>> fs=new HashMap<String,List<Feature>>();
 		for(String POSPrefix:names.keySet()){
 			List<Feature> list=new ArrayList<Feature>();
@@ -49,29 +51,29 @@ public class FeatureGenerator implements Serializable {
 					String[] n=featureNameStr.split("\\+");
 					FeatureName fn1=FeatureName.valueOf(n[0]);
 					FeatureName fn2=FeatureName.valueOf(n[1]);
-					list.add(getQFeature(fn1,fn2,includeAllWords,POSPrefix));
+					list.add(getQFeature(fn1,fn2,includeAllWords,POSPrefix,bc));
 				} else {
 					FeatureName fn=FeatureName.valueOf(featureNameStr);
-					list.add(getFeature(fn,includeAllWords,POSPrefix));
+					list.add(getFeature(fn,includeAllWords,POSPrefix,bc));
 				}
 			}
 		}
 		return new FeatureSet(fs);
 	}
 	
-	public Feature getFeature(String featureNameString,boolean includeAllWords,String POSPrefix){
+	public Feature getFeature(String featureNameString,boolean includeAllWords,String POSPrefix,BrownCluster bc){
 		if(featureNameString.contains("+")){
 			String[] s=featureNameString.split("\\+");
 			FeatureName fn1=FeatureName.valueOf(s[0]);
 			FeatureName fn2=FeatureName.valueOf(s[1]);
-			return getQFeature(fn1,fn2,includeAllWords,POSPrefix);
+			return getQFeature(fn1,fn2,includeAllWords,POSPrefix,bc);
 		} else {
 			FeatureName fn=FeatureName.valueOf(featureNameString);
-			return getFeature(fn,includeAllWords,POSPrefix);
+			return getFeature(fn,includeAllWords,POSPrefix,bc);
 		}
 	}
 	
-	public Feature getFeature(FeatureName fn,boolean includeAllWords,String POSPrefix){
+	public Feature getFeature(FeatureName fn,boolean includeAllWords,String POSPrefix,BrownCluster bc){
 		Feature ret;
 		if(cache.containsKey(fn)){
 			ret=cache.get(fn);
@@ -120,14 +122,27 @@ public class FeatureGenerator implements Serializable {
 			case POSPath:			ret=new PathFeature(fn,WordData.POS,POSPrefix); break;
 			case DeprelPath:		ret=new PathFeature(fn,WordData.Deprel,POSPrefix); break;
 			case Position:			ret=new PositionFeature(POSPrefix); break;
-			default: throw new Error("You are wrong here. Check your implementation.");
+			default: 
+				if(fn.toString().startsWith("Brown")){
+					if(bc==null){
+						throw new RuntimeException("Cannot use brown cluster features unless a cluster is provided on the cmd line");
+					}
+					ClusterVal cv=fn.toString().contains("Short")?ClusterVal.SHORT:ClusterVal.LONG;
+					TargetWord tw=TargetWord.valueOf(fn.toString().substring("Brown".length()+cv.toString().length()));
+					if(fn.toString().contains("Pred")){
+						ret=new PredDependentBrown(fn, tw, includeAllWords, POSPrefix, bc, cv);
+					} else {
+						ret=new ArgDependentBrown(fn, tw, POSPrefix, bc, cv);
+					}
+				} else
+					throw new Error("You are wrong here. Check your implementation.");
 			}
 			cache.put(fn, ret);
 			return ret;
 		}
 	}
 
-	public Feature getQFeature(FeatureName fn1,FeatureName fn2,boolean includeAllWords,String POSPrefix){
+	public Feature getQFeature(FeatureName fn1,FeatureName fn2,boolean includeAllWords,String POSPrefix,BrownCluster bc){
 		Feature ret;
 		//String fnameStr=fn1.name()+"+"+fn2.name();
 		String fnameStr=getCanonicalQFeatureName(fn1,fn2);
@@ -136,8 +151,8 @@ public class FeatureGenerator implements Serializable {
 			ret.addPOSPrefix(POSPrefix);
 			return ret;
 		}
-		Feature f1=getFeature(fn1,includeAllWords,null);
-		Feature f2=getFeature(fn2,includeAllWords,null);
+		Feature f1=getFeature(fn1,includeAllWords,null,bc);
+		Feature f2=getFeature(fn2,includeAllWords,null,bc);
 		if(f1 instanceof SingleFeature){
 			if(f2 instanceof SingleFeature){
 				ret=new QSingleSingleFeature((SingleFeature) f1,(SingleFeature) f2,includeAllWords,POSPrefix);

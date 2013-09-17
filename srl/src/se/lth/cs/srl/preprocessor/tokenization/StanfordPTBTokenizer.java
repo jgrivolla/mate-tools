@@ -13,7 +13,7 @@ public class StanfordPTBTokenizer implements Tokenizer{
 	@Override
 	public String[] tokenize(String sentence) {
 		Reader r=new StringReader(sentence);
-		PTBTokenizer<Word> tokenizer=PTBTokenizer.newPTBTokenizer(r, false);
+		PTBTokenizer<Word> tokenizer=PTBTokenizer.newPTBTokenizer(r);
 		List<String> l=new ArrayList<String>();
 		while(tokenizer.hasNext())
 			l.add(tokenizer.next().word());

@@ -12,4 +12,8 @@ public enum FeatureName {
 	   RightSiblingWord, RightSiblingPOS, RightSiblingFeats,
 	   POSPath, DeprelPath,
 	   Position, 
+	   
+		BrownShortPred, BrownShortPredParent, BrownShortArg, BrownShortLeftDep, BrownShortRightDep, BrownShortLeftSibling, BrownShortRightSibling,
+		BrownLongPred, BrownLongPredParent, BrownLongArg, BrownLongLeftDep, BrownLongRightDep, BrownLongLeftSibling, BrownLongRightSibling,
+
 }

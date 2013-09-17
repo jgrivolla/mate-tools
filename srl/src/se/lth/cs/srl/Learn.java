@@ -10,6 +10,7 @@ import se.lth.cs.srl.io.SentenceReader;
 import se.lth.cs.srl.options.LearnOptions;
 import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
+import se.lth.cs.srl.util.BrownCluster;
 import se.lth.cs.srl.util.Util;
 
 public class Learn {
@@ -29,8 +30,9 @@ public class Learn {
 		if(learnOptions.trainReranker){
 			new Reranker(learnOptions,zos);
 		} else {
+			BrownCluster bc=Learn.learnOptions.brownClusterFile==null?null:new BrownCluster(Learn.learnOptions.brownClusterFile);
 			SentenceReader reader=new AllCoNLL09Reader(learnOptions.inputCorpus);
-			Pipeline.trainNewPipeline(reader, learnOptions.getFeatureFiles(), zos);
+			Pipeline.trainNewPipeline(reader, learnOptions.getFeatureFiles(), zos,bc);
 		}
 		zos.close();
 	}

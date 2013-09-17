@@ -5,7 +5,6 @@ import is2.parser.Parser;
 import is2.tag.Tagger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -22,7 +21,7 @@ import se.lth.cs.srl.util.BohnetHelper;
 
 public abstract class Language {
 
-	public enum L { cat, chi, cze, eng, ger, jap, spa, swe }
+	public enum L { cat, chi, cze, eng, ger, jap, spa, swe,fre }
 	
 	private static Language language;
 	static final Pattern BAR_PATTERN=Pattern.compile("\\|");
@@ -42,6 +41,7 @@ public abstract class Language {
 		case ger: return "German";
 		case swe: return "Swedish";
 		case spa: return "Spanish";
+		case fre: return "French";
 		default: throw new IllegalArgumentException("Unknown language: '"+l+"'");
 		}
 	}
@@ -53,6 +53,7 @@ public abstract class Language {
 		case ger: language=new German(); break;
 		case swe: language=new Swedish(); break;
 		case spa: language=new Spanish(); break;
+		case fre: language=new French(); break;
 		default: throw new IllegalArgumentException("Unknown language: '"+l+"'");
 		}
 		return language;
@@ -81,7 +82,7 @@ public abstract class Language {
 	Tokenizer getDefaultTokenizer(){
 		return new WhiteSpaceTokenizer();
 	}
-	Tokenizer getTokenizer(File tokenModelFile) throws IOException{
+	public Tokenizer getTokenizer(File tokenModelFile) throws IOException{
 		if(tokenModelFile==null)
 			return getDefaultTokenizer();
 		else

@@ -27,6 +27,7 @@ import se.lth.cs.srl.features.FeatureFile;
 import se.lth.cs.srl.features.FeatureGenerator;
 import se.lth.cs.srl.features.FeatureSet;
 import se.lth.cs.srl.options.LearnOptions;
+import se.lth.cs.srl.util.BrownCluster;
 
 public class Pipeline extends SemanticRoleLabeler {
 
@@ -170,10 +171,10 @@ public class Pipeline extends SemanticRoleLabeler {
 		return pipeline;		
 	}
 	
-	public static Pipeline trainNewPipeline(Iterable<Sentence> sentences,Map<Step,File> featureFiles,ZipOutputStream zos) throws IOException {
+	public static Pipeline trainNewPipeline(Iterable<Sentence> sentences,Map<Step,File> featureFiles,ZipOutputStream zos,BrownCluster bc) throws IOException {
 		//Start by creating the feature mappings for all features based on the feature files.
 		FeatureGenerator fg=new FeatureGenerator();
-		Map<Step,FeatureSet> featureSets=fg.readFeatureFiles(featureFiles);
+		Map<Step,FeatureSet> featureSets=fg.readFeatureFiles(featureFiles,bc);
 		fg.buildFeatureMaps(sentences);
 		Pipeline pipeline=trainNewPipeline(sentences,fg,zos,featureSets);
 		pipeline.fg=fg;

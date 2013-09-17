@@ -45,16 +45,22 @@ Used for the tokenization step in the pipeline.
 ------------------------------------------------------------------------
 seg.jar
 
-Stanford Chinese Word Segmenter, version 2008-05-21
+Stanford Chinese Word Segmenter, version 3.2.0
 Homepage: http://nlp.stanford.edu/software/segmenter.shtml
 License: GPL (see GPL.txt)
 
 Chinese word segmenter. Used for Chinese.
-It also includes the Stanford PTB tokenizer, which is used as the default
-tokenizer for English.
 
 ------------------------------------------------------------------------
+stanford-parser.jar
 
+Stanford Parser, version 3.2.0
+HomePage: http://nlp.stanford.edu/software/lex-parser.shtml
+License: GPL (see GPL.txt)
+
+Stanford Parser. Used for tokenization of English and French.
+
+------------------------------------------------------------------------
 whatswrong-0.2.3.jar
 
 What's Wrong With My NLP?, version 0.2.3
