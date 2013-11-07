@@ -1,5 +1,6 @@
 package examples;
  
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -46,7 +47,7 @@ public class Pipeline {
 		is2.lemmatizer.Options optsLemmatizer = new is2.lemmatizer.Options(new String[] {"-model","models/lemma-eng.model"});
 
 		// create a lemmatizer
-		Lemmatizer lemmatizer = new Lemmatizer(optsLemmatizer);
+		Lemmatizer lemmatizer = new Lemmatizer(optsLemmatizer.modelName);
 
 		// lemmatize a sentence; the result is stored in the stenenceData09 i 
 		i = lemmatizer.apply(i);
@@ -87,6 +88,8 @@ public class Pipeline {
 		writer.write(i);
 		writer.finishWriting();
 	}
+
+	
 
 	
 }

@@ -48,17 +48,13 @@ public class Lemmatizer implements Tool, Train {
 	private long[] vs= new long[40];
 
 
-	public Lemmatizer(Options options)  {
-		this.readModel(options);
-		doUppercase=options.upper;
-	}
 
 	/**
 	 * Creates a lemmatizer due to the model stored in modelFileName
 	 * @param modelFileName the path and file name to a lemmatizer model
 	 */
-	public Lemmatizer(String modelFileName,boolean doUppercase)  {
-		this.doUppercase=doUppercase;
+	public Lemmatizer(String modelFileName)  {
+		
 		// tell the lemmatizer the location of the model
 		try {
 			Options m_options = new Options(new String[] {"-model", modelFileName});
@@ -72,15 +68,7 @@ public class Lemmatizer implements Tool, Train {
 		}
 	}
 	
-	/**
-	 * Deprecated. Use the constructor Lemmatizer(String,boolean) instead. (this one forces no uppercasing)
-	 * 
-	 * @deprecated
-	 * @param modelFileName
-	 */
-	public Lemmatizer(String modelFileName)  {
-		this(modelFileName,false);
-	}
+
 
 
 
@@ -150,6 +138,8 @@ public class Lemmatizer implements Tool, Train {
 
 			pipe.write(dos);
 			
+			dos.writeBoolean(this.doUppercase);
+			
 			dos.flush();
 			dos.close(); 
 		} catch(Exception e) {
@@ -188,6 +178,9 @@ public class Lemmatizer implements Tool, Train {
 			
 			pipe.cl = new Cluster(dis);
 
+			if (dis.available()>0) this.doUppercase = dis.readBoolean();
+		
+			
 			dis.close();
 			DB.println("Loading data finished. ");
 
@@ -518,16 +511,23 @@ public class Lemmatizer implements Tool, Train {
 	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
 	 */
 	@Override
-	public SentenceData09 apply(SentenceData09 snt09) {
+	public SentenceData09 apply(SentenceData09 snt) {
 		InstancesTagger is = new InstancesTagger();
-
+		
+		// be robust
+		if (snt.length()== 0) return snt; 
+		
+		SentenceData09 it = new SentenceData09();
+		it.createWithRoot(snt);
+		
+		
 		is.init(1, new MFO());
-		is.createInstance09(snt09.length());
-		is.fillChars(snt09, 0, Pipe._CEND);
+		is.createInstance09(it.length());
+		is.fillChars(it, 0, Pipe._CEND);
 
-		for(int j = 0; j < snt09.length(); j++) is.setForm(0, j, snt09.forms[j]);
+		for(int j = 0; j < it.length(); j++) is.setForm(0, j, it.forms[j]);
 
-		return lemmatize(is, snt09,li);
+		return lemmatize(is, it,li);
 	}
 	
 

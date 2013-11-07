@@ -459,9 +459,15 @@ public class Tagger implements Tool, Train {
 	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
 	 */
 	@Override
-	public SentenceData09 apply(SentenceData09 snt09) {
-		tag(snt09);
-		return snt09;
+	public SentenceData09 apply(SentenceData09 snt) {
+		
+
+		SentenceData09 it = new SentenceData09();
+		it.createWithRoot(snt);
+		it = tag(it);
+		SentenceData09 i09 = new SentenceData09(it);
+		i09.createSemantic(it);
+		return i09;
 	}
 	
 	

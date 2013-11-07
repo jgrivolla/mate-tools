@@ -38,7 +38,7 @@ public class DB {
 
 		msg.append(err);
 
-		System.out.println(msg);
+		System.err.println(msg);
 
 
 	}
@@ -46,7 +46,7 @@ public class DB {
 	final static public void prints (Object err) {
 
 		if (!debug) return;
-		System.out.println(err);
+		System.err.println(err);
 
 	}
 

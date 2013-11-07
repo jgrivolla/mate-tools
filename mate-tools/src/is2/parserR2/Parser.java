@@ -16,6 +16,7 @@ import is2.data.PipeGen;
 import is2.data.SentenceData09;
 import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
+
 import is2.tools.Tool;
 import is2.util.DB;
 import is2.util.OptionsSuper;
@@ -615,19 +616,33 @@ public class Parser implements Tool {
 	/* (non-Javadoc)
 	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
 	 */
+		
 	@Override
 	public SentenceData09 apply(SentenceData09 snt09) {
-		
+
+		SentenceData09 it = new SentenceData09();
+		it.createWithRoot(snt09);
+
+		SentenceData09 out=null;
 		try {
-			parse(snt09,this.params);
+
+
+			//		for(int k=0;k<it.length();k++) {
+			//			it.forms[k] = reader.normalize(it.forms[k]);
+			//			it.plemmas[k] = reader.normalize(it.plemmas[k]);
+			//		}
+
+			out = parse(it,this.params);
+
+
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		Decoder.executerService.shutdown();		
 		Pipe.executerService.shutdown();
 
-		return snt09;
+		return out;
 	}
 	
 	/**

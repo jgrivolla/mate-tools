@@ -46,7 +46,7 @@ public class MorphTagger {
 		is2.lemmatizer.Options optsLemmatizer = new Options(new String[] {"-model","models/lemma-ger.model"});
 
 		// create a lemmatizer
-		Lemmatizer lemmatizer = new Lemmatizer(optsLemmatizer);
+		Lemmatizer lemmatizer = new Lemmatizer(optsLemmatizer.modelName);
 
 		// lemmatize a sentence; the result is stored in the stenenceData09 i 
 		lemmatizer.apply(i);

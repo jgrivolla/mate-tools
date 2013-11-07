@@ -136,7 +136,7 @@ public class CONLLWriter09 extends IOGenerals {
 	}
 
 	public void write(SentenceData09 inst) throws IOException {
-		write(inst, ROOT);
+		write(inst, NO_ROOT);
 	}
 	
 	/**

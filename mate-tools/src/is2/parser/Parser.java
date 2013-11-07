@@ -35,7 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
- 
+
 
 public class Parser implements Tool, Retrainable {
 
@@ -140,18 +140,18 @@ public class Parser implements Tool, Retrainable {
 
 		if (options.test) {
 
-			Parser p = new Parser();
-			p.options=options;
+			//	Parser p = new Parser();
+			Parser p = new Parser(options);
 
-
-			p. pipe = new Pipe(options);
-			p. params = new ParametersFloat(0);  // total should be zero and the parameters are later read
+			//			p. pipe = new Pipe(options);
+			//			p. params = new ParametersFloat(0);  // total should be zero and the parameters are later read
 
 			// load the model
 
-			p.readModel(options, p.pipe, p.params);
+			//			p.readModel(options, p.pipe, p.params);
 
 			DB.println("label only? "+options.label);
+
 			p.out(options, p.pipe, p.params, !MAX_INFO, options.label);
 		}
 
@@ -385,8 +385,6 @@ public class Parser implements Tool, Retrainable {
 		CONLLReader09 depReader = new CONLLReader09(options.testfile, options.formatTask);
 		CONLLWriter09 depWriter = new CONLLWriter09(options.outfile, options.formatTask);
 
-		Extractor.initFeatures();
-
 		int cnt = 0;
 		int del=0;
 		long last = System.currentTimeMillis();
@@ -396,35 +394,31 @@ public class Parser implements Tool, Retrainable {
 
 		if (maxInfo && !options.decodeProjective) System.out.println(""+Decoder.getInfo());
 
-		//	if (!maxInfo) System.out.println();
+		System.out.print("Processing Sentence: ");
 
-		String[] types = new String[pipe.mf.getFeatureCounter().get(PipeGen.REL)];
-		for (Entry<String, Integer> e : pipe.mf.getFeatureSet().get(PipeGen.REL).entrySet())  	types[e.getValue()] = e.getKey();
+		while(true) {
 
+	//		Instances is = new Instances();
+	//		is.init(1, new MFO(),options.formatTask);
 
-				System.out.print("Processing Sentence: ");
+			//					SentenceData09 instance = pipe.nextInstance(is, depReader);
 
-				while(true) {
+			SentenceData09 instance = depReader.getNext();
+			if (instance==null) break;
+			cnt++;
 
-					Instances is = new Instances();
-					is.init(1, new MFO(),options.formatTask);
+			SentenceData09 i09 = this.parse(instance,params, labelOnly,options);
 
-					SentenceData09 instance = pipe.nextInstance(is, depReader);
-					if (instance==null) break;
-					cnt++;
+			depWriter.write(i09);
+			del=PipeGen.outValue(cnt, del,last);
 
-					SentenceData09 i09 = this.parse(instance,params, labelOnly,options);
-
-					depWriter.write(i09);
-					del=PipeGen.outValue(cnt, del,last);
-
-				}
-				//pipe.close();
-				depWriter.finishWriting();
-				long end = System.currentTimeMillis();
-				//		DB.println("errors "+error);
-				if (maxInfo) System.out.println("Used time " + (end-start));
-				if (maxInfo) System.out.println("forms count "+Instances.m_count+" unkown "+Instances.m_unkown);
+		}
+		//pipe.close();
+		depWriter.finishWriting();
+		long end = System.currentTimeMillis();
+		//		DB.println("errors "+error);
+		if (maxInfo) System.out.println("Used time " + (end-start));
+		if (maxInfo) System.out.println("forms count "+Instances.m_count+" unkown "+Instances.m_unkown);
 
 	}
 
@@ -462,7 +456,6 @@ public class Parser implements Tool, Retrainable {
 						if (is.pheads[0][l]<0)is.pheads[0][l]=0;
 					}
 
-
 					short[] labels = pipe.extractor[0].searchLabel(is, 0, is.pposs[0], is.forms[0], is.plemmas[0], is.pheads[0], is.plabels[0], is.feats[0], pipe.cl, f2s);
 
 					for(int j = 0; j < instance.forms.length-1; j++) {
@@ -474,6 +467,8 @@ public class Parser implements Tool, Retrainable {
 
 				if (options.maxLength > instance.length() && options.minLength <= instance.length()) {
 					try {
+						//			System.out.println("prs "+instance.forms[0]);
+						//			System.out.println("prs "+instance.toString());
 						d2 = pipe.fillVector(params.getFV(), is,0,null,pipe.cl);//cnt-1
 						d =Decoder.decode(is.pposs[0],d2,options.decodeProjective, !Decoder.TRAINING); //cnt-1
 
@@ -490,17 +485,26 @@ public class Parser implements Tool, Retrainable {
 
 	}
 
-
+	is2.io.CONLLReader09 reader = new is2.io.CONLLReader09(true);
 	/* (non-Javadoc)
 	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
 	 */
 	@Override
 	public SentenceData09 apply(SentenceData09 snt09) {
 
+		SentenceData09 it = new SentenceData09();
+		it.createWithRoot(snt09);
 
 		SentenceData09 out=null;
 		try {
-			out = parse(snt09,this.params,false,options);
+
+
+			//		for(int k=0;k<it.length();k++) {
+			//			it.forms[k] = reader.normalize(it.forms[k]);
+			//			it.plemmas[k] = reader.normalize(it.plemmas[k]);
+			//		}
+
+			out = parse(it,this.params,false,options);
 
 
 		} catch(Exception e) {
@@ -574,44 +578,41 @@ public class Parser implements Tool, Retrainable {
 	@Override
 	public boolean retrain(SentenceData09 sentence, float upd, int iterations) {
 
-		
-
 		params.total = params.parameters;
-		
-		
+
 		boolean done=false;
-		
+
 		for(int k=0;k<iterations;k++) {
 			try {
 				// create the data structure
 				DataFES data = new DataFES(sentence.length(), pipe.mf.getFeatureCounter().get(PipeGen.REL).shortValue());
 
-				
+
 				Instances is = new Instances();
 				is.m_encoder =pipe.mf;
-				
-			
-				
+
+
+
 				is.init(1, pipe.mf,options.formatTask);
 				new CONLLReader09().insert(is, sentence); 
-				
-//				String list[] = ((MFO)is.m_encoder).reverse(((MFO)is.m_encoder).getFeatureSet().get(Pipe.POS));
-//				for(String s :list) {
-//					System.out.println(s+" ");
-//				}
-				
-//				for(int i=0;i<is.length(0);i++) {
-						
-//					System.out.printf("%d\t %d\t %d \n",i,is.forms[0][i],is.pposs[0][i] );
-//					System.out.printf("%s\t form:%s pos:%s\n",i,sentence.forms[i],sentence.ppos[i]);
-					
-//				}
+
+				//				String list[] = ((MFO)is.m_encoder).reverse(((MFO)is.m_encoder).getFeatureSet().get(Pipe.POS));
+				//				for(String s :list) {
+				//					System.out.println(s+" ");
+				//				}
+
+				//				for(int i=0;i<is.length(0);i++) {
+
+				//					System.out.printf("%d\t %d\t %d \n",i,is.forms[0][i],is.pposs[0][i] );
+				//					System.out.printf("%s\t form:%s pos:%s\n",i,sentence.forms[i],sentence.ppos[i]);
+
+				//				}
 
 				SentenceData09 i09 = new SentenceData09(sentence);
 				i09.createSemantic(sentence);
 
-				
-				
+
+
 				// create the weights 
 				data = pipe.fillVector((F2SF)params.getFV(), is, 0, data, pipe.cl);
 
@@ -622,10 +623,10 @@ public class Parser implements Tool, Retrainable {
 
 				// training successful?
 				double e= pipe.errors(is, 0 ,d);
-	//			System.out.println("errors "+e);
+				//			System.out.println("errors "+e);
 				if (e==0) {
-					
-					
+
+
 					done= true;
 					break;
 				}
@@ -640,24 +641,23 @@ public class Parser implements Tool, Retrainable {
 				pipe.extractor[0].encodeCat(is,0,pos,is.forms[0],is.plemmas[0],is.heads[0], is.labels[0], is.feats[0],pipe.cl, act);
 
 				params.update(act, pred, is, 0, d, upd,e);
-				
+
 				if (upd >0)upd--;
-				
+
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
 		Decoder.executerService.shutdown();		
 		Pipe.executerService.shutdown();
-		
-		
+
+
 		return done;
 	}
 
 
 	@Override
-	public boolean retrain(SentenceData09 sentence, float upd, int iterations,
-			boolean print) {
+	public boolean retrain(SentenceData09 sentence, float upd, int iterations, boolean print) {
 		// TODO Auto-generated method stub
 		return  retrain( sentence,  upd,  iterations);
 	}

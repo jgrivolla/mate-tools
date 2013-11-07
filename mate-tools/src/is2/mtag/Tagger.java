@@ -36,6 +36,7 @@ public class Tagger implements Tool, Train {
 	ExtractorM pipe;
 	ParametersFloat params;
 
+
 	/**
 	 * Initialize 
 	 * @param options
@@ -140,12 +141,12 @@ public class Tagger implements Tool, Train {
 		pipe.readMap(dis);
 		dis.close();
 
-		this.pipe.types = new String[pipe.mf.getFeatureCounter().get(ExtractorM.FEAT)];
-		for(Entry<String,Integer> e :pipe.mf.getFeatureSet().get(ExtractorM.FEAT).entrySet()) 
+		this.pipe.types = new String[pipe.mf.getFeatureCounter().get(ExtractorM.FFEATS)];
+		for(Entry<String,Integer> e :pipe.mf.getFeatureSet().get(ExtractorM.FFEATS).entrySet()) 
 			this.pipe.types[e.getValue()] = e.getKey();
 
-
-		DB.println("Loading data finished. ");
+  
+		DB.println("Loading data finished. "); 
 
 		DB.println("number of parameter "+params.parameters.length);		
 		DB.println("number of classes   "+this.pipe.types.length);		
@@ -203,13 +204,15 @@ public class Tagger implements Tool, Train {
 					int bestType = this.pipe.fillFeatureVectorsOne(params, w1, wds[is.forms[n][w1]],is, n, is.gfeats[n],vs);
 					feats[w1]=bestType;
 
+					
 					if (bestType == is.gfeats[n][w1] ) {
 						correct++;
-						continue; 
+						continue;  
 					}
 
 					pred.clear();
 					int p = bestType << ExtractorM.s_type;
+				//	System.out.println("test type "+bestType+" ex type "+ExtractorM.s_type);
 					for(int k=0;k<vs.length;k++) {
 						if (vs[k]==Integer.MIN_VALUE) break;
 						if (vs[k]>=0) pred.add(this.pipe.li.l2i(vs[k]+p));
@@ -333,35 +336,36 @@ public class Tagger implements Tool, Train {
 	 * @see is2.tools.Tool#apply(is2.data.SentenceData09)
 	 */
 	@Override
-	public SentenceData09 apply(SentenceData09 instance)   {
+	public SentenceData09 apply(SentenceData09 snt)   {
 		
-		try {
-			//perform (instance,  pipe,  params);
+		try {			
+			SentenceData09 it = new SentenceData09();
+			it.createWithRoot(snt);
+			
 			InstancesTagger is = new InstancesTagger();
 			is.init(1, pipe.mf);
-			is.createInstance09(instance.forms.length);
+			is.createInstance09(it.forms.length);
 			
-			String[] forms = instance.forms;
+			String[] forms = it.forms;
 		
 			
 			int length = forms.length;
 			
 			//	is.setForm(0, 0, CONLLReader09.ROOT);
 			for(int i=0;i<length;i++) is.setForm(0, i, forms[i]);
+			for(int i=0;i<length;i++) is.setLemma(0, i, it.plemmas[i]);
+			for(int i=0;i<length;i++) is.setPPoss(0, i, it.ppos[i]);
 			
-			is.setLemma(0, 0, CONLLReader09.ROOT_LEMMA);
-			for(int i=1;i<length;i++) is.setLemma(0, i, instance.plemmas[i]);
-			
-			is.setPPoss(0, 0, CONLLReader09.ROOT_POS);
-			for(int i=1;i<length;i++) is.setPPoss(0, i, instance.ppos[i]);
-			
-			is.fillChars(instance, 0, ExtractorM._CEND);
+			is.fillChars(it, 0, ExtractorM._CEND);
 
-			exec(instance,pipe,params,is);
+			exec(it,pipe,params,is);
+			SentenceData09 i09 = new SentenceData09(it);
+			i09.createSemantic(it);
+			return i09;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 
-		 return instance;
+		 return null;
 	}
 }

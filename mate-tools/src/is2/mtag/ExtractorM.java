@@ -67,8 +67,8 @@ final public class ExtractorM extends PipeGen implements IPipe {
 		depReader.startReading(file);
 		mf.register(POS,"<root-POS>");
 
-		mf.register(FEAT, CONLLReader09.NO_TYPE);
-		mf.register(FEAT, "");
+		mf.register(FFEATS, CONLLReader09.NO_TYPE);
+		mf.register(FFEATS, "");
 		
 		InstancesTagger is = new InstancesTagger();
 
@@ -117,6 +117,7 @@ final public class ExtractorM extends PipeGen implements IPipe {
 
 			w = instance1.ofeats;
 			for(int i1 = 0; i1 < w.length; i1++) if (w[i1]!=null) mf.register(FEAT,  w[i1]);
+			for(int i1 = 0; i1 < w.length; i1++) if (w[i1]!=null) mf.register(FFEATS,  w[i1]);
  
 		//	w = instance1.pfeats;
 			//for(int i1 = 0; i1 < w.length; i1++) if (w[i1]!=null) mf.register(FEAT,  w[i1]);
@@ -126,7 +127,7 @@ final public class ExtractorM extends PipeGen implements IPipe {
 		for(Entry<String,HashSet<String>> e : op2form.entrySet()) {
 				if (e.getValue().size()==1 &&freq.get(e.getKey())>10) {
 				//	System.out.println("found map "+e.getKey()+" "+e.getValue()+" "+freq.get(e.getKey()));
-					form2morph.put(mf.getValue(ExtractorM.WORD, e.getKey()), mf.getValue(FEAT, (String)e.getValue().toArray()[0]));
+					form2morph.put(mf.getValue(ExtractorM.WORD, e.getKey()), mf.getValue(FFEATS, (String)e.getValue().toArray()[0]));
 				}
  		}
 		
@@ -160,9 +161,9 @@ final public class ExtractorM extends PipeGen implements IPipe {
 		long mem2 = Runtime.getRuntime().totalMemory() -  Runtime.getRuntime().freeMemory();
 		System.out.print("  time "+(end1-start1)+" mem "+(mem2/1024)+" kb");
 
-		types = new String[mf.getFeatureCounter().get(FEAT)];
+		types = new String[mf.getFeatureCounter().get(FFEATS)];
 
-		for(Entry<String,Integer> e : mf.getFeatureSet().get(FEAT).entrySet()) {
+		for(Entry<String,Integer> e : mf.getFeatureSet().get(FFEATS).entrySet()) {
 			types[e.getValue()] = e.getKey();
 		}
 
@@ -205,7 +206,7 @@ final public class ExtractorM extends PipeGen implements IPipe {
 
 
 	public void initValues() {
-		s_feat = mf.getFeatureBits(FEAT);
+		s_feat = mf.getFeatureBits(FFEATS);
 		s_word = mf.getFeatureBits(WORD);
 		s_type = mf.getFeatureBits(TYPE);
 		s_char = mf.getFeatureBits(CHAR);

@@ -1,6 +1,7 @@
 package is2.data;
 
 
+import is2.io.CONLLReader09;
 import is2.io.CONLLWriter09;
 
 import java.io.DataInputStream;
@@ -438,6 +439,91 @@ public class SentenceData09 {
 			if (heads[i]==head) children.add(i);
 		}
 		return children;
+	}
+
+	public void createWithRoot(SentenceData09 i) {
+		
+		int length = i.length();
+		int offset = 0;
+		if (! i.forms[0].equals(CONLLReader09.ROOT)) {
+			length++;
+			offset = -1;
+		}
+		
+		
+		
+		forms = new String[length];
+		gpos = new String[length];
+		ppos = new String[length];
+		plemmas = new String[length];
+		plabels = new String[length];
+		lemmas = new String[length];
+		heads = new int[length];
+		pheads = new int[length];
+		ofeats = new String[length];
+		pfeats = new String[length];
+		labels = new String[length];
+		fillp = new String[length];
+		id = new String[length];
+		feats = new String[forms.length][];
+		
+		for(int j = 1; j < length; j++) {
+			forms[j] = i.forms[j+offset];
+			ppos[j] = i.ppos[j+offset];
+			gpos[j] = i.gpos[j+offset];
+
+			labels[j] = i.labels[j+offset];
+			heads[j] = i.heads[j+offset];
+
+		 			
+			
+			if (i.pheads!=null) pheads[j] = i.pheads[j+offset];
+			if (i.plabels!=null) plabels[j] = i.plabels[j+offset];
+			
+			
+			if (i.lemmas!=null) lemmas[j] = i.lemmas[j+offset];
+
+			plemmas[j] = i.plemmas[j+offset];
+			
+
+		//	if (i.ofeats!=null)  ofeats[j] = i.ofeats[j+offset];
+			
+			ofeats[j]= i.ofeats[j+offset].equals(CONLLWriter09.DASH)? "_" : i.ofeats[j+offset];
+			
+	//		if (i.pfeats!=null)	pfeats[j] = i.pfeats[j+offset];
+
+			if (i.pfeats!=null && i.pfeats[j+offset]!=null) {
+				if (i.pfeats[j+offset].equals(CONLLWriter09.DASH)) feats[j]=null;
+				else {
+					feats[j] =i.pfeats[j+offset].split(CONLLReader09.PIPE);
+					
+				//	if (info[7].equals(CONLLWriter09.DASH)) it.feats[i]=null;
+				//	else {
+					//	it.feats[i] =info[7].split(PIPE);
+					pfeats[j] = i.pfeats[j+offset];
+				//	}
+				}
+			}
+			
+			if (i.fillp!=null) fillp[j] = i.fillp[j+offset];
+			if (i.id!=null) id[j] = i.id[j+offset];
+		}
+		
+		
+		
+		forms[0] = CONLLReader09.ROOT;
+		plemmas[0] = CONLLReader09.ROOT_LEMMA;
+		fillp[0] = "N";
+		lemmas[0] = CONLLReader09.ROOT_LEMMA;
+
+		gpos[0] = CONLLReader09.ROOT_POS;
+		ppos[0] = CONLLReader09.ROOT_POS;
+		labels[0] = CONLLReader09.NO_TYPE;
+		heads[0] = -1;
+		plabels[0] = CONLLReader09.NO_TYPE;
+		pheads[0] = -1;
+		ofeats[0] = CONLLReader09.NO_TYPE;
+		id[0] ="0";
 	}
 
 	

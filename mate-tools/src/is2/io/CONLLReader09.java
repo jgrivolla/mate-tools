@@ -274,68 +274,10 @@ public class CONLLReader09 extends IOGenerals {
 				if (info.length<5) continue;
 				it.ppos[i] = info[5];//.split("\\|")[0];
 				// feat 6
-	
-	
+		
 				// now we try underscore
 				it.ofeats[i]=info[6].equals(CONLLWriter09.DASH)? "_" : info[6];
-
-				if (joint.length()>0) {
-					
-					StringBuilder b = new StringBuilder();
-//					b.append(it.gpos[i]);
-					if (joint.startsWith("cz")) {
-						
-					//	boolean caseFound =false;
-				
-						String [] split = it.ofeats[i].split(PIPE);
-				//		if (!caseFound)
-						for(String s : split) {
-							if (s.startsWith("SubPOS")) {
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-						}
-					
-						for(String s : split) {
-							if (s.startsWith("Cas")){
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-						
-						}
-
-//						for(String s : split) {
-//							if (s.startsWith("Num")) {
-//								if (b.length()>0 )b.append("|");
-//								b.append(s);
-//							}
-//						}
-
-				
-						
-					} else if (joint.contains("ger")) {
-					
-						String [] split = it.ofeats[i].split(PIPE);
-						for(String s : split) { 
-							if ( s.matches("Nom|Acc|Dat|Gen")) {
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-							if ( s.matches("Sg|Pl")) {
-								if (b.length()>0 )b.append("|");
-								b.append(s);
-							}
-						}
-						
-					} else {
-						String [] split = it.ofeats[i].split(PIPE);
-						for(String s : split) 
-							if ( s.matches(joint)) b.append("|").append(s);
-					}
-					if (b.length()==0)b.append("_");
-					it.ofeats[i] = b.toString();
-				}
-				
+		
 				if (info[7].equals(CONLLWriter09.DASH)) it.feats[i]=null;
 				else {
 					it.feats[i] =info[7].split(PIPE);

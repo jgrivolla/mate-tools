@@ -37,7 +37,7 @@ public class DependencyParser  {
         // Load lemmatizer
         //LOGGER.info("Loading lemmatizer");
     	// true = do uppercase lemmatization
-        Lemmatizer lemmatizer = new Lemmatizer(lemmatizerFile.getAbsolutePath(), true); 
+        Lemmatizer lemmatizer = new Lemmatizer(lemmatizerFile.getAbsolutePath()); 
 
         // Load tagger
         //LOGGER.info("Loading tagger");
