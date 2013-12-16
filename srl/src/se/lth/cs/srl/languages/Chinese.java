@@ -69,4 +69,9 @@ public class Chinese extends Language {
 	Lemmatizer getLemmatizer(File lemmaModelFile) throws IOException{
 		return new SimpleChineseLemmatizer();
 	}
+
+	@Override
+	public String toLangNameString() {
+		return "Chinese";
+	}
 }

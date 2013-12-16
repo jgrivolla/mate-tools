@@ -27,6 +27,8 @@ public abstract class FullPipelineOptions {
 	
 	public boolean loadPreprocessorWithTokenizer=true;
 	
+	public static String NULL_LANGUAGE_NAME="Unk";
+	
 	public ParseOptions getParseOptions(){
 		ParseOptions parseOptions=new ParseOptions();
 		parseOptions.modelFile=srl;

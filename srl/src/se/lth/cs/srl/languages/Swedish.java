@@ -33,4 +33,9 @@ public class Swedish extends AbstractDummyLanguage {
 	Tokenizer getDefaultTokenizer(){
 		return new ExnerSwedishTokenizer();
 	}
+
+	@Override
+	public String toLangNameString() {
+		return "Swedish";
+	}
 }

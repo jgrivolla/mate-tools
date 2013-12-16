@@ -21,10 +21,10 @@ public class Word implements Serializable{
 	String[] args;
 	
 	String Form;
-	String Lemma;
-	String POS;
-	String Deprel;
-	String Feats;
+	String Lemma="_";
+	String POS="_";
+	String Deprel="_";
+	String Feats="_";
 	
 	int headID;
 	Word head;

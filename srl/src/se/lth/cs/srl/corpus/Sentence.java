@@ -21,12 +21,14 @@ public class Sentence extends ArrayList<Word> {
 		predicates=new ArrayList<Predicate>();
 	}
 
-	public Sentence(SentenceData09 data){
+	public Sentence(SentenceData09 data,boolean skipTree){
 		this();
 		for(int i=0;i<data.forms.length;++i){
 			Word nextWord=new Word(data.forms[i],data.plemmas[i],data.ppos[i],data.pfeats[i],this,i+1);
 			super.add(nextWord);
 		}
+		if(skipTree)
+			return;
 		for(int i=0;i<data.forms.length;++i){
 			Word curWord=super.get(i+1);
 			curWord.setHead(super.get(data.pheads[i]));

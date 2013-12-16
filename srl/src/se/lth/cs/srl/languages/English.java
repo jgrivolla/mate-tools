@@ -78,4 +78,9 @@ public class English extends Language {
 	Tokenizer getDefaultTokenizer(){
 		return new StanfordPTBTokenizer();
 	}
+
+	@Override
+	public String toLangNameString() {
+		return "English";
+	}
 }

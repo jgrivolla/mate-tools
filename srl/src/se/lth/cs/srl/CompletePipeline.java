@@ -30,8 +30,8 @@ public class CompletePipeline {
 
 	private static final Pattern WHITESPACE_PATTERN=Pattern.compile("\\s+");
 	
-	private Preprocessor pp;
-	private SemanticRoleLabeler srl;
+	public Preprocessor pp;
+	public SemanticRoleLabeler srl;
 	
 	public static CompletePipeline getCompletePipeline(FullPipelineOptions options) throws ZipException, IOException, ClassNotFoundException{
 		Preprocessor pp=Language.getLanguage().getPreprocessor(options);
@@ -62,13 +62,13 @@ public class CompletePipeline {
 	}
 	
 	public Sentence parse(List<String> words) throws Exception{
-		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[words.size()])));
+		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[words.size()])),false);
 		srl.parseSentence(s);
 		return s;
 	}
 	
 	public Sentence parseOraclePI(List<String> words,List<Boolean> isPred) throws Exception{
-		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[words.size()])));
+		Sentence s=new Sentence(pp.preprocess(words.toArray(new String[words.size()])),false);
 		for(int i=0;i<isPred.size();++i){
 			if(isPred.get(i)){
 				s.makePredicate(i);

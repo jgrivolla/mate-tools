@@ -21,10 +21,13 @@ import se.lth.cs.srl.util.BohnetHelper;
 
 public abstract class Language {
 
-	public enum L { cat, chi, cze, eng, ger, jap, spa, swe,fre }
+	public enum L { cat, chi, cze, eng, ger, jap, spa, swe,fre,nul }
 	
 	private static Language language;
 	static final Pattern BAR_PATTERN=Pattern.compile("\\|");
+	
+
+	public abstract String toLangNameString();
 	
 	public static Language getLanguage(){
 		return language;
@@ -32,18 +35,6 @@ public abstract class Language {
 	
 	public static String getLsString(){
 		return "chi, eng, ger";
-	}
-	
-	public static String LtoString(L l){
-		switch(l){
-		case chi: return "Chinese";
-		case eng: return "English";
-		case ger: return "German";
-		case swe: return "Swedish";
-		case spa: return "Spanish";
-		case fre: return "French";
-		default: throw new IllegalArgumentException("Unknown language: '"+l+"'");
-		}
 	}
 	
 	public static Language setLanguage(L l){
@@ -54,6 +45,7 @@ public abstract class Language {
 		case swe: language=new Swedish(); break;
 		case spa: language=new Spanish(); break;
 		case fre: language=new French(); break;
+		case nul: language=new NullLanguage(); break;
 		default: throw new IllegalArgumentException("Unknown language: '"+l+"'");
 		}
 		return language;
@@ -98,4 +90,5 @@ public abstract class Language {
 			return null;
 		return BohnetHelper.getLemmatizer(lemmaModelFile);
 	}
+
 }

@@ -14,12 +14,13 @@ import se.lth.cs.srl.preprocessor.Preprocessor;
 import se.lth.cs.srl.util.Sentence2RDF;
 
 public class AnnaHttpPipeline extends AbstractPipeline {
-
+	
 	private final Preprocessor pp;
 	private final ImageCache imageCache;
 	private final DefaultHandler defaultHandler;
 
-	public AnnaHttpPipeline(Preprocessor pp,ImageCache imageCache,L l){
+	public AnnaHttpPipeline(Preprocessor pp,ImageCache imageCache,L l,int sentenceMaxLength, HttpOptions options){
+		super(sentenceMaxLength,options);
 		defaultHandler=new DefaultHandler(l,this);
 		this.imageCache=imageCache;
 		this.pp=pp;
@@ -53,7 +54,7 @@ public class AnnaHttpPipeline extends AbstractPipeline {
 	public String getParseInterfaceHTML(L l) {
 		String s=
 						"  <h3>Try the parsing pipeline</h3>\n" +
-						"  Enter a sentence in <b>"+Language.LtoString(l)+"</b> and press Parse.<br/>\n" +
+						"  Enter a sentence in <b>"+Language.getLanguage().toLangNameString()+"</b> and press Parse.<br/>\n" +
 						"  <form action=\"/parse\" method=\"POST\">\n" +
 						"    <table cellpadding=\"2\" cellspacing=\"2\">\n" +
 						"      <tr><td valign=\"center\"><b>Input</b><td><textarea name=\""+AbstractHandler.sentenceDataVarName+"\" rows=\"3\" cols=\"40\"></textarea></td></tr>\n" +
@@ -86,13 +87,15 @@ public class AnnaHttpPipeline extends AbstractPipeline {
 	public StringPair parseRequest(String inputSentence,Map<String, String> vars) throws Exception {
 		long t0=System.currentTimeMillis();
 		String[] tokens=pp.tokenize(inputSentence);
-		Sentence s=new Sentence(pp.preprocess(tokens));
+		if(sentenceMaxLength>0 && tokens.length>sentenceMaxLength)
+			throw new SentenceTooLongException("Sentence too long: "+tokens.length+" tokens",tokens.length);
+		Sentence s=new Sentence(pp.preprocess(tokens),!pp.hasParser());
 		long time=System.currentTimeMillis()-t0;
 		String httpResponse;
 		String content_type;
 		//Prepare the response;
 		if(vars.containsKey("returnType") && vars.get("returnType").equals("html")){
-			boolean includeDependencyGraphImage=vars.containsKey("doRenderDependencyGraph");
+			boolean includeDependencyGraphImage=vars.containsKey("doRenderDependencyGraph") && pp.hasParser();
 			httpResponse=getHTMLResponse(s,time,includeDependencyGraphImage);
 			content_type="text/html; charset=UTF-8";
 		} else if(vars.containsKey("returnType") && vars.get("returnType").equals("rdf")){
@@ -110,6 +113,7 @@ public class AnnaHttpPipeline extends AbstractPipeline {
 
 	private String getHTMLResponse(Sentence sen,long time,boolean includeDependencyGraphImage) {
 		StringBuilder ret=new StringBuilder(HTMLHEAD);
+		ret.append('\n').append(super.HTML_TOP_EXTRA);
 		if(includeDependencyGraphImage){
 			try {
 				ByteArrayOutputStream baos=WhatsWrongHelper.renderPNG(WhatsWrongHelper.getNLPInstance(sen),1);
@@ -139,6 +143,7 @@ public class AnnaHttpPipeline extends AbstractPipeline {
 		}
 		ret.append("</table>\n<br/><hr/><br/>");
 		ret.append(defaultHandler.pages.get("default"));
+		ret.append('\n').append(super.HTML_BOTTOM_EXTRA);
 		ret.append("</body></html>");
 		return ret.toString();
 	}
@@ -152,7 +157,7 @@ public class AnnaHttpPipeline extends AbstractPipeline {
 		HttpOptions options=new HttpOptions();
 		options.parseCmdLineArgs(args);
 		Preprocessor pp=Language.getLanguage().getPreprocessor(options);
-		AnnaHttpPipeline ahp=new AnnaHttpPipeline(pp, HttpPipeline.imageCache, options.l);
+		AnnaHttpPipeline ahp=new AnnaHttpPipeline(pp, HttpPipeline.imageCache, options.l,options.sentenceMaxLength,options);
 		HttpPipeline.setupHttpPipeline(options, ahp);
 		System.out.println("done.");
 	}

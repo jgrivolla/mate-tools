@@ -34,4 +34,9 @@ public class French extends AbstractDummyLanguage{
 		return new StanfordFrenchTokenizer();
 	}
 
+	@Override
+	public String toLangNameString() {
+		return "French";
+	}
+
 }

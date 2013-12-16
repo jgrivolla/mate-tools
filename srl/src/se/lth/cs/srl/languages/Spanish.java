@@ -101,4 +101,9 @@ public class Spanish extends Language {
 		return null;
 	}
 
+	@Override
+	public String toLangNameString() {
+		return "Spanish";
+	}
+
 }

@@ -35,7 +35,9 @@ public class DefaultHandler extends AbstractHandler {
 		String content;
 		if(pageName.equals("default")){
 			content=HTML_HEAD+
+					pipeline.HTML_TOP_EXTRA+
 					pages.get(pageName)+
+					pipeline.HTML_BOTTOM_EXTRA+
 					HTML_TAIL;
 		} else if(pageName.equals("notReady")){
 			content=HTML_HEAD+
@@ -44,7 +46,7 @@ public class DefaultHandler extends AbstractHandler {
 		} else {
 			return; //This is just wrong. We shouldn't enter here.
 		}
-		sendContent(exchange,content,"text/html; charset=utf-8");
+		sendContent(exchange,content,"text/html; charset=utf-8",200);
 	}
 	
 	private void setupPages(L currentL) {

@@ -19,11 +19,11 @@ import se.lth.cs.srl.util.Util;
 
 public class Preprocessor {
 
-	private final Tokenizer tokenizer;
-	private final Tool lemmatizer;
-	private final Tagger tagger;
-	private final is2.mtag.Tagger mtagger;
-	private final Parser parser;
+	protected final Tokenizer tokenizer;
+	protected final Tool lemmatizer;
+	protected final Tagger tagger;
+	protected final is2.mtag.Tagger mtagger;
+	protected final Parser parser;
 	
 	public Preprocessor(Tokenizer tokenizer,Lemmatizer lemmatizer,Tagger tagger,is2.mtag.Tagger mtagger,Parser parser){
 		this.tokenizer=tokenizer;
@@ -38,14 +38,6 @@ public class Preprocessor {
 	public long tagTime=0;
 	public long mtagTime=0;
 	public long dpTime=0;
-	
-	//TODO add loading times for each module too.
-	public long tokenizerLoadTime=0;
-	public long lemmatizerLoadTime=0;
-	public long tagLoadTime=0;
-	public long mtagLoadTime=0;
-	public long dpLoadTime=0;
-	
 
 	/**
 	 * Executes all loaded components on these forms
@@ -64,11 +56,16 @@ public class Preprocessor {
 	 * @param instance the instance to process
 	 * @return the same object as it was passed, but with some arrays filled out
 	 */
-	public SentenceData09 preprocess(SentenceData09 instance){
+	private SentenceData09 preprocess(SentenceData09 instance){
 		if(lemmatizer!=null){
 			long start=System.currentTimeMillis();
 			lemmatizer.apply(instance);
 			lemmatizeTime+=System.currentTimeMillis()-start;
+		}
+		if(tagger!=null){
+			long start=System.currentTimeMillis();
+			tagger.apply(instance);
+			tagTime+=System.currentTimeMillis()-start;
 		}
 		if(mtagger!=null){
 			long start=System.currentTimeMillis();
@@ -84,25 +81,26 @@ public class Preprocessor {
 			instance.pfeats=new String[instance.forms.length];
 			Arrays.fill(instance.pfeats, "_");
 		}
-		if(tagger!=null){
-			long start=System.currentTimeMillis();
-			tagger.apply(instance);
-			tagTime+=System.currentTimeMillis()-start;
-		}
 		if(parser!=null){
-			long start=System.currentTimeMillis();
-			instance=parser.apply(instance);
-			dpTime+=System.currentTimeMillis()-start;
+			synchronized(parser){
+				long start=System.currentTimeMillis();
+				instance=parser.apply(instance);
+				dpTime+=System.currentTimeMillis()-start;
+			}
+		} else { //If there is no parser, we have to recreate the sentence object so the root dummy gets thrown out (as in the parser) 
+			instance=new SentenceData09(instance);
 		}
 		return instance;
 	}
 	
 	
 	public String[] tokenize(String sentence) {
-		long start=System.currentTimeMillis();
-		String[] words=tokenizer.tokenize(sentence);
-		tokenizeTime+=(System.currentTimeMillis()-start);
-		return words;
+		synchronized(tokenizer){
+			long start=System.currentTimeMillis();
+			String[] words=tokenizer.tokenize(sentence);
+			tokenizeTime+=(System.currentTimeMillis()-start);
+			return words;
+		}
 	}
 	
 	public StringBuilder getStatus(){
@@ -116,9 +114,6 @@ public class Preprocessor {
 		sb.append("Parser time:     "+Util.insertCommas(dpTime)).append('\n');
 		return sb;
 	}
-	
-	
-	
 
 	public static void main(String[] args) throws Exception{
 		
@@ -134,7 +129,10 @@ public class Preprocessor {
 			SentenceData09 s=pp.preprocess(tokens);
 			System.out.println(s);
 		}
-
+		reader.close();
+	}
+	public boolean hasParser() {
+		return parser!=null;
 	}
 	
 	

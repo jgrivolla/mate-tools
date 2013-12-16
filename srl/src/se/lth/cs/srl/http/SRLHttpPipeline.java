@@ -1,5 +1,7 @@
 package se.lth.cs.srl.http;
 
+import is2.data.SentenceData09;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -30,7 +32,8 @@ public class SRLHttpPipeline extends AbstractPipeline {
 	private final ImageCache imageCache;
 	private final DefaultHandler defaultHandler;
 	
-	public SRLHttpPipeline(CompletePipeline pl,ImageCache imageCache,L l){
+	public SRLHttpPipeline(CompletePipeline pl,ImageCache imageCache,L l, int sentenceMaxLength, HttpOptions options){
+		super(sentenceMaxLength,options);
 		this.pipeline=pl;
 		this.defaultHandler=new DefaultHandler(l, this);
 		this.imageCache=imageCache;
@@ -79,7 +82,7 @@ public class SRLHttpPipeline extends AbstractPipeline {
 	public String getParseInterfaceHTML(L l) {
 		String s=
 		  "  <h3>Try the semantic role labeler</h3>\n" +
-		  "  Enter a sentence in <b>"+Language.LtoString(l)+"</b> and press Parse.<br/>\n" +
+		  "  Enter a sentence in <b>"+Language.getLanguage().toLangNameString()+"</b> and press Parse.<br/>\n" +
 		  "  <form action=\"/parse\" method=\"POST\">\n" +
 		  "    <table cellpadding=\"2\" cellspacing=\"2\">\n" +
 		  "      <tr><td valign=\"center\"><b>Input</b><td><textarea name=\""+AbstractHandler.sentenceDataVarName+"\" rows=\"3\" cols=\"40\"></textarea></td></tr>\n" +
@@ -117,8 +120,12 @@ public class SRLHttpPipeline extends AbstractPipeline {
 	@Override
 	public StringPair parseRequest(String inputSentence,Map<String, String> vars) throws Exception {
 		long parsingTime=System.currentTimeMillis();
-		Sentence sen=null;
-		sen = pipeline.parse(inputSentence);
+		String[] tokens=pipeline.pp.tokenize(inputSentence);
+		if(sentenceMaxLength>0 && tokens.length>sentenceMaxLength)
+			throw new SentenceTooLongException("Sentence too long",tokens.length);
+		SentenceData09 s09=pipeline.pp.preprocess(tokens);
+		Sentence sen=new Sentence(s09,false);
+		pipeline.srl.parseSentence(sen);
 
 		parsingTime=System.currentTimeMillis()-parsingTime;
 		
@@ -164,6 +171,7 @@ public class SRLHttpPipeline extends AbstractPipeline {
 	
 	private String getHTMLResponse(Sentence sen, long parsingTime, boolean performURLLookup,boolean includeDependencyGraphImage){
 		StringBuilder ret=new StringBuilder(HTMLHEAD);
+		ret.append('\n').append(super.HTML_TOP_EXTRA);
 		//ret.append("<html><head><title>Semantic Parser</title>\n"+STYLESHEET+"</head><body>\n");
 		ret.append("<table cellpadding=10 cellspacing=1>\n<tr><td class=\"topRowCell\">&nbsp;</td>");
 		for(int i=1;i<sen.size();++i){
@@ -264,6 +272,7 @@ public class SRLHttpPipeline extends AbstractPipeline {
 		}
 		ret.append("</table>\n<br/><hr/><br/>");
 		ret.append(defaultHandler.pages.get("default"));
+		ret.append(super.HTML_BOTTOM_EXTRA);
 		ret.append("</body></html>");
 		return ret.toString();
 	}
@@ -297,7 +306,7 @@ public class SRLHttpPipeline extends AbstractPipeline {
 			System.exit(1);
 		}
 		CompletePipeline completePipeline=CompletePipeline.getCompletePipeline(options);
-		HttpPipeline.setupHttpPipeline(options, new SRLHttpPipeline(completePipeline,HttpPipeline.imageCache,options.l));
+		HttpPipeline.setupHttpPipeline(options, new SRLHttpPipeline(completePipeline,HttpPipeline.imageCache,options.l,options.sentenceMaxLength,options));
 		System.out.println("done.");
 	}
 	
